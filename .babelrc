@@ -1,0 +1,42 @@
+{
+  "presets": [
+    ["es2015", {"modules": false}],
+    "stage-0",
+    "react"
+  ],
+  "plugins": [
+    "transform-flow-strip-types",
+    "glamor/babel"
+  ],
+  "env": {
+    "production": {
+      "plugins": [
+        "transform-react-remove-prop-types",
+        "transform-react-inline-elements"
+      ]
+    },
+
+     "development": {
+       "plugins": [
+         "react-hot-loader/babel",
+         "flow-react-proptypes"
+       ]
+     },
+     "test": {
+       "presets": [
+         "es2015",
+         "stage-0",
+         "react"
+       ],
+       "plugins": [
+         "transform-flow-strip-types",
+         "glamor/babel"
+       ]
+     },
+     "prepare-data": {
+       "presets": [
+         "es2015"
+       ]
+     }
+   }
+}
