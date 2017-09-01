@@ -1,0 +1,77 @@
+{
+  "name": "flow-map.gl",
+  "description": "Flow map drawing layer for deck.gl",
+  "license": "MIT",
+  "version": "1.0.0-alpha.1",
+  "keywords": [
+    "flows",
+    "flow map",
+    "webgl",
+    "visualization",
+    "overlay",
+    "layer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/teralytics/flow-map.gl.git"
+  },
+  "main": "dist/index.js",
+  "module": "dist-es6/index.js",
+  "files": [
+    "dist",
+    "dist-es6",
+    "src"
+  ],
+  "scripts": {
+    "start": "(cd examples/main && (path-exists node_modules || npm i) && npm run start-local)",
+    "build-clean": "rm -fr dist dist-es6 && mkdir -p dist dist-es6",
+    "build-es6": "rm -fr dist-es6 && babel src --out-dir dist-es6 --source-maps inline",
+    "build-es5": "rm -fr dist && babel src --out-dir dist --plugins=transform-es2015-modules-commonjs --source-maps inline",
+    "build": "npm run build-clean && npm run build-es6 && npm run build-es5"
+  },
+  "dependencies": {
+    "d3-array": "^1.2.0",
+    "d3-collection": "^1.0.4",
+    "d3-interpolate": "^1.1.5",
+    "d3-scale": "^1.0.6",
+    "deck.gl": "^4.1.1",
+    "lodash": "^4.17.4",
+    "luma.gl": "^4.0.1",
+    "reselect": "^3.0.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.22.2",
+    "babel-core": "^6.22.1",
+    "babel-eslint": "^7.1.0",
+    "babel-loader": "^6.2.10",
+    "babel-plugin-flow-react-proptypes": "^3.2.0",
+    "babel-plugin-transform-builtin-extend": "^1.1.2",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.22.0",
+    "babel-polyfill": "^6.20.0",
+    "babel-preset-es2015": "^6.16.0",
+    "brfs-babel": "^1.0.0",
+    "buble": "^0.15.1",
+    "buble-loader": "^0.4.0",
+    "eslint": "^3.0.0",
+    "eslint-plugin-flowtype": "^2.30.4",
+    "eslint-plugin-import": "^2.0.1",
+    "eslint-plugin-react": "~6.7.0",
+    "file-loader": "^0.10.1",
+    "flow-bin": "0.47.0",
+    "glslify-loader": "^1.0.2",
+    "path-exists-cli": "^1.0.0",
+    "raw-loader": "^0.5.1",
+    "react": "^15.4.0",
+    "react-dom": "^15.4.0",
+    "source-map-loader": "^0.2.1",
+    "transform-loader": "^0.2.3",
+    "webpack": "^2.4.0",
+    "webpack-dev-server": "^2.4.0"
+  },
+  "peerDependencies": {
+    "deck.gl": ">=4.1.0",
+    "luma.gl": ">=4.0.1",
+    "react": "0.14.x - 15.x",
+    "react-dom": "0.14.x - 15.x"
+  }
+}

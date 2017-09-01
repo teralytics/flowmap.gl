@@ -14,17 +14,14 @@ import type {
   PickingKind,
   OriginDest
 } from './types'
-import type { BiColorScale } from '../../../views/common/createBiColorScaleSelector'
 
 type Props = {
   flows: ODFlow[],
   zones: ODZone[],
-  biColorScale: BiColorScale,
   journeyDurationThreshold: number,
   selectedZone?: ?string,
   highlightedZone?: ?string,
   highlightedFlow?: ?OriginDest,
-  showDurations: ?boolean,
   showTotals: ?boolean,
   showZoneOutlines: ?boolean,
   onHover?: (info: PickInfo) => void,
@@ -176,7 +173,6 @@ export default class FlowMapLayer extends CompositeLayer {
       highlightedZone,
       highlightedFlow,
       journeyDurationThreshold,
-      showDurations,
       showTotals
     } = this.props
 
@@ -223,7 +219,6 @@ export default class FlowMapLayer extends CompositeLayer {
           highlightedZone,
           highlightedFlow,
           journeyDurationThreshold,
-          showDurations
         },
         instanceEndpointOffsets: {
           showTotals

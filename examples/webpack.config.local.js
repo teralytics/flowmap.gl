@@ -1,11 +1,3 @@
-// This file contains webpack configuration settings that allow
-// examples to be built against the flow-map.gl source code in this repo instead
-// of building against their installed version of flow-map.gl.
-//
-// This enables using the examples to debug the main deck.gl library source
-// without publishing or npm linking, with conveniences such hot reloading etc.
-
-// avoid destructuring for older Node version support
 const resolve = require('path').resolve;
 const webpack = require('webpack');
 

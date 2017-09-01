@@ -7,7 +7,6 @@ import * as d3scale from 'd3-scale'
 import * as d3array from 'd3-array'
 import * as d3collection from 'd3-collection'
 import { interpolateHcl } from 'd3-interpolate'
-import type { BiColorScale } from '../../../views/common/createBiColorScaleSelector'
 import * as d3color from 'd3-color'
 import { colorAsArray } from '../../../util/color'
 
@@ -15,11 +14,9 @@ export type Props = {
   baseColor: string,
   flows: ODFlow[],
   zones: ODZone[],
-  biColorScale: BiColorScale,
   highlightedZone: ?string,
   highlightedFlow: ?OriginDest,
   selectedZone: ?string,
-  showDurations: boolean,
   showTotals: boolean
 }
 
@@ -41,9 +38,7 @@ export default (): Selectors => {
   const getHighlightedZone = (props: Props) => props.highlightedZone
   const getSelectedZone = (props: Props) => props.selectedZone
 
-  const getShowDurations = (props: Props) => props.showDurations
   const getShowTotals = (props: Props) => props.showTotals
-  const getBiColorScale = (props: Props) => props.biColorScale
   const getBaseColor = (props: Props) => props.baseColor
 
   const getColors = createSelector(getBaseColor, baseColor => {
@@ -137,13 +132,9 @@ export default (): Selectors => {
 
   const getFlowColorScale = createSelector(
     getColors,
-    getBiColorScale,
-    getShowDurations,
     getFlowMagnitudeExtent,
-    (colors, biColorScale, showDurations, [minMagnitude, maxMagnitude]) =>
-      showDurations
-        ? biColorScale.colorScale
-        : d3scale
+    (colors, [minMagnitude, maxMagnitude]) =>
+        d3scale
             .scalePow()
             .exponent(1 / 3)
             .interpolate(interpolateHcl)
