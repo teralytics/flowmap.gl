@@ -1,5 +1,6 @@
 node_modules
 dist
+dist-es6
 .idea
 .DS_Store
 .env
