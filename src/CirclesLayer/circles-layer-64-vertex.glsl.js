@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+module.exports = `
 #define SHADER_NAME circles-layer-64-vertex
 
 attribute vec3 positions;
@@ -79,3 +80,4 @@ void main(void) {
   // vec4 pickingColor = vec4(instancePickingColors / 255., 1.);
   // vColor = mix(color, pickingColor, renderPickingBuffer);
 }
+`

@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+module.exports = `
 #define SHADER_NAME circles-layer-fragment-shader
 
 #ifdef GL_ES
@@ -38,3 +39,4 @@ void main(void) {
     discard;
   }
 }
+`

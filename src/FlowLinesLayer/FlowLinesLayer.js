@@ -7,44 +7,18 @@ import FragmentShader from './flow-line-layer-fragment.glsl'
 const DEFAULT_COLOR = [0, 132, 193, 255]
 const DEFAULT_BORDER_COLOR = [0.85, 0.85, 0.85, 0.95]
 
-const defaultGetSourcePosition = x => x.sourcePosition
-const defaultGetTargetPosition = x => x.targetPosition
-const defaultGetColor = x => x.color || DEFAULT_COLOR
-const defaultGetBorderColor = x => DEFAULT_BORDER_COLOR
-const defaultGetThickness = x => x.thickness
-const defaultGetEndpointOffsets = x => [0, 0]
-const defaultDrawBorder = false
+
+const defaultProps = {
+  getSourcePosition: x => x.sourcePosition,
+  getTargetPosition: x => x.targetPosition,
+  getColor: x => x.color || DEFAULT_COLOR,
+  getBorderColor: x => DEFAULT_BORDER_COLOR,
+  getThickness: x => x.thickness,
+  getEndpointOffsets: x => [0, 0],
+  drawBorder: false,
+}
 
 export default class FlowLinesLayer extends Layer {
-  static layerName = 'FlowLinesLayer'
-
-  /**
-   * @class
-   * @param {object} opts
-   */
-  constructor(
-    {
-      getSourcePosition = defaultGetSourcePosition,
-      getTargetPosition = defaultGetTargetPosition,
-      getEndpointOffsets = defaultGetEndpointOffsets,
-      getColor = defaultGetColor,
-      getBorderColor = defaultGetBorderColor,
-      getThickness = defaultGetThickness,
-      drawBorder = defaultDrawBorder,
-      ...opts
-    } = {}
-  ) {
-    super({
-      getSourcePosition,
-      getTargetPosition,
-      getEndpointOffsets,
-      getColor,
-      getBorderColor,
-      getThickness,
-      drawBorder,
-      ...opts,
-    })
-  }
 
   getShaders(id) {
     const { shaderCache } = this.context
@@ -257,3 +231,6 @@ export default class FlowLinesLayer extends Layer {
     }
   }
 }
+
+FlowLinesLayer.layerName = 'FlowLinesLayer'
+FlowLinesLayer.defaultProps = defaultProps

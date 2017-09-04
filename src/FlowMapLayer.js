@@ -1,32 +1,23 @@
-// @flow
 
 import { CompositeLayer, PolygonLayer } from 'deck.gl'
-import FlowLinesLayer from './FlowLinesLayer'
-import CirclesLayer from './CirclesLayer'
+import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer'
+import CirclesLayer from './CirclesLayer/circles-layer'
 import * as d3color from 'd3-color'
-import { colorAsArray } from '../../../util/color'
+import { colorAsArray } from './utils'
 import createSelectors from './selectors'
-import type {
-  ODZone,
-  ODFlow,
-  ZoneCircle,
-  PickInfo,
-  PickingKind,
-  OriginDest
-} from './types'
 
-type Props = {
-  flows: ODFlow[],
-  zones: ODZone[],
-  journeyDurationThreshold: number,
-  selectedZone?: ?string,
-  highlightedZone?: ?string,
-  highlightedFlow?: ?OriginDest,
-  showTotals: ?boolean,
-  showZoneOutlines: ?boolean,
-  onHover?: (info: PickInfo) => void,
-  onClick?: (info: PickInfo) => void
-}
+// type Props = {
+//   flows: ODFlow[],
+//   zones: ODZone[],
+//   journeyDurationThreshold: number,
+//   selectedZone?: ?string,
+//   highlightedZone?: ?string,
+//   highlightedFlow?: ?OriginDest,
+//   showTotals: ?boolean,
+//   showZoneOutlines: ?boolean,
+//   onHover?: (info: PickInfo) => void,
+//   onClick?: (info: PickInfo) => void
+// }
 
 const LAYER_ID__ZONES = 'zones'
 const LAYER_ID__ZONE_AREAS = 'zone-areas'
@@ -36,11 +27,10 @@ const LAYER_ID__FLOWS = 'flows'
 const LAYER_ID__FLOWS_ACTIVE = 'flows-highlighted'
 
 export default class FlowMapLayer extends CompositeLayer {
-  static layerName = 'FlowMapLayer'
 
-  props: Props
-
-  static defaultProps = {}
+  constructor(props) {
+    super(props)
+  }
 
   initializeState() {
     this.state = {
@@ -48,7 +38,7 @@ export default class FlowMapLayer extends CompositeLayer {
     }
   }
 
-  getPickingKind(sourceLayer: { id: string }): ?PickingKind {
+  getPickingKind(sourceLayer) {
     const { id } = sourceLayer
     if (id) {
       switch (id) {
@@ -66,8 +56,7 @@ export default class FlowMapLayer extends CompositeLayer {
     return undefined
   }
 
-  getPickingInfo(pickParams: { info: PickInfo, sourceLayer: { id: string } }) {
-    const { info, sourceLayer } = pickParams
+  getPickingInfo({ info, sourceLayer }) {
     const kind = this.getPickingKind(sourceLayer)
     if (kind) {
       info.kind = kind
@@ -78,7 +67,7 @@ export default class FlowMapLayer extends CompositeLayer {
     return info
   }
 
-  renderNodesLayer(id: string) {
+  renderNodesLayer(id) {
     const { selectors: { getZoneCircles, getZoneRadiusGetter } } = this.state
 
     const { highlightedZone, highlightedFlow, selectedZone } = this.props
@@ -87,8 +76,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const { selectors: { getColors } } = this.state
     const colors = getColors(this.props)
 
-    const getCircleColor = (zoneCircle: ZoneCircle) => {
-      const { zone, kind } = zoneCircle
+    const getCircleColor = ({ zone, kind }) => {
       const { highlightedZone } = this.props
       if (
         (!highlightedZone && !highlightedFlow && !selectedZone) ||
@@ -117,8 +105,8 @@ export default class FlowMapLayer extends CompositeLayer {
     return new CirclesLayer({
       id,
       data: getZoneCircles(this.props),
-      getPosition: (zc: ZoneCircle) => zc.zone.properties.centroid,
-      getRadius: ({ zone, kind }: ZoneCircle) => getZoneRadius(zone, kind),
+      getPosition: zc => zc.zone.properties.centroid,
+      getRadius: ({ zone, kind }) => getZoneRadius(zone, kind),
       opacity: 1,
       getColor: getCircleColor,
       pickable: true,
@@ -130,8 +118,8 @@ export default class FlowMapLayer extends CompositeLayer {
   }
 
   renderNodeAreasLayer(
-    id: string,
-    outline?: { color?: number[], width?: number }
+    id,
+    outline  // ?: { color?: number[], width?: number }
   ) {
     const { color: outlineColor = null, width: outlineWidth = null } =
       outline || {}
@@ -143,7 +131,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const stroked = !!outline
     const pickable = !outline
     const filled = !outline
-    const getFillColor = ({ properties: { code } }: ODZone) =>
+    const getFillColor = ({ properties: { code } }) =>
       code === highlightedZone
         ? colors.ZONE_COLORS.highlighted
         : isConnected(code)
@@ -153,7 +141,7 @@ export default class FlowMapLayer extends CompositeLayer {
     return new PolygonLayer({
       id,
       data: zones,
-      getPolygon: ({ geometry: { coordinates } }: ODZone) => coordinates[0],
+      getPolygon: ({ geometry: { coordinates } }) => coordinates[0],
       getFillColor,
       opacity: 0.5,
       stroked,
@@ -168,7 +156,7 @@ export default class FlowMapLayer extends CompositeLayer {
     })
   }
 
-  renderFlowLinesLayer(id: string, flows: ODFlow[], dimmed: boolean) {
+  renderFlowLinesLayer(id, flows, dimmed) {
     const {
       highlightedZone,
       highlightedFlow,
@@ -191,18 +179,18 @@ export default class FlowMapLayer extends CompositeLayer {
     const flowColorScale = getFlowColorScale(this.props)
 
     const getFlowColor = dimmed
-      ? (d: ODFlow) => {
+      ? (d) => {
           const { l } = d3color.hcl(flowColorScale(d.magnitude, d.duration, 1))
           return [l, l, l, 100]
         }
-      : (d: ODFlow) => colorAsArray(flowColorScale(d.magnitude, d.duration, 1))
+      : (d) => colorAsArray(flowColorScale(d.magnitude, d.duration, 1))
 
     return new FlowLinesLayer({
       id,
       data: flows,
-      getSourcePosition: ({ origin }: ODFlow) => origin.location,
-      getTargetPosition: ({ dest }: ODFlow) => dest.location,
-      getEndpointOffsets: ({ origin, dest }: ODFlow) =>
+      getSourcePosition: ({ origin }) => origin.location,
+      getTargetPosition: ({ dest }) => dest.location,
+      getEndpointOffsets: ({ origin, dest }) =>
         showTotals
           ? [
               getZoneRadius(zonesByCode[origin.code], 'inner'),
@@ -263,3 +251,5 @@ export default class FlowMapLayer extends CompositeLayer {
     return layers
   }
 }
+
+FlowMapLayer.layerName = 'FlowMapLayer'

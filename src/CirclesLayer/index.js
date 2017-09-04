@@ -1,1 +1,2 @@
-export default from './circles-layer'
+import CirclesLayer from './circles-layer'
+export default CirclesLayer

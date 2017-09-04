@@ -1,1 +1,2 @@
-export default from './FlowLinesLayer'
+import FlowLinesLayer from './FlowLinesLayer'
+export default FlowLinesLayer

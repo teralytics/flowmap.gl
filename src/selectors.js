@@ -1,45 +1,42 @@
-// @flow
-
 import { createSelector } from 'reselect'
-import type { ODFlow, ODZone, ZoneCircle, OriginDest } from '../../../types'
 import _ from 'lodash'
 import * as d3scale from 'd3-scale'
 import * as d3array from 'd3-array'
 import * as d3collection from 'd3-collection'
 import { interpolateHcl } from 'd3-interpolate'
 import * as d3color from 'd3-color'
-import { colorAsArray } from '../../../util/color'
+import { colorAsArray } from './utils'
 
-export type Props = {
-  baseColor: string,
-  flows: ODFlow[],
-  zones: ODZone[],
-  highlightedZone: ?string,
-  highlightedFlow: ?OriginDest,
-  selectedZone: ?string,
-  showTotals: boolean
-}
+// export type Props = {
+//   baseColor: string,
+//   flows: ODFlow[],
+//   zones: ODZone[],
+//   highlightedZone: ?string,
+//   highlightedFlow: ?OriginDest,
+//   selectedZone: ?string,
+//   showTotals: boolean
+// }
+//
+// export type Selectors = {
+//   getColors: Function,
+//   getActiveFlows: Function,
+//   isZoneConnectedGetter: Function,
+//   getZonesByCode: Function,
+//   getFlowColorScale: Function,
+//   getFlowThicknessScale: Function,
+//   getZoneRadiusGetter: Function,
+//   getZoneCircles: Function
+// }
 
-export type Selectors = {
-  getColors: Function,
-  getActiveFlows: Function,
-  isZoneConnectedGetter: Function,
-  getZonesByCode: Function,
-  getFlowColorScale: Function,
-  getFlowThicknessScale: Function,
-  getZoneRadiusGetter: Function,
-  getZoneCircles: Function
-}
+export default () => {
+  const getZones = (props) => props.zones
+  const getFlows = (props) => props.flows
+  const getHighlightedFlow = (props) => props.highlightedFlow
+  const getHighlightedZone = (props) => props.highlightedZone
+  const getSelectedZone = (props) => props.selectedZone
 
-export default (): Selectors => {
-  const getZones = (props: Props) => props.zones
-  const getFlows = (props: Props) => props.flows
-  const getHighlightedFlow = (props: Props) => props.highlightedFlow
-  const getHighlightedZone = (props: Props) => props.highlightedZone
-  const getSelectedZone = (props: Props) => props.selectedZone
-
-  const getShowTotals = (props: Props) => props.showTotals
-  const getBaseColor = (props: Props) => props.baseColor
+  const getShowTotals = (props) => props.showTotals
+  const getBaseColor = (props) => props.baseColor
 
   const getColors = createSelector(getBaseColor, baseColor => {
     const NOCOLOR = [0, 0, 0, 0]
@@ -70,13 +67,11 @@ export default (): Selectors => {
     }
   })
 
-  const getZonesByCode = createSelector(getZones, (zones): {
-    [keys: string]: ODZone
-  } =>
+  const getZonesByCode = createSelector(getZones, zones =>
     d3collection
       .nest()
-      .key((z: ODZone) => z.properties.code)
-      .rollup(([z]: ODZone[]) => z)
+      .key((z) => z.properties.code)
+      .rollup(([z]) => z)
       .object(zones)
   )
 
@@ -90,7 +85,7 @@ export default (): Selectors => {
         return code =>
           code === highlightedFlow.originID || code === highlightedFlow.destID
       } else if (highlightedZone) {
-        const isRelated = ({ origin, dest }: ODFlow) =>
+        const isRelated = ({ origin, dest }) =>
           origin.code === highlightedZone ||
           dest.code === highlightedZone ||
           origin.code === selectedZone ||
@@ -115,7 +110,7 @@ export default (): Selectors => {
   )
 
   const getZoneMaxTotal = createSelector(getZones, zones =>
-    d3array.max(zones, (z: ODZone) =>
+    d3array.max(zones, (z) =>
       Math.max(z.properties.totalIn, z.properties.totalOut)
     )
   )
@@ -144,7 +139,7 @@ export default (): Selectors => {
 
   const getZoneRadiusGetter = createSelector(
     getSizeScale,
-    sizeScale => (zone: ODZone, kind: 'inner' | 'outer') => {
+    sizeScale => (zone, kind) => {
       if (!zone) return 0
       const getSide = kind === 'inner' ? Math.min : Math.max
       return sizeScale(
@@ -156,7 +151,7 @@ export default (): Selectors => {
   const getZoneCircles = createSelector(
     getZones,
     getZoneRadiusGetter,
-    (zones: ODZone[], getZoneRadius): ZoneCircle[] =>
+    (zones, getZoneRadius) =>
       _.chain(zones)
         .flatMap(zone => [{ zone, kind: 'outer' }, { zone, kind: 'inner' }])
         .value()
@@ -170,13 +165,13 @@ export default (): Selectors => {
       if (highlightedFlow) {
         const { originID, destID } = highlightedFlow
         return flows.filter(
-          (f: ODFlow) => f.origin.code === originID && f.dest.code === destID
+          (f) => f.origin.code === originID && f.dest.code === destID
         )
       }
 
       if (highlightedZone) {
         return flows.filter(
-          (f: ODFlow) =>
+          (f) =>
             f.origin.code === highlightedZone || f.dest.code === highlightedZone
         )
       }

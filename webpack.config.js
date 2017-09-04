@@ -31,6 +31,7 @@ module.exports = {
         // Inline shaders
         test: /\.glsl$/,
         exclude: /node_modules/,
+        // loaders: ['raw-loader', 'glslify-loader']
         loader(content) {
           this.cacheable && this.cacheable(); // eslint-disable-line
           this.value = content;
@@ -51,62 +52,4 @@ module.exports = {
       VERSION: JSON.stringify(require('./package.json').version)
     })
   ]
-};
-
-const TEST_BROWSER_CONFIG = {
-  devServer: {
-    stats: {
-      warnings: false
-    },
-    quiet: true
-  },
-
-  // Bundle the tests for running in the browser
-  entry: {
-    'test-browser': resolve('./test/browser.js')
-  },
-
-  // Generate a bundle in dist folder
-  output: {
-    path: resolve('./dist'),
-    filename: '[name]-bundle.js'
-  },
-
-  devtool: '#inline-source-maps',
-
-  resolve: {
-    alias: {
-      'flow-map.gl': resolve('./src')
-    }
-  },
-
-  module: {
-    rules: [
-      {
-        // Compile ES2015 using buble
-        test: /\.js$/,
-        loader: 'buble-loader',
-        include: [/src/],
-        options: {
-          objectAssign: 'Object.assign',
-          transforms: {
-            dangerousForOf: true,
-            modules: false
-          }
-        }
-      },
-      {
-        // Inline shaders
-        test: /\.glsl$/,
-        exclude: /node_modules/,
-        loader: 'raw-loader'
-      }
-    ]
-  },
-
-  node: {
-    fs: 'empty'
-  },
-
-  plugins: []
 };
