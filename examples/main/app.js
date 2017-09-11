@@ -7,7 +7,9 @@ import geoViewport from '@mapbox/geo-viewport'
 
 const MAPBOX_TOKEN = process.env.MapboxAccessToken // eslint-disable-line
 
-const width = 500, height = 500
+const width = window.innerWidth
+const height = window.innerHeight
+
 const bbox = [5.9559111595,45.8179931641,10.4920501709,47.808380127]
 
 class Root extends Component {
@@ -58,6 +60,8 @@ class Root extends Component {
       getFlowOriginID: f => f.origin,
       getFlowDestID: f => f.dest,
       getFlowMagnitude: f => f.magnitude,
+
+      showLocationOutlines: false,
 
 
       // highlightedLocation,

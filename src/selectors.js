@@ -7,35 +7,18 @@ import { interpolateHcl } from 'd3-interpolate'
 import * as d3color from 'd3-color'
 import { colorAsArray } from './utils'
 
-// export type Props = {
-//   baseColor: string,
-//   flows: ODFlow[],
-//   locations: ODLocation[],
-//   highlightedLocation: ?string,
-//   highlightedFlow: ?OriginDest,
-//   selectedLocation: ?string,
-//   showTotals: boolean
-// }
-//
-// export type Selectors = {
-//   getColors: Function,
-//   getActiveFlows: Function,
-//   isLocationConnectedGetter: Function,
-//   getLocationsById: Function,
-//   getFlowColorScale: Function,
-//   getFlowThicknessScale: Function,
-//   getLocationRadiusGetter: Function,
-//   getLocationCircles: Function
-// }
-
 export default () => {
+
   const getLocations = (props) => props.locations
+  const getLocationIDGetter = (props) => props.getLocationID
   const getFlows = (props) => props.flows
+  const getFlowOriginIDGetter = (props) => props.getFlowOriginID
+  const getFlowDestIDGetter = (props) => props.getFlowDestID
+  const getFlowMagnitudeGetter = (props) => props.getFlowMagnitude
   const getHighlightedFlow = (props) => props.highlightedFlow
   const getHighlightedLocation = (props) => props.highlightedLocation
   const getSelectedLocation = (props) => props.selectedLocation
 
-  const getShowTotals = (props) => props.showTotals
   const getBaseColor = (props) => props.baseColor
 
   const getColors = createSelector(getBaseColor, baseColor => {
@@ -48,7 +31,8 @@ export default () => {
     const baseColorBrighter3 = d3color.hcl(baseColor).brighter(3)
 
     return {
-      FLOW_LINE_COLOR_RANGE: [baseColorBrighter, baseColor],
+      // FLOW_LINE_COLOR_RANGE: [baseColorBrighter, baseColor],
+      FLOW_LINE_COLOR_RANGE: [baseColor, baseColor],
 
       CIRCLE_COLORS: {
         inner: colorAsArray(baseColor),
@@ -67,12 +51,15 @@ export default () => {
     }
   })
 
-  const getLocationsById = createSelector(getLocations, locations =>
-    d3collection
-      .nest()
-      .key((z) => z.properties.id)
-      .rollup(([z]) => z)
-      .object(locations)
+  const getLocationsById = createSelector(
+    getLocations,
+    getLocationIDGetter,
+    (locations, getLocationID) =>
+      d3collection
+        .nest()
+        .key(getLocationID)
+        .rollup(([l]) => l)
+        .object(locations)
   )
 
   const isLocationConnectedGetter = createSelector(
@@ -105,14 +92,67 @@ export default () => {
     }
   )
 
-  const getFlowMagnitudeExtent = createSelector(getFlows, flows =>
-    d3array.extent(flows, f => f.magnitude)
+  const getNonSelfFlows = createSelector(
+    getFlows,
+    getFlowOriginIDGetter,
+    getFlowDestIDGetter,
+    (flows, getFlowOriginID, getFlowDestID) => flows.filter(
+      flow => getFlowOriginID(flow) !== getFlowDestID(flow)
+    )
   )
 
-  const getLocationMaxTotal = createSelector(getLocations, locations =>
-    d3array.max(locations, (z) =>
-      Math.max(z.properties.totalIn, z.properties.totalOut)
-    )
+  const getSortedNonSelfFlows = createSelector(
+    getNonSelfFlows,
+    getFlowMagnitudeGetter,
+    (flows, getFlowMagnitude) => _.orderBy(flows, [getFlowMagnitude, 'desc'])
+  )
+
+  const getFlowMagnitudeExtent = createSelector(
+    getNonSelfFlows,
+    getFlowMagnitudeGetter,
+    (flows, getFlowMagnitude) => d3array.extent(flows, getFlowMagnitude)
+  )
+
+  const getLocationTotals = createSelector(
+    getLocations,
+    getFlows,
+    getFlowOriginIDGetter,
+    getFlowDestIDGetter,
+    getFlowMagnitudeGetter,
+    (locations, flows, getFlowOriginID, getFlowDestID, getFlowMagnitude) => {
+      const incoming = {}
+      const outgoing = {}
+      for (const flow of flows) {
+        const originID = getFlowOriginID(flow)
+        const destID = getFlowDestID(flow)
+        const magnitude = getFlowMagnitude(flow)
+        outgoing[originID] = (outgoing[originID] || 0) + magnitude
+        incoming[destID] = (incoming[destID] || 0) + magnitude
+      }
+      return { incoming, outgoing }
+    }
+  )
+
+  const getLocationTotalInGetter = createSelector(
+    getLocationIDGetter,
+    getLocationTotals,
+    (getLocationID, { incoming }) => location => incoming[getLocationID(location)]
+  )
+
+  const getLocationTotalOutGetter = createSelector(
+    getLocationIDGetter,
+    getLocationTotals,
+    (getLocationID, { outgoing }) => location => outgoing[getLocationID(location)]
+  )
+
+  const getLocationMaxTotal = createSelector(
+    getLocations,
+    getLocationTotalInGetter,
+    getLocationTotalOutGetter,
+    (locations, getLocationTotalIn, getLocationTotalOut) =>
+      d3array.max(locations, (l) =>
+        Math.max(getLocationTotalIn(l), getLocationTotalOut(l))
+      )
   )
 
   const getSizeScale = createSelector(getLocationMaxTotal, maxTotal =>
@@ -139,11 +179,13 @@ export default () => {
 
   const getLocationRadiusGetter = createSelector(
     getSizeScale,
-    sizeScale => (location, kind) => {
+    getLocationTotalInGetter,
+    getLocationTotalOutGetter,
+    (sizeScale, getLocationTotalIn, getLocationTotalOut) => (location, kind) => {
       if (!location) return 0
       const getSide = kind === 'inner' ? Math.min : Math.max
       return sizeScale(
-        getSide(location.properties.totalIn, location.properties.totalOut)
+        getSide(getLocationTotalIn(location), getLocationTotalOut(location))
       )
     }
   )
@@ -158,7 +200,7 @@ export default () => {
   )
 
   const getActiveFlows = createSelector(
-    getFlows,
+    getSortedNonSelfFlows,
     getHighlightedFlow,
     getHighlightedLocation,
     (flows, highlightedFlow, highlightedLocation) => {
@@ -183,11 +225,14 @@ export default () => {
   return {
     getColors,
     getActiveFlows,
+    getSortedNonSelfFlows,
     isLocationConnectedGetter,
     getLocationsById,
     getFlowColorScale,
     getFlowThicknessScale,
     getLocationRadiusGetter,
-    getLocationCircles
+    getLocationCircles,
+    getLocationTotalInGetter,
+    getLocationTotalOutGetter,
   }
 }
