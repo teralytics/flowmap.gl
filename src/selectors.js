@@ -10,30 +10,30 @@ import { colorAsArray } from './utils'
 // export type Props = {
 //   baseColor: string,
 //   flows: ODFlow[],
-//   zones: ODZone[],
-//   highlightedZone: ?string,
+//   locations: ODLocation[],
+//   highlightedLocation: ?string,
 //   highlightedFlow: ?OriginDest,
-//   selectedZone: ?string,
+//   selectedLocation: ?string,
 //   showTotals: boolean
 // }
 //
 // export type Selectors = {
 //   getColors: Function,
 //   getActiveFlows: Function,
-//   isZoneConnectedGetter: Function,
-//   getZonesByCode: Function,
+//   isLocationConnectedGetter: Function,
+//   getLocationsByCode: Function,
 //   getFlowColorScale: Function,
 //   getFlowThicknessScale: Function,
-//   getZoneRadiusGetter: Function,
-//   getZoneCircles: Function
+//   getLocationRadiusGetter: Function,
+//   getLocationCircles: Function
 // }
 
 export default () => {
-  const getZones = (props) => props.zones
+  const getLocations = (props) => props.locations
   const getFlows = (props) => props.flows
   const getHighlightedFlow = (props) => props.highlightedFlow
-  const getHighlightedZone = (props) => props.highlightedZone
-  const getSelectedZone = (props) => props.selectedZone
+  const getHighlightedLocation = (props) => props.highlightedLocation
+  const getSelectedLocation = (props) => props.selectedLocation
 
   const getShowTotals = (props) => props.showTotals
   const getBaseColor = (props) => props.baseColor
@@ -59,7 +59,7 @@ export default () => {
         none: NOCOLOR
       },
 
-      ZONE_COLORS: {
+      LOCATION_COLORS: {
         highlighted: colorAsArray(baseColor),
         connected: colorAsArray(baseColorBrighter2),
         none: NOCOLOR
@@ -67,38 +67,38 @@ export default () => {
     }
   })
 
-  const getZonesByCode = createSelector(getZones, zones =>
+  const getLocationsByCode = createSelector(getLocations, locations =>
     d3collection
       .nest()
       .key((z) => z.properties.code)
       .rollup(([z]) => z)
-      .object(zones)
+      .object(locations)
   )
 
-  const isZoneConnectedGetter = createSelector(
+  const isLocationConnectedGetter = createSelector(
     getFlows,
-    getHighlightedZone,
+    getHighlightedLocation,
     getHighlightedFlow,
-    getSelectedZone,
-    (flows, highlightedZone, highlightedFlow, selectedZone) => {
+    getSelectedLocation,
+    (flows, highlightedLocation, highlightedFlow, selectedLocation) => {
       if (highlightedFlow) {
         return code =>
           code === highlightedFlow.originID || code === highlightedFlow.destID
-      } else if (highlightedZone) {
+      } else if (highlightedLocation) {
         const isRelated = ({ origin, dest }) =>
-          origin.code === highlightedZone ||
-          dest.code === highlightedZone ||
-          origin.code === selectedZone ||
-          dest.code === selectedZone
+          origin.code === highlightedLocation ||
+          dest.code === highlightedLocation ||
+          origin.code === selectedLocation ||
+          dest.code === selectedLocation
 
-        const zones = _.chain(flows)
+        const locations = _.chain(flows)
           .filter(isRelated)
           .map(f => [f.origin.code, f.dest.code])
           .flatten()
           .value()
 
-        const zoneSet = new Set(zones)
-        return code => zoneSet.has(code)
+        const locationSet = new Set(locations)
+        return code => locationSet.has(code)
       }
 
       return () => false
@@ -109,13 +109,13 @@ export default () => {
     d3array.extent(flows, f => f.magnitude)
   )
 
-  const getZoneMaxTotal = createSelector(getZones, zones =>
-    d3array.max(zones, (z) =>
+  const getLocationMaxTotal = createSelector(getLocations, locations =>
+    d3array.max(locations, (z) =>
       Math.max(z.properties.totalIn, z.properties.totalOut)
     )
   )
 
-  const getSizeScale = createSelector(getZoneMaxTotal, maxTotal =>
+  const getSizeScale = createSelector(getLocationMaxTotal, maxTotal =>
     d3scale.scalePow().exponent(1 / 2).domain([0, maxTotal]).range([0, 15])
   )
 
@@ -137,31 +137,31 @@ export default () => {
             .domain([0, maxMagnitude])
   )
 
-  const getZoneRadiusGetter = createSelector(
+  const getLocationRadiusGetter = createSelector(
     getSizeScale,
-    sizeScale => (zone, kind) => {
-      if (!zone) return 0
+    sizeScale => (location, kind) => {
+      if (!location) return 0
       const getSide = kind === 'inner' ? Math.min : Math.max
       return sizeScale(
-        getSide(zone.properties.totalIn, zone.properties.totalOut)
+        getSide(location.properties.totalIn, location.properties.totalOut)
       )
     }
   )
 
-  const getZoneCircles = createSelector(
-    getZones,
-    getZoneRadiusGetter,
-    (zones, getZoneRadius) =>
-      _.chain(zones)
-        .flatMap(zone => [{ zone, kind: 'outer' }, { zone, kind: 'inner' }])
+  const getLocationCircles = createSelector(
+    getLocations,
+    getLocationRadiusGetter,
+    (locations, getLocationRadius) =>
+      _.chain(locations)
+        .flatMap(location => [{ location, kind: 'outer' }, { location, kind: 'inner' }])
         .value()
   )
 
   const getActiveFlows = createSelector(
     getFlows,
     getHighlightedFlow,
-    getHighlightedZone,
-    (flows, highlightedFlow, highlightedZone) => {
+    getHighlightedLocation,
+    (flows, highlightedFlow, highlightedLocation) => {
       if (highlightedFlow) {
         const { originID, destID } = highlightedFlow
         return flows.filter(
@@ -169,10 +169,10 @@ export default () => {
         )
       }
 
-      if (highlightedZone) {
+      if (highlightedLocation) {
         return flows.filter(
           (f) =>
-            f.origin.code === highlightedZone || f.dest.code === highlightedZone
+            f.origin.code === highlightedLocation || f.dest.code === highlightedLocation
         )
       }
 
@@ -183,11 +183,11 @@ export default () => {
   return {
     getColors,
     getActiveFlows,
-    isZoneConnectedGetter,
-    getZonesByCode,
+    isLocationConnectedGetter,
+    getLocationsByCode,
     getFlowColorScale,
     getFlowThicknessScale,
-    getZoneRadiusGetter,
-    getZoneCircles
+    getLocationRadiusGetter,
+    getLocationCircles
   }
 }

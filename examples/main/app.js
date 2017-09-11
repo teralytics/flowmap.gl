@@ -60,7 +60,7 @@ class Root extends Component {
       getFlowMagnitude: f => f.magnitude,
 
 
-      // highlightedZone,
+      // highlightedLocation,
       // highlightedFlow,
       // showTotals,
       // onHover: this.handleFlowMapHover,
