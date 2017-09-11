@@ -49,7 +49,7 @@ class Root extends Component {
     if (!locations || !flows) return null
 
     return new FlowMapLayer({
-      baseColor: 'steelblue',
+      baseColor: '#0084c1',
 
       locations,
       getLocationID: l => l.properties.abbr,
