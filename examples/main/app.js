@@ -1,75 +1,89 @@
 import React, {Component} from 'react'
 import {render} from 'react-dom'
 import MapGL from 'react-map-gl'
-import DeckGL, {LineLayer} from 'deck.gl'
+import DeckGL from 'deck.gl'
 import FlowMapLayer from 'flow-map.gl'
+import geoViewport from '@mapbox/geo-viewport'
 
 const MAPBOX_TOKEN = process.env.MapboxAccessToken // eslint-disable-line
+
+const width = 500, height = 500
+const bbox = [5.9559111595,45.8179931641,10.4920501709,47.808380127]
 
 class Root extends Component {
 
   constructor(props) {
     super(props)
+    const { center: [longitude, latitude], zoom } =
+      geoViewport.viewport(
+        bbox,
+        [width, height],
+        undefined, undefined, 512
+      )
+
     this.state = {
       viewport: {
-        latitude: 37.785164,
-        longitude: -122.41669,
-        zoom: 14,
-        // bearing: -20.55991,
-        // pitch: 60,
+        width,
+        height,
+        longitude,
+        latitude,
+        zoom,
       },
-      width: 500,
-      height: 500
+      locations: null,
     }
+
+    fetch('./data/locations.json')
+      .then(resp => resp.json())
+      .then(geoJson => this.setState({locations: geoJson.features}))
+
+    fetch('./data/flows.json')
+      .then(resp => resp.json())
+      .then(flows => this.setState({flows}))
+  }
+
+
+  getFlowMapLayer() {
+    const { locations, flows } = this.state
+    if (!locations || !flows) return null
+
+    return new FlowMapLayer({
+      baseColor: 'steelblue',
+
+      locations,
+      getLocationID: l => l.properties.abbr,
+      getLocationCentroid: l => l.properties.centroid,
+      getLocationGeometryFeature: l => l,
+
+      flows,
+      getFlowOriginID: f => f.origin,
+      getFlowDestID: f => f.dest,
+      getFlowMagnitude: f => f.magnitude,
+
+
+      // highlightedZone,
+      // highlightedFlow,
+      // showTotals,
+      // onHover: this.handleFlowMapHover,
+      // onClick: this.handleFlowMapClick,
+    })
+  }
+
+  handleChangeViewport(v) {
+    this.setState({ viewport: { ...this.state.viewport, ...v } })
   }
 
   render() {
-    const {viewport, width, height} = this.state
-
+    const {viewport} = this.state
     return (
       <MapGL
         {...viewport}
-        width={width}
-        height={height}
+        onViewportChange={this.handleChangeViewport.bind(this)}
         mapboxApiAccessToken={MAPBOX_TOKEN}>
         <DeckGL
           {...viewport}
-          width={width}
-          height={height}
           debug
           layers={[
-            new FlowMapLayer({
-              baseColor: 'steelblue',
-              flows: [
-                {
-                  origin:{code:1,location:[-122.41669, 37.7853]},
-                  dest:{code:2,location:[-122.41669, 37.781]},
-                  magnitude:5
-                },
-                {
-                  origin:{code:2,location:[-122.41669, 37.781]},
-                  dest:{code:1,location:[-122.41669, 37.7853]},
-                  magnitude:10
-                },
-                {
-                  origin:{code:3,location:[-122.415, 37.784]},
-                  dest:{code:1,location:[-122.41669, 37.7853]},
-                  magnitude:3
-                },
-              ],
-              zones: [
-                // {"type":"Feature","id":"DT13",
-                //   "geometry":{"type":"Polygon","coordinates":
-                //     [[[103.8520033287069,1.2821811107775487],[103.85190002691171,1.2820228786810506],[103.85156673244043,1.282402635712646],[103.85109115436447,1.2826222426829372],[103.85040117633622,1.2826497335118237],[103.84965467468419,1.283794119179426],[103.84955234743424,1.283907918424584],[103.84994752552811,1.2852086182238784],[103.84953870380092,1.2855749495018316],[103.85012538003397,1.2857929581681178],[103.85081584533484,1.2862996205377126],[103.85170657968203,1.286167280966096],[103.85235611408292,1.2865058017543616],[103.85272790309108,1.285750443281584],[103.85260608493637,1.2853713255715906],[103.85300028848499,1.28523451074876],[103.85321176480157,1.2849078174101316],[103.8526197285697,1.2832912927394433],[103.8520033287069,1.2821811107775487]]]},
-                //   "properties":{"code":"DT13","name":"DT13","centroid":[103.8513647469372,1.2844390998251523],"totalOut":2911,"totalIn":1007,"canLookInside":false}}
-              ],
-
-              // highlightedZone,
-              // highlightedFlow,
-              // showTotals,
-              // onHover: this.handleFlowMapHover,
-              // onClick: this.handleFlowMapClick,
-            })
+            this.getFlowMapLayer()
           ]} />
       </MapGL>
     )

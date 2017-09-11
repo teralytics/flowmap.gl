@@ -9,7 +9,6 @@ import createSelectors from './selectors'
 // type Props = {
 //   flows: ODFlow[],
 //   zones: ODZone[],
-//   journeyDurationThreshold: number,
 //   selectedZone?: ?string,
 //   highlightedZone?: ?string,
 //   highlightedFlow?: ?OriginDest,
@@ -18,6 +17,18 @@ import createSelectors from './selectors'
 //   onHover?: (info: PickInfo) => void,
 //   onClick?: (info: PickInfo) => void
 // }
+
+//
+// locations,
+// getLocationID: l => l.properties.abbr,
+// getLocationCentroid: l => l.properties.centroid,
+// getLocationGeometryFeature: l => l,
+//
+// flows,
+// getFlowOriginID: f => f.origin,
+// getFlowDestID: f => f.dest,
+// getFlowMagnitude: f => f.magnitude,
+
 
 const LAYER_ID__ZONES = 'zones'
 const LAYER_ID__ZONE_AREAS = 'zone-areas'
@@ -160,7 +171,6 @@ export default class FlowMapLayer extends CompositeLayer {
     const {
       highlightedZone,
       highlightedFlow,
-      journeyDurationThreshold,
       showTotals
     } = this.props
 
@@ -180,10 +190,10 @@ export default class FlowMapLayer extends CompositeLayer {
 
     const getFlowColor = dimmed
       ? (d) => {
-          const { l } = d3color.hcl(flowColorScale(d.magnitude, d.duration, 1))
+          const { l } = d3color.hcl(flowColorScale(d.magnitude))
           return [l, l, l, 100]
         }
-      : (d) => colorAsArray(flowColorScale(d.magnitude, d.duration, 1))
+      : (d) => colorAsArray(flowColorScale(d.magnitude))
 
     return new FlowLinesLayer({
       id,
@@ -206,7 +216,6 @@ export default class FlowMapLayer extends CompositeLayer {
         instanceColors: !dimmed && {
           highlightedZone,
           highlightedFlow,
-          journeyDurationThreshold,
         },
         instanceEndpointOffsets: {
           showTotals
