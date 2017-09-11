@@ -91,11 +91,11 @@ export default class FlowMapLayer extends CompositeLayer {
       const { highlightedLocation } = this.props
       if (
         (!highlightedLocation && !highlightedFlow && !selectedLocation) ||
-        highlightedLocation === location.properties.code ||
-        selectedLocation === location.properties.code ||
+        highlightedLocation === location.properties.id ||
+        selectedLocation === location.properties.id ||
         (highlightedFlow &&
-          (location.properties.code === highlightedFlow.originID ||
-            location.properties.code === highlightedFlow.destID))
+          (location.properties.id === highlightedFlow.originID ||
+            location.properties.id === highlightedFlow.destID))
       ) {
         if (kind === 'inner') {
           return colors.CIRCLE_COLORS.inner
@@ -142,10 +142,10 @@ export default class FlowMapLayer extends CompositeLayer {
     const stroked = !!outline
     const pickable = !outline
     const filled = !outline
-    const getFillColor = ({ properties: { code } }) =>
-      code === highlightedLocation
+    const getFillColor = ({ properties: { id } }) =>
+      id === highlightedLocation
         ? colors.LOCATION_COLORS.highlighted
-        : isConnected(code)
+        : isConnected(id)
           ? colors.LOCATION_COLORS.connected
           : colors.LOCATION_COLORS.none
 
@@ -176,7 +176,7 @@ export default class FlowMapLayer extends CompositeLayer {
 
     const {
       selectors: {
-        getLocationsByCode,
+        getLocationsById,
         getFlowThicknessScale,
         getFlowColorScale,
         getLocationRadiusGetter
@@ -184,7 +184,7 @@ export default class FlowMapLayer extends CompositeLayer {
     } = this.state
 
     const getLocationRadius = getLocationRadiusGetter(this.props)
-    const locationsByCode = getLocationsByCode(this.props)
+    const locationsById = getLocationsById(this.props)
     const flowThicknessScale = getFlowThicknessScale(this.props)
     const flowColorScale = getFlowColorScale(this.props)
 
@@ -203,8 +203,8 @@ export default class FlowMapLayer extends CompositeLayer {
       getEndpointOffsets: ({ origin, dest }) =>
         showTotals
           ? [
-              getLocationRadius(locationsByCode[origin.code], 'inner'),
-              getLocationRadius(locationsByCode[dest.code], 'outer')
+              getLocationRadius(locationsById[origin.id], 'inner'),
+              getLocationRadius(locationsById[dest.id], 'outer')
             ]
           : [0, 0],
       getThickness: d => flowThicknessScale(d.magnitude),

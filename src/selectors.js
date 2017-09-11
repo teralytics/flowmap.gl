@@ -21,7 +21,7 @@ import { colorAsArray } from './utils'
 //   getColors: Function,
 //   getActiveFlows: Function,
 //   isLocationConnectedGetter: Function,
-//   getLocationsByCode: Function,
+//   getLocationsById: Function,
 //   getFlowColorScale: Function,
 //   getFlowThicknessScale: Function,
 //   getLocationRadiusGetter: Function,
@@ -67,10 +67,10 @@ export default () => {
     }
   })
 
-  const getLocationsByCode = createSelector(getLocations, locations =>
+  const getLocationsById = createSelector(getLocations, locations =>
     d3collection
       .nest()
-      .key((z) => z.properties.code)
+      .key((z) => z.properties.id)
       .rollup(([z]) => z)
       .object(locations)
   )
@@ -82,23 +82,23 @@ export default () => {
     getSelectedLocation,
     (flows, highlightedLocation, highlightedFlow, selectedLocation) => {
       if (highlightedFlow) {
-        return code =>
-          code === highlightedFlow.originID || code === highlightedFlow.destID
+        return id =>
+          id === highlightedFlow.originID || id === highlightedFlow.destID
       } else if (highlightedLocation) {
         const isRelated = ({ origin, dest }) =>
-          origin.code === highlightedLocation ||
-          dest.code === highlightedLocation ||
-          origin.code === selectedLocation ||
-          dest.code === selectedLocation
+          origin.id === highlightedLocation ||
+          dest.id === highlightedLocation ||
+          origin.id === selectedLocation ||
+          dest.id === selectedLocation
 
         const locations = _.chain(flows)
           .filter(isRelated)
-          .map(f => [f.origin.code, f.dest.code])
+          .map(f => [f.origin.id, f.dest.id])
           .flatten()
           .value()
 
         const locationSet = new Set(locations)
-        return code => locationSet.has(code)
+        return id => locationSet.has(id)
       }
 
       return () => false
@@ -165,14 +165,14 @@ export default () => {
       if (highlightedFlow) {
         const { originID, destID } = highlightedFlow
         return flows.filter(
-          (f) => f.origin.code === originID && f.dest.code === destID
+          (f) => f.origin.id === originID && f.dest.id === destID
         )
       }
 
       if (highlightedLocation) {
         return flows.filter(
           (f) =>
-            f.origin.code === highlightedLocation || f.dest.code === highlightedLocation
+            f.origin.id === highlightedLocation || f.dest.id === highlightedLocation
         )
       }
 
@@ -184,7 +184,7 @@ export default () => {
     getColors,
     getActiveFlows,
     isLocationConnectedGetter,
-    getLocationsByCode,
+    getLocationsById,
     getFlowColorScale,
     getFlowThicknessScale,
     getLocationRadiusGetter,
