@@ -32,6 +32,7 @@
     "build-es6": "rm -fr dist-es6 && babel src --out-dir dist-es6 --source-maps inline",
     "build-es5": "rm -fr dist && babel src --out-dir dist --plugins=transform-es2015-modules-commonjs --source-maps inline",
     "build": "npm run build-clean && npm run build-es6 && npm run build-es5",
+    "lint": "eslint src",
     "prepublish": "npm run build"
   },
   "dependencies": {
@@ -44,7 +45,7 @@
   "devDependencies": {
     "babel-cli": "^6.22.2",
     "babel-core": "^6.22.1",
-    "babel-eslint": "^7.1.0",
+    "babel-eslint": "^7.2.3",
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.22.0",
@@ -55,10 +56,12 @@
     "buble": "^0.15.1",
     "buble-loader": "^0.4.0",
     "deck.gl": "^4.1.1",
-    "eslint": "^3.0.0",
-    "eslint-plugin-flowtype": "^2.30.4",
+    "eslint": "^4.6.1",
+    "eslint-config-react-app": "^2.0.0",
     "eslint-plugin-import": "^2.0.1",
-    "eslint-plugin-react": "~6.7.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.3.0",
+    "eslint-plugin-react-app": "^1.0.2",
     "file-loader": "^0.10.1",
     "flow-bin": "0.47.0",
     "glslify-loader": "^1.0.2",
