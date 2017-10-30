@@ -12,6 +12,16 @@ const height = window.innerHeight
 
 const bbox = [5.9559111595,45.8179931641,10.4920501709,47.808380127]
 
+
+const getLocationID = l => l.properties.abbr
+const getLocationCentroid = l => l.properties.centroid
+const getLocationGeometryFeature = l => l
+
+const getFlowOriginID = f => f.origin
+const getFlowDestID = f => f.dest
+const getFlowMagnitude = f => f.magnitude
+
+  
 class Root extends Component {
 
   constructor(props) {
@@ -52,14 +62,14 @@ class Root extends Component {
       baseColor: '#0084c1',
 
       locations,
-      getLocationID: l => l.properties.abbr,
-      getLocationCentroid: l => l.properties.centroid,
-      getLocationGeometryFeature: l => l,
+      getLocationID,
+      getLocationCentroid,
+      getLocationGeometryFeature,
 
       flows,
-      getFlowOriginID: f => f.origin,
-      getFlowDestID: f => f.dest,
-      getFlowMagnitude: f => f.magnitude,
+      getFlowOriginID,
+      getFlowDestID,
+      getFlowMagnitude,
 
       showLocationOutlines: false,
 
