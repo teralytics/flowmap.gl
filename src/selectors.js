@@ -7,19 +7,20 @@ import { interpolateHcl } from 'd3-interpolate'
 import * as d3color from 'd3-color'
 import { colorAsArray } from './utils'
 
+const getLocations = (props) => props.locations
+const getFlows = (props) => props.flows
+const getLocationIDGetter = (props) => props.getLocationID
+const getFlowOriginIDGetter = (props) => props.getFlowOriginID
+const getFlowDestIDGetter = (props) => props.getFlowDestID
+const getFlowMagnitudeGetter = (props) => props.getFlowMagnitude
+const getHighlightedFlow = (props) => props.highlightedFlow
+const getHighlightedLocation = (props) => props.highlightedLocation
+const getSelectedLocation = (props) => props.selectedLocation
+
+const getBaseColor = (props) => props.baseColor
+
+
 export default () => {
-
-  const getLocations = (props) => props.locations
-  const getLocationIDGetter = (props) => props.getLocationID
-  const getFlows = (props) => props.flows
-  const getFlowOriginIDGetter = (props) => props.getFlowOriginID
-  const getFlowDestIDGetter = (props) => props.getFlowDestID
-  const getFlowMagnitudeGetter = (props) => props.getFlowMagnitude
-  const getHighlightedFlow = (props) => props.highlightedFlow
-  const getHighlightedLocation = (props) => props.highlightedLocation
-  const getSelectedLocation = (props) => props.selectedLocation
-
-  const getBaseColor = (props) => props.baseColor
 
   const getColors = createSelector(getBaseColor, baseColor => {
     const NOCOLOR = [0, 0, 0, 0]
