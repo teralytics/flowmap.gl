@@ -42,6 +42,8 @@ class Root extends Component {
         zoom,
       },
       locations: null,
+      highlightedLocation: null,
+      highlightedFlow: null,
     }
 
     fetch('./data/locations.json')
@@ -55,7 +57,12 @@ class Root extends Component {
 
 
   getFlowMapLayer() {
-    const { locations, flows } = this.state
+    const {
+      locations,
+      flows,
+      highlightedLocation,
+      highlightedFlow,
+    } = this.state
     if (!locations || !flows) return null
 
     return new FlowMapLayer({
@@ -73,16 +80,42 @@ class Root extends Component {
 
       showLocationOutlines: false,
 
+      highlightedLocation,
+      highlightedFlow,
 
-      // highlightedLocation,
-      // highlightedFlow,
-      // showTotals,
-      // onHover: this.handleFlowMapHover,
-      // onClick: this.handleFlowMapClick,
+      onHover: this.handleFlowMapHover,
+      onClick: this.handleFlowMapClick,
     })
   }
 
-  handleChangeViewport(v) {
+  handleFlowMapHover = ({ kind, object }) => {
+    switch (kind) {
+      case 'flow':
+        this.setState({
+          highlightedFlow: object
+        })
+        break
+
+      case 'location':
+        this.setState({
+          highlightedLocation: object ? getLocationID(object) : null
+        })
+        break
+
+      default:
+        this.setState({
+          highlightedFlow: null,
+          highlightedLocation: null,
+        })
+
+    }
+  }
+
+  handleFlowMapClick = (params) => {
+    console.log('handleFlowMapClick', params)
+  }
+
+  handleChangeViewport = (v) => {
     this.setState({ viewport: { ...this.state.viewport, ...v } })
   }
 
@@ -91,7 +124,7 @@ class Root extends Component {
     return (
       <MapGL
         {...viewport}
-        onViewportChange={this.handleChangeViewport.bind(this)}
+        onViewportChange={this.handleChangeViewport}
         mapboxApiAccessToken={MAPBOX_TOKEN}>
         <DeckGL
           {...viewport}

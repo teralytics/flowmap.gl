@@ -4,7 +4,7 @@ const webpack = require('webpack');
 const LIB_DIR = resolve(__dirname, '..');
 const SRC_DIR = resolve(LIB_DIR, './src');
 
-// Support for hot reloading changes to the deck.gl library:
+// Support for hot reloading changes to the flow-map.gl library:
 const LOCAL_DEV_CONFIG = {
   // suppress warnings about bundle size
   devServer: {
@@ -31,17 +31,9 @@ const LOCAL_DEV_CONFIG = {
   module: {
     rules: [
       {
-        // Compile source using buble
         test: /\.js$/,
-        loader: 'buble-loader',
-        include: [SRC_DIR],
-        options: {
-          objectAssign: 'Object.assign',
-          transforms: {
-            dangerousForOf: true,
-            modules: false
-          }
-        }
+        loaders: 'babel-loader',
+        include: [SRC_DIR]
       },
       {
         // Unfortunately, webpack doesn't import library sourcemaps on its own...

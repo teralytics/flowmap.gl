@@ -195,27 +195,32 @@ export default () => {
     getLocations,
     getLocationRadiusGetter,
     (locations, getLocationRadius) =>
-      _.chain(locations)
-        .flatMap(location => [{ location, kind: 'outer' }, { location, kind: 'inner' }])
-        .value()
+      _.flatMap(
+        locations,
+        location => [{ location, kind: 'outer' }, { location, kind: 'inner' }]
+      )
   )
 
   const getActiveFlows = createSelector(
     getSortedNonSelfFlows,
     getHighlightedFlow,
     getHighlightedLocation,
-    (flows, highlightedFlow, highlightedLocation) => {
+    getFlowOriginIDGetter,
+    getFlowDestIDGetter,
+    (flows, highlightedFlow, highlightedLocation, getFlowOriginID, getFlowDestID) => {
       if (highlightedFlow) {
-        const { originID, destID } = highlightedFlow
         return flows.filter(
-          (f) => f.origin.id === originID && f.dest.id === destID
+          (f) =>
+            getFlowOriginID(f) === getFlowOriginID(highlightedFlow) &&
+            getFlowDestID(f) === getFlowDestID(highlightedFlow)
         )
       }
 
       if (highlightedLocation) {
         return flows.filter(
           (f) =>
-            f.origin.id === highlightedLocation || f.dest.id === highlightedLocation
+            getFlowOriginID(f) === highlightedLocation ||
+            getFlowDestID(f) === highlightedLocation
         )
       }
 
