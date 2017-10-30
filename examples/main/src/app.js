@@ -42,7 +42,7 @@ class Root extends Component {
         zoom,
       },
       locations: null,
-      highlightedLocation: null,
+      highlightedLocationID: null,
       highlightedFlow: null,
     }
 
@@ -60,7 +60,7 @@ class Root extends Component {
     const {
       locations,
       flows,
-      highlightedLocation,
+      highlightedLocationID,
       highlightedFlow,
     } = this.state
     if (!locations || !flows) return null
@@ -80,7 +80,7 @@ class Root extends Component {
 
       showLocationOutlines: false,
 
-      highlightedLocation,
+      highlightedLocationID,
       highlightedFlow,
 
       onHover: this.handleFlowMapHover,
@@ -98,14 +98,14 @@ class Root extends Component {
 
       case 'location':
         this.setState({
-          highlightedLocation: object ? getLocationID(object) : null
+          highlightedLocationID: object ? getLocationID(object) : null
         })
         break
 
       default:
         this.setState({
           highlightedFlow: null,
-          highlightedLocation: null,
+          highlightedLocationID: null,
         })
 
     }

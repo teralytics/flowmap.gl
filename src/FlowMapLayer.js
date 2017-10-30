@@ -10,7 +10,7 @@ import createSelectors from './selectors'
 //   flows: ODFlow[],
 //   locations: ODLocation[],
 //   selectedLocation?: ?string,
-//   highlightedLocation?: ?string,
+//   highlightedLocationID?: ?string,
 //   highlightedFlow?: ?OriginDest,
 //   showTotals: ?boolean,
 //   showLocationOutlines: ?boolean,
@@ -92,17 +92,17 @@ export default class FlowMapLayer extends CompositeLayer {
     const getLocationTotalIn = getLocationTotalInGetter(this.props)
     const getLocationTotalOut = getLocationTotalOutGetter(this.props)
 
-    const { highlightedLocation, highlightedFlow, selectedLocation } = this.props
+    const { highlightedLocationID, highlightedFlow, selectedLocation } = this.props
     const getLocationRadius = getLocationRadiusGetter(this.props)
 
     const { selectors: { getColors } } = this.state
     const colors = getColors(this.props)
 
     const getCircleColor = ({ location, kind }) => {
-      const { highlightedLocation } = this.props
+      const { highlightedLocationID } = this.props
       if (
-        (!highlightedLocation && !highlightedFlow && !selectedLocation) ||
-        highlightedLocation === getLocationID(location) ||
+        (!highlightedLocationID && !highlightedFlow && !selectedLocation) ||
+        highlightedLocationID === getLocationID(location) ||
         selectedLocation === getLocationID(location) ||
         (highlightedFlow &&
           (getLocationID(location) === getFlowOriginID(highlightedFlow) ||
@@ -134,7 +134,7 @@ export default class FlowMapLayer extends CompositeLayer {
       pickable: true,
       fp64: true,
       updateTriggers: {
-        getColor: { highlightedLocation, highlightedFlow, selectedLocation }
+        getColor: { highlightedLocationID, highlightedFlow, selectedLocation }
       }
     })
   }
@@ -145,7 +145,7 @@ export default class FlowMapLayer extends CompositeLayer {
   ) {
     const { color: outlineColor = null, width: outlineWidth = null } =
       outline || {}
-    const { locations, highlightedLocation, highlightedFlow, selectedLocation } = this.props
+    const { locations, highlightedLocationID, highlightedFlow, selectedLocation } = this.props
     const { selectors: { getColors, isLocationConnectedGetter } } = this.state
     const isConnected = isLocationConnectedGetter(this.props)
     const colors = getColors(this.props)
@@ -154,7 +154,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const pickable = !outline
     const filled = !outline
     const getFillColor = ({ properties: { id } }) =>
-      id === highlightedLocation
+      id === highlightedLocationID
         ? colors.LOCATION_COLORS.highlighted
         : isConnected(id)
           ? colors.LOCATION_COLORS.connected
@@ -171,7 +171,7 @@ export default class FlowMapLayer extends CompositeLayer {
       pickable,
       fp64: true,
       updateTriggers: {
-        getFillColor: { highlightedLocation, highlightedFlow }
+        getFillColor: { highlightedLocationID, highlightedFlow }
       },
       ...(outlineColor ? { getLineColor: () => outlineColor } : null),
       ...(outlineWidth ? { getLineWidth: () => outlineWidth } : null)
@@ -184,7 +184,7 @@ export default class FlowMapLayer extends CompositeLayer {
       getFlowDestID,
       getFlowMagnitude,
       getLocationCentroid,
-      highlightedLocation,
+      highlightedLocationID,
       highlightedFlow,
       showTotals,
     } = this.props
@@ -229,7 +229,7 @@ export default class FlowMapLayer extends CompositeLayer {
       drawBorder: !dimmed,
       updateTriggers: {
         instanceColors: !dimmed && {
-          highlightedLocation,
+          highlightedLocationID,
           highlightedFlow,
         },
         instanceEndpointOffsets: {

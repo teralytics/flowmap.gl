@@ -14,7 +14,7 @@ const getFlowOriginIDGetter = (props) => props.getFlowOriginID
 const getFlowDestIDGetter = (props) => props.getFlowDestID
 const getFlowMagnitudeGetter = (props) => props.getFlowMagnitude
 const getHighlightedFlow = (props) => props.highlightedFlow
-const getHighlightedLocation = (props) => props.highlightedLocation
+const getHighlightedLocation = (props) => props.highlightedLocationID
 const getSelectedLocation = (props) => props.selectedLocation
 
 const getBaseColor = (props) => props.baseColor
@@ -68,14 +68,14 @@ export default () => {
     getHighlightedLocation,
     getHighlightedFlow,
     getSelectedLocation,
-    (flows, highlightedLocation, highlightedFlow, selectedLocation) => {
+    (flows, highlightedLocationID, highlightedFlow, selectedLocation) => {
       if (highlightedFlow) {
         return id =>
           id === highlightedFlow.originID || id === highlightedFlow.destID
-      } else if (highlightedLocation) {
+      } else if (highlightedLocationID) {
         const isRelated = ({ origin, dest }) =>
-          origin.id === highlightedLocation ||
-          dest.id === highlightedLocation ||
+          origin.id === highlightedLocationID ||
+          dest.id === highlightedLocationID ||
           origin.id === selectedLocation ||
           dest.id === selectedLocation
 
@@ -207,7 +207,7 @@ export default () => {
     getHighlightedLocation,
     getFlowOriginIDGetter,
     getFlowDestIDGetter,
-    (flows, highlightedFlow, highlightedLocation, getFlowOriginID, getFlowDestID) => {
+    (flows, highlightedFlow, highlightedLocationID, getFlowOriginID, getFlowDestID) => {
       if (highlightedFlow) {
         return flows.filter(
           (f) =>
@@ -216,11 +216,11 @@ export default () => {
         )
       }
 
-      if (highlightedLocation) {
+      if (highlightedLocationID) {
         return flows.filter(
           (f) =>
-            getFlowOriginID(f) === highlightedLocation ||
-            getFlowDestID(f) === highlightedLocation
+            getFlowOriginID(f) === highlightedLocationID ||
+            getFlowDestID(f) === highlightedLocationID
         )
       }
 
