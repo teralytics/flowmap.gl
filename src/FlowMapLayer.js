@@ -9,7 +9,7 @@ import createSelectors from './selectors'
 // type Props = {
 //   flows: ODFlow[],
 //   locations: ODLocation[],
-//   selectedLocation?: ?string,
+//   selectedLocationID?: ?string,
 //   highlightedLocationID?: ?string,
 //   highlightedFlow?: ?OriginDest,
 //   showTotals: ?boolean,
@@ -92,7 +92,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const getLocationTotalIn = getLocationTotalInGetter(this.props)
     const getLocationTotalOut = getLocationTotalOutGetter(this.props)
 
-    const { highlightedLocationID, highlightedFlow, selectedLocation } = this.props
+    const { highlightedLocationID, highlightedFlow, selectedLocationID } = this.props
     const getLocationRadius = getLocationRadiusGetter(this.props)
 
     const { selectors: { getColors } } = this.state
@@ -101,9 +101,9 @@ export default class FlowMapLayer extends CompositeLayer {
     const getCircleColor = ({ location, kind }) => {
       const { highlightedLocationID } = this.props
       if (
-        (!highlightedLocationID && !highlightedFlow && !selectedLocation) ||
+        (!highlightedLocationID && !highlightedFlow && !selectedLocationID) ||
         highlightedLocationID === getLocationID(location) ||
-        selectedLocation === getLocationID(location) ||
+        selectedLocationID === getLocationID(location) ||
         (highlightedFlow &&
           (getLocationID(location) === getFlowOriginID(highlightedFlow) ||
             getLocationID(location) === getFlowDestID(highlightedFlow)))
@@ -134,7 +134,7 @@ export default class FlowMapLayer extends CompositeLayer {
       pickable: true,
       fp64: true,
       updateTriggers: {
-        getColor: { highlightedLocationID, highlightedFlow, selectedLocation }
+        getColor: { highlightedLocationID, highlightedFlow, selectedLocationID }
       }
     })
   }
@@ -145,7 +145,7 @@ export default class FlowMapLayer extends CompositeLayer {
   ) {
     const { color: outlineColor = null, width: outlineWidth = null } =
       outline || {}
-    const { locations, highlightedLocationID, highlightedFlow, selectedLocation } = this.props
+    const { locations, highlightedLocationID, highlightedFlow, selectedLocationID } = this.props
     const { selectors: { getColors, isLocationConnectedGetter } } = this.state
     const isConnected = isLocationConnectedGetter(this.props)
     const colors = getColors(this.props)

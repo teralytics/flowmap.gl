@@ -4,14 +4,16 @@ import MapGL from 'react-map-gl'
 import DeckGL from 'deck.gl'
 import FlowMapLayer from 'flow-map.gl'
 import geoViewport from '@mapbox/geo-viewport'
+import _ from 'lodash'
 
 const MAPBOX_TOKEN = process.env.MapboxAccessToken // eslint-disable-line
 
 const width = window.innerWidth
 const height = window.innerHeight
 
-const bbox = [5.9559111595,45.8179931641,10.4920501709,47.808380127]
+const ESC_KEY = 27
 
+const bbox = [5.9559111595,45.8179931641,10.4920501709,47.808380127]
 
 const getLocationID = l => l.properties.abbr
 const getLocationCentroid = l => l.properties.centroid
@@ -52,7 +54,7 @@ class Root extends Component {
 
     fetch('./data/flows.json')
       .then(resp => resp.json())
-      .then(flows => this.setState({flows}))
+      .then(flows => this.setState({flows: flows.filter((d,i)=> i%6)}))
   }
 
 
@@ -61,6 +63,7 @@ class Root extends Component {
       locations,
       flows,
       highlightedLocationID,
+      selectedLocationID,
       highlightedFlow,
     } = this.state
     if (!locations || !flows) return null
@@ -80,6 +83,7 @@ class Root extends Component {
 
       showLocationOutlines: false,
 
+      selectedLocationID,
       highlightedLocationID,
       highlightedFlow,
 
@@ -88,35 +92,74 @@ class Root extends Component {
     })
   }
 
+  highlight = ({ highlightedLocationID, highlightedFlow }) => {
+    this.setState({
+      highlightedLocationID,
+      highlightedFlow
+    })
+    this.highlightDebounced.cancel()
+  }
+
+  highlightDebounced = _.debounce(this.highlight, 100)
+
+
   handleFlowMapHover = ({ kind, object }) => {
     switch (kind) {
       case 'flow':
-        this.setState({
-          highlightedFlow: object
+        this.highlight({
+          highlightedFlow: object,
+          highlightedLocationID: null,
         })
         break
 
       case 'location':
-        this.setState({
+        this.highlight({
+          highlightedFlow: null,
           highlightedLocationID: object ? getLocationID(object) : null
         })
         break
 
       default:
-        this.setState({
+        this.highlightDebounced({
           highlightedFlow: null,
           highlightedLocationID: null,
         })
-
     }
   }
 
-  handleFlowMapClick = (params) => {
-    console.log('handleFlowMapClick', params)
+  handleFlowMapClick = ({ kind, object }) => {
+    switch (kind) {
+      case 'location': {
+        const { selectedLocationID } = this.state
+        const nextSelectedID = object ? getLocationID(object) : null
+        this.setState({
+          selectedLocationID: nextSelectedID === selectedLocationID ? null : nextSelectedID
+        })
+        break
+      }
+    }
   }
 
   handleChangeViewport = (v) => {
     this.setState({ viewport: { ...this.state.viewport, ...v } })
+  }
+
+  handleKeyDown = (evt: Event) => {
+    if (evt instanceof KeyboardEvent) {
+      if (evt.keyCode === ESC_KEY) {
+        this.setState({
+          selectedLocationID: null,
+        })
+      }
+    }
+  }
+
+  componentWillMount() {
+    document.addEventListener('keydown', this.handleKeyDown)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown)
   }
 
   render() {
@@ -128,7 +171,6 @@ class Root extends Component {
         mapboxApiAccessToken={MAPBOX_TOKEN}>
         <DeckGL
           {...viewport}
-          debug
           layers={[
             this.getFlowMapLayer()
           ]} />

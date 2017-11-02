@@ -8,14 +8,14 @@ import * as d3color from 'd3-color'
 import { colorAsArray } from './utils'
 
 const getLocations = (props) => props.locations
-const getFlows = (props) => props.flows
+const getFlowsFromProps = (props) => props.flows
 const getLocationIDGetter = (props) => props.getLocationID
 const getFlowOriginIDGetter = (props) => props.getFlowOriginID
 const getFlowDestIDGetter = (props) => props.getFlowDestID
 const getFlowMagnitudeGetter = (props) => props.getFlowMagnitude
 const getHighlightedFlow = (props) => props.highlightedFlow
-const getHighlightedLocation = (props) => props.highlightedLocationID
-const getSelectedLocation = (props) => props.selectedLocation
+const getHighlightedLocationID = (props) => props.highlightedLocationID
+const getSelectedLocationID = (props) => props.selectedLocationID
 
 const getBaseColor = (props) => props.baseColor
 
@@ -63,30 +63,53 @@ export default () => {
         .object(locations)
   )
 
+  const getFlows = createSelector(
+    getFlowsFromProps,
+    getSelectedLocationID,
+    getFlowOriginIDGetter,
+    getFlowDestIDGetter,
+    (flows, selectedLocationID, getFlowOriginID, getFlowDestID) => {
+      if (selectedLocationID) {
+        return flows.filter(flow =>
+          getFlowOriginID(flow) === selectedLocationID ||
+          getFlowDestID(flow) === selectedLocationID
+        )
+      }
+      return flows
+    }
+  )
+
   const isLocationConnectedGetter = createSelector(
     getFlows,
-    getHighlightedLocation,
+    getHighlightedLocationID,
     getHighlightedFlow,
-    getSelectedLocation,
-    (flows, highlightedLocationID, highlightedFlow, selectedLocation) => {
+    getSelectedLocationID,
+    getLocationIDGetter,
+    getFlowOriginIDGetter,
+    getFlowDestIDGetter,
+    (flows, highlightedLocationID, highlightedFlow, selectedLocationID,
+     getLocationID, getFlowOriginID, getFlowDestID) => {
       if (highlightedFlow) {
         return id =>
-          id === highlightedFlow.originID || id === highlightedFlow.destID
+          id === getFlowOriginID(highlightedFlow) || id === getFlowDestID(highlightedFlow)
       } else if (highlightedLocationID) {
-        const isRelated = ({ origin, dest }) =>
-          origin.id === highlightedLocationID ||
-          dest.id === highlightedLocationID ||
-          origin.id === selectedLocation ||
-          dest.id === selectedLocation
+        const isRelated = (flow) => {
+          const originID = getFlowOriginID(flow)
+          const destID = getFlowDestID(flow)
+          return (
+            originID === highlightedLocationID || originID === selectedLocationID ||
+            destID === highlightedLocationID || destID === selectedLocationID
+          )
+        }
 
-        const locations = _.chain(flows)
-          .filter(isRelated)
-          .map(f => [f.origin.id, f.dest.id])
-          .flatten()
-          .value()
-
-        const locationSet = new Set(locations)
-        return id => locationSet.has(id)
+        const locations = new Set()
+        for (const flow of flows) {
+          if (isRelated(flow)) {
+            locations.add(getFlowOriginID(flow))
+            locations.add(getFlowDestID(flow))
+          }
+        }
+        return id => locations.has(id)
       }
 
       return () => false
@@ -137,13 +160,13 @@ export default () => {
   const getLocationTotalInGetter = createSelector(
     getLocationIDGetter,
     getLocationTotals,
-    (getLocationID, { incoming }) => location => incoming[getLocationID(location)]
+    (getLocationID, { incoming }) => location => incoming[getLocationID(location)] || 0
   )
 
   const getLocationTotalOutGetter = createSelector(
     getLocationIDGetter,
     getLocationTotals,
-    (getLocationID, { outgoing }) => location => outgoing[getLocationID(location)]
+    (getLocationID, { outgoing }) => location => outgoing[getLocationID(location)] || 0
   )
 
   const getLocationMaxTotal = createSelector(
@@ -204,10 +227,12 @@ export default () => {
   const getActiveFlows = createSelector(
     getSortedNonSelfFlows,
     getHighlightedFlow,
-    getHighlightedLocation,
+    getHighlightedLocationID,
+    getSelectedLocationID,
     getFlowOriginIDGetter,
     getFlowDestIDGetter,
-    (flows, highlightedFlow, highlightedLocationID, getFlowOriginID, getFlowDestID) => {
+    (flows, highlightedFlow, highlightedLocationID, selectedLocationID,
+     getFlowOriginID, getFlowDestID) => {
       if (highlightedFlow) {
         return flows.filter(
           (f) =>
@@ -221,6 +246,14 @@ export default () => {
           (f) =>
             getFlowOriginID(f) === highlightedLocationID ||
             getFlowDestID(f) === highlightedLocationID
+        )
+      }
+
+      if (selectedLocationID) {
+        return flows.filter(
+          (f) =>
+            getFlowOriginID(f) === selectedLocationID ||
+            getFlowDestID(f) === selectedLocationID
         )
       }
 
