@@ -30,7 +30,8 @@ const defaultProps = {
   getFlowDestID: f => f.dest,
   getFlowMagnitude: f => f.magnitude,
   showTotals: true,
-  showLocationOutlines: true,
+  showLocationOutlines: false,
+  varyFlowColorByMagnitude: false,
 }
 
 
@@ -109,19 +110,19 @@ export default class FlowMapLayer extends CompositeLayer {
             getLocationID(location) === getFlowDestID(highlightedFlow)))
       ) {
         if (kind === 'inner') {
-          return colors.CIRCLE_COLORS.inner
+          return colors.LOCATION_CIRCLE_COLORS.inner
         } else {
           if (getLocationTotalIn(location) > getLocationTotalOut(location)) {
-            return colors.CIRCLE_COLORS.incoming
+            return colors.LOCATION_CIRCLE_COLORS.incoming
           } else {
-            return colors.CIRCLE_COLORS.outgoing
+            return colors.LOCATION_CIRCLE_COLORS.outgoing
           }
         }
       }
       if (kind === 'inner') {
-        return colors.CIRCLE_COLORS.none
+        return colors.LOCATION_CIRCLE_COLORS.none
       }
-      return colors.CIRCLE_COLORS.dimmed
+      return colors.LOCATION_CIRCLE_COLORS.dimmed
     }
 
     return new CirclesLayer({
@@ -139,26 +140,34 @@ export default class FlowMapLayer extends CompositeLayer {
     })
   }
 
-  renderNodeAreasLayer(
+  renderLocationAreasLayer(
     id,
     outline  // ?: { color?: number[], width?: number }
   ) {
     const { color: outlineColor = null, width: outlineWidth = null } =
       outline || {}
-    const { locations, highlightedLocationID, highlightedFlow, selectedLocationID } = this.props
+    const { locations } = this.props
+    const {
+      selectedLocationID,
+      highlightedLocationID,
+      highlightedFlow,
+    } = this.props
     const { selectors: { getColors, isLocationConnectedGetter } } = this.state
+    const { getLocationID } = this.props
     const isConnected = isLocationConnectedGetter(this.props)
     const colors = getColors(this.props)
 
     const stroked = !!outline
     const pickable = !outline
     const filled = !outline
-    const getFillColor = ({ properties: { id } }) =>
-      id === highlightedLocationID
-        ? colors.LOCATION_COLORS.highlighted
-        : isConnected(id)
-          ? colors.LOCATION_COLORS.connected
-          : colors.LOCATION_COLORS.none
+    const getFillColor = (location) => {
+      const id = getLocationID(location)
+      const { normal, highlighted, selected, connected } = colors.LOCATION_AREA_COLORS
+      if (id === selectedLocationID) return selected
+      if (id === highlightedLocationID) return highlighted
+      if (isConnected(id)) return connected
+      return normal
+    }
 
     return new PolygonLayer({
       id,
@@ -171,7 +180,7 @@ export default class FlowMapLayer extends CompositeLayer {
       pickable,
       fp64: true,
       updateTriggers: {
-        getFillColor: { highlightedLocationID, highlightedFlow }
+        getFillColor: { selectedLocationID, highlightedLocationID, highlightedFlow }
       },
       ...(outlineColor ? { getLineColor: () => outlineColor } : null),
       ...(outlineWidth ? { getLineWidth: () => outlineWidth } : null)
@@ -247,7 +256,21 @@ export default class FlowMapLayer extends CompositeLayer {
 
     const flows = getSortedNonSelfFlows(this.props)
     const activeFlows = getActiveFlows(this.props)
-    layers.push(this.renderNodeAreasLayer(LAYER_ID__LOCATION_AREAS))
+    layers.push(this.renderLocationAreasLayer(LAYER_ID__LOCATION_AREAS))
+    if (showLocationOutlines) {
+      layers.push(
+        this.renderLocationAreasLayer(LAYER_ID__LOCATION_AREAS_OUTLINE1, {
+          color: [0, 0, 0, 200],
+          width: 500
+        })
+      )
+      layers.push(
+        this.renderLocationAreasLayer(LAYER_ID__LOCATION_AREAS_OUTLINE2, {
+          color: [255, 255, 255, 150],
+          width: 250
+        })
+      )
+    }
     layers.push(this.renderFlowLinesLayer(LAYER_ID__FLOWS, flows, true))
     layers.push(
       this.renderFlowLinesLayer(LAYER_ID__FLOWS_ACTIVE, activeFlows, false)
@@ -255,21 +278,6 @@ export default class FlowMapLayer extends CompositeLayer {
 
     if (showTotals) {
       layers.push(this.renderNodesLayer(LAYER_ID__LOCATIONS))
-    }
-
-    if (showLocationOutlines) {
-      layers.push(
-        this.renderNodeAreasLayer(LAYER_ID__LOCATION_AREAS_OUTLINE1, {
-          color: [0, 0, 0, 200],
-          width: 100
-        })
-      )
-      layers.push(
-        this.renderNodeAreasLayer(LAYER_ID__LOCATION_AREAS_OUTLINE2, {
-          color: [255, 255, 255, 150],
-          width: 60
-        })
-      )
     }
 
     return layers

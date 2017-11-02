@@ -5,6 +5,7 @@ import DeckGL from 'deck.gl'
 import FlowMapLayer from 'flow-map.gl'
 import geoViewport from '@mapbox/geo-viewport'
 import _ from 'lodash'
+import AntiWobbleLayer from './AntiWobbleLayer'
 
 const MAPBOX_TOKEN = process.env.MapboxAccessToken // eslint-disable-line
 
@@ -82,6 +83,7 @@ class Root extends Component {
       getFlowMagnitude,
 
       showLocationOutlines: false,
+      varyFlowColorByMagnitude: true,
 
       selectedLocationID,
       highlightedLocationID,
@@ -119,6 +121,13 @@ class Root extends Component {
         })
         break
 
+      case 'location-area':
+        this.highlightDebounced({
+          highlightedFlow: null,
+          highlightedLocationID: object ? getLocationID(object) : null
+        })
+        break
+
       default:
         this.highlightDebounced({
           highlightedFlow: null,
@@ -129,7 +138,9 @@ class Root extends Component {
 
   handleFlowMapClick = ({ kind, object }) => {
     switch (kind) {
-      case 'location': {
+      case 'location':
+      case 'location-area':
+      {
         const { selectedLocationID } = this.state
         const nextSelectedID = object ? getLocationID(object) : null
         this.setState({
@@ -171,9 +182,11 @@ class Root extends Component {
         mapboxApiAccessToken={MAPBOX_TOKEN}>
         <DeckGL
           {...viewport}
+          style={{ mixBlendMode: 'darken' }}
           layers={[
             this.getFlowMapLayer()
           ]} />
+        <AntiWobbleLayer {...viewport} />
       </MapGL>
     )
   }

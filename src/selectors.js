@@ -16,41 +16,45 @@ const getFlowMagnitudeGetter = (props) => props.getFlowMagnitude
 const getHighlightedFlow = (props) => props.highlightedFlow
 const getHighlightedLocationID = (props) => props.highlightedLocationID
 const getSelectedLocationID = (props) => props.selectedLocationID
+const getVaryFlowColorByMagnitude = (props) => props.varyFlowColorByMagnitude
 
 const getBaseColor = (props) => props.baseColor
 
 
 export default () => {
 
-  const getColors = createSelector(getBaseColor, baseColor => {
-    const NOCOLOR = [0, 0, 0, 0]
-    const DIMMED = [0, 0, 0, 100]
+  const getColors = createSelector(
+    getBaseColor,
+    baseColor => {
+      const NOCOLOR = [255, 255, 255, 0]
+      const DIMMED = [0, 0, 0, 100]
 
-    const baseColorDarker = d3color.hcl(baseColor).darker(1.5)
-    const baseColorBrighter = d3color.hcl(baseColor).brighter(1.5)
-    const baseColorBrighter2 = d3color.hcl(baseColor).brighter(2)
-    const baseColorBrighter3 = d3color.hcl(baseColor).brighter(3)
+      const baseColorDarker = d3color.hcl(baseColor).darker(1.25)
+      const baseColorDarker2 = d3color.hcl(baseColor).darker(1.5)
+      const baseColorBrighter2 = d3color.hcl(baseColor).brighter(2)
+      const baseColorBrighter3 = d3color.hcl(baseColor).brighter(3)
 
-    return {
-      // FLOW_LINE_COLOR_RANGE: [baseColorBrighter, baseColor],
-      FLOW_LINE_COLOR_RANGE: [baseColor, baseColor],
+      return {
+        FLOW_LINE_COLOR_RANGE: [baseColorBrighter2, baseColor],
 
-      CIRCLE_COLORS: {
-        inner: colorAsArray(baseColor),
-        outgoing: colorAsArray(baseColorBrighter3),
-        incoming: colorAsArray(baseColorDarker),
+        LOCATION_CIRCLE_COLORS: {
+          inner: colorAsArray(baseColor),
+          outgoing: colorAsArray(baseColorBrighter3),
+          incoming: colorAsArray(baseColorDarker),
 
-        dimmed: DIMMED,
-        none: NOCOLOR
-      },
+          dimmed: DIMMED,
+          none: NOCOLOR
+        },
 
-      LOCATION_COLORS: {
-        highlighted: colorAsArray(baseColor),
-        connected: colorAsArray(baseColorBrighter2),
-        none: NOCOLOR
+        LOCATION_AREA_COLORS: {
+          normal: colorAsArray(baseColorBrighter2),
+          selected: colorAsArray(baseColorDarker2),
+          highlighted: colorAsArray(baseColor),
+          connected: colorAsArray(baseColorBrighter2),
+          none: NOCOLOR
+        }
       }
-    }
-  })
+    })
 
   const getLocationsById = createSelector(
     getLocations,
@@ -192,13 +196,16 @@ export default () => {
   const getFlowColorScale = createSelector(
     getColors,
     getFlowMagnitudeExtent,
-    (colors, [minMagnitude, maxMagnitude]) =>
+    getVaryFlowColorByMagnitude,
+    (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude) =>
+      varyFlowColorByMagnitude ?
         d3scale
-            .scalePow()
-            .exponent(1 / 3)
-            .interpolate(interpolateHcl)
-            .range(colors.FLOW_LINE_COLOR_RANGE)
-            .domain([0, maxMagnitude])
+          .scalePow()
+          .exponent(1 / 3)
+          .interpolate(interpolateHcl)
+          .range(colors.FLOW_LINE_COLOR_RANGE)
+          .domain([0, maxMagnitude])
+        : () => colors.FLOW_LINE_COLOR_RANGE[1]
   )
 
   const getLocationRadiusGetter = createSelector(
