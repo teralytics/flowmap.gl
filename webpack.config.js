@@ -2,7 +2,7 @@ const {resolve} = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  // Bundle the source code
+  // Bundle the source id
   entry: {
     lib: resolve('./src/index.js')
   },

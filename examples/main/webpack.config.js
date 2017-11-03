@@ -6,22 +6,19 @@ const webpack = require('webpack');
 
 const CONFIG = {
   entry: {
-    app: resolve('./app.js')
+    app: resolve('./src/app.js')
   },
 
   devtool: 'source-map',
 
   module: {
-    rules: [{
-      // Compile ES2015 using buble
-      test: /\.js$/,
-      loader: 'buble-loader',
-      include: [resolve('.')],
-      exclude: [/node_modules/],
-      options: {
-        objectAssign: 'Object.assign'
+    rules: [
+      {
+        test: /\.js$/,
+        loaders: 'babel-loader',
+        include: [resolve('./src')]
       }
-    }]
+    ]
   },
 
   resolve: {

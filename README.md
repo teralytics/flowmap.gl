@@ -2,7 +2,7 @@
 
 Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl).
 
-<img src="./doc/sg.png" width="700" />
+<img src="./doc/ch.png" width="500" />
 
 ## Developing
 
