@@ -18,9 +18,9 @@ const LOCAL_DEV_CONFIG = {
   resolve: {
     alias: {
       // For importing modules that are not exported at root
-      'flow-map.gl/dist': SRC_DIR,
+      '@tera/flow-map.gl/dist': SRC_DIR,
       // Imports the deck.gl library from the src directory in this repo
-      'flow-map.gl': SRC_DIR,
+      '@tera/flow-map.gl': SRC_DIR,
       // Important: ensure shared dependencies come from the main node_modules dir
       'deck.gl': resolve(LIB_DIR, './node_modules/deck.gl'),
       'luma.gl': resolve(LIB_DIR, './node_modules/luma.gl'),

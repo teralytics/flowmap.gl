@@ -5,7 +5,6 @@
   },
   "dependencies": {
     "@mapbox/geo-viewport": "^0.2.2",
-    "@tera/flow-map.gl": "^1.0.0-alpha.1",
     "deck.gl": "^4.1.0",
     "luma.gl": "^4.0.1",
     "react": "^15.4.1",
@@ -13,7 +12,7 @@
     "react-map-gl": "^3.0.0"
   },
   "peerDependencies": {
-    "flow-map.gl": "^1.0.0"
+    "@tera/flow-map.gl": "^1.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
