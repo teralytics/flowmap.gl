@@ -69,7 +69,7 @@
     "raw-loader": "^0.5.1",
     "react": "^15.4.0",
     "react-dom": "^15.4.0",
-    "source-map-loader": "^0.2.1",
+    "source-map-loader": "^0.2.3",
     "transform-loader": "^0.2.3",
     "webpack": "^2.4.0",
     "webpack-dev-server": "^2.4.0"
