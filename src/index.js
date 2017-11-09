@@ -1,2 +1,1 @@
-import FlowMapLayer from './FlowMapLayer'
-export default FlowMapLayer
+export default from './FlowMapLayer'

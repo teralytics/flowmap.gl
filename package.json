@@ -27,13 +27,14 @@
     "src"
   ],
   "scripts": {
-    "start": "(cd examples/main && (path-exists node_modules || npm i) && npm run start-local)",
+    "start": "STORYBOOK_MapboxAccessToken=$MapboxAccessToken start-storybook -p 6006",
     "build-clean": "rm -fr dist dist-es6 && mkdir -p dist dist-es6",
     "build-es6": "rm -fr dist-es6 && babel src --out-dir dist-es6 --source-maps inline",
     "build-es5": "rm -fr dist && babel src --out-dir dist --plugins=transform-es2015-modules-commonjs --source-maps inline",
     "build": "npm run build-clean && npm run build-es6 && npm run build-es5",
     "lint": "eslint src",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "d3-array": "^1.2.0",
@@ -43,6 +44,10 @@
     "reselect": "^3.0.1"
   },
   "devDependencies": {
+    "@mapbox/geo-viewport": "^0.2.2",
+    "@storybook/addon-actions": "^3.2.14",
+    "@storybook/addon-links": "^3.2.14",
+    "@storybook/react": "^3.2.14",
     "babel-cli": "^6.22.2",
     "babel-core": "^6.22.1",
     "babel-eslint": "^7.2.3",
@@ -69,14 +74,13 @@
     "raw-loader": "^0.5.1",
     "react": "^15.4.0",
     "react-dom": "^15.4.0",
+    "react-map-gl": "^3.1.1",
     "source-map-loader": "^0.2.3",
     "transform-loader": "^0.2.3",
     "webpack": "^2.4.0",
     "webpack-dev-server": "^2.4.0"
   },
   "peerDependencies": {
-    "deck.gl": ">=4.1.0",
-    "luma.gl": ">=4.0.1",
     "react": "0.14.x - 15.x",
     "react-dom": "0.14.x - 15.x"
   }

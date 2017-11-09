@@ -2,12 +2,14 @@ import React, {Component} from 'react'
 import {render} from 'react-dom'
 import MapGL from 'react-map-gl'
 import DeckGL from 'deck.gl'
-import FlowMapLayer from '@tera/flow-map.gl'
+import FlowMapLayer from '../src/'
 import geoViewport from '@mapbox/geo-viewport'
 import _ from 'lodash'
-import AntiWobbleLayer from './AntiWobbleLayer'
 
-const MAPBOX_TOKEN = process.env.MapboxAccessToken // eslint-disable-line
+import locationsData from './data/locations.json'
+import flowsData from './data/flows.json'
+
+const MAPBOX_TOKEN = process.env.STORYBOOK_MapboxAccessToken // eslint-disable-line
 
 const width = window.innerWidth
 const height = window.innerHeight
@@ -25,7 +27,7 @@ const getFlowDestID = f => f.dest
 const getFlowMagnitude = f => f.magnitude
 
   
-class Root extends Component {
+export default class Example extends Component {
 
   constructor(props) {
     super(props)
@@ -44,18 +46,11 @@ class Root extends Component {
         latitude,
         zoom,
       },
-      locations: null,
+      locations: locationsData.features,
+      flows: flowsData,
       highlightedLocationID: null,
       highlightedFlow: null,
     }
-
-    fetch('./data/locations.json')
-      .then(resp => resp.json())
-      .then(geoJson => this.setState({locations: geoJson.features}))
-
-    fetch('./data/flows.json')
-      .then(resp => resp.json())
-      .then(flows => this.setState({flows: flows.filter((d,i)=> i%6)}))
   }
 
 
@@ -186,10 +181,7 @@ class Root extends Component {
           layers={[
             this.getFlowMapLayer()
           ]} />
-        <AntiWobbleLayer {...viewport} />
       </MapGL>
     )
   }
 }
-
-render(<Root />, document.body.appendChild(document.createElement('div')))

@@ -8,5 +8,5 @@ Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl).
 
     npm install
     MapboxAccessToken=... npm start
+    open http://localhost:6006 to open storybook
 
-Note that `npm start` in the main directory actually runs `examples/main`.
