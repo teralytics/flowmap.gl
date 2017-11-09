@@ -16,7 +16,7 @@ module.exports = {
     // Generate the bundle in dist folder
     path: resolve('./dist'),
     filename: '[name]-bundle.js',
-    library: 'flow-map.gl',
+    library: '@tera/flow-map.gl',
     libraryTarget: 'umd'
   },
 

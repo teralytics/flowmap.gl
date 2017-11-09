@@ -12,10 +12,14 @@
     "react-map-gl": "^3.0.0"
   },
   "peerDependencies": {
-    "flow-map.gl": "^1.0.0"
+    "@tera/flow-map.gl": "^1.0.0"
   },
   "devDependencies": {
+    "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "webpack": "^2.2.0",
     "webpack-dev-server": "^2.2.0"
   }
