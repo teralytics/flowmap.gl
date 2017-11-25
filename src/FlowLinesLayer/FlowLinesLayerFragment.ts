@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-module.exports = `
+export default `
 #define SHADER_NAME flow-line-layer-fragment-shader
 
 #ifdef GL_ES
@@ -34,4 +34,4 @@ void main(void) {
 
   gl_FragColor = vColor;
 }
-`
+`;
