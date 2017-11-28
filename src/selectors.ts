@@ -33,7 +33,7 @@ export interface LocationTotals {
 }
 
 export interface Colors {
-  flowLineColorRange: Array<d3Color.HCLColor | string>;
+  flowLineColorRange: d3Color.HCLColor[];
   locationCircleColors: {
     inner: RGBA;
     outgoing: RGBA;
