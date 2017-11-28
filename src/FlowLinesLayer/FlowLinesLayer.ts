@@ -1,8 +1,8 @@
 import { Attribute, DrawParams, Layer, LayerProps, LayerState, PickingInfo, ShaderCache, Shaders } from 'deck.gl';
 import { Geometry, GL, Model } from 'luma.gl';
 import { fp64ify, RGBA } from '../utils';
-import FragmentShader from './FlowLinesLayerFragment';
-import VertexShader from './FlowLinesLayerVertex';
+import FragmentShader from './FlowLinesLayerFragment.glsl';
+import VertexShader from './FlowLinesLayerVertex.glsl';
 
 export interface FlowLineData {
   sourcePosition: [number, number];

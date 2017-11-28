@@ -60,7 +60,6 @@ const ESC_KEY = 27;
 
 const getLocationId = (l: Location) => l.properties.abbr;
 const getLocationCentroid = (l: Location) => l.properties.centroid;
-
 const getFlowOriginId = (f: Flow) => f.origin;
 const getFlowDestId = (f: Flow) => f.dest;
 const getFlowMagnitude = (f: Flow) => f.magnitude;

@@ -27,14 +27,14 @@ declare module 'deck.gl' {
     [key: string]: {};
   }
 
-  export interface LayerProps<TData, TInfo extends PickingInfo<TData> = PickingInfo<TData>> {
+  export interface LayerProps<TData, TPickingInfo = PickingInfo<TData>> {
     id: string;
     visible?: boolean;
     opacity?: number;
     pickable?: boolean;
     fp64?: boolean;
-    onClick?: PickingHandler<TInfo>;
-    onHover?: PickingHandler<TInfo>;
+    onClick?: PickingHandler<TPickingInfo>;
+    onHover?: PickingHandler<TPickingInfo>;
     updateTriggers?: UpdateTriggers;
     projectionMode?: number;
   }
@@ -72,10 +72,10 @@ declare module 'deck.gl' {
     HOVER = 'hover',
   }
 
-  export interface PickParams<T> {
-    info: PickingInfo<T>;
+  export interface PickParams<TData, TPickingInfo> {
+    info: TPickingInfo;
     mode: PickingMode;
-    sourceLayer: Layer<T>;
+    sourceLayer: Layer<TData>;
   }
 
   export interface DrawParams {
@@ -85,8 +85,8 @@ declare module 'deck.gl' {
 
   export class Layer<
     TData = {},
-    TInfo extends PickingInfo<TData> = PickingInfo<TData>,
-    TProps extends LayerProps<TData, TInfo> = LayerProps<TData>,
+    TPickingInfo = PickingInfo<TData>,
+    TProps extends LayerProps<TData, TPickingInfo> = LayerProps<TData, TPickingInfo>,
     TState extends LayerState = LayerState,
     TContext = {}
   > {
@@ -102,7 +102,7 @@ declare module 'deck.gl' {
     getShaders(): Shaders;
     calculateInstanceLocations(attribute: Attribute): void;
     calculateInstanceColors(attribute: Attribute): void;
-    getPickingInfo(params: PickParams<TData>): TData;
+    getPickingInfo(params: PickParams<TData, TPickingInfo>): TPickingInfo;
     draw(drawParams: DrawParams): void;
   }
 
@@ -254,11 +254,11 @@ declare module 'deck.gl' {
 
   export class CompositeLayer<
     TData = {},
-    TInfo extends PickingInfo<TData> = PickingInfo<TData>,
-    TProps extends LayerProps<TData, TInfo> = LayerProps<TData>,
+    TPickingInfo = PickingInfo<TData>,
+    TProps extends LayerProps<TData, TPickingInfo> = LayerProps<TData, TPickingInfo>,
     TState extends LayerState = LayerState,
     TContext = {}
-  > extends Layer<TData, TInfo, TProps, TState, TContext> {
+  > extends Layer<TData, TPickingInfo, TProps, TState, TContext> {
     renderLayers(): Array<Layer<TData>>;
   }
 }

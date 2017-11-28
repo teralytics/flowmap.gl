@@ -1,17 +1,8 @@
-import {
-  CompositeLayer,
-  GeoJsonLayer,
-  Layer,
-  LayerProps,
-  LayerState,
-  PickingInfo,
-  PickParams,
-  UpdateTriggers,
-} from 'deck.gl';
+import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickingInfo, PickParams } from 'deck.gl';
 import { Feature, FeatureCollection, GeometryObject } from 'geojson';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
-import createSelectors, { MemoizedSelectors } from './selectors';
+import createSelectors, { Selectors } from './selectors';
 import { colorAsArray, RGBA } from './utils';
 
 // tslint:disable-next-line:no-any
@@ -81,7 +72,7 @@ export interface Props extends LayerProps<Data, LayerPickingInfo> {
 }
 
 export interface State extends LayerState {
-  selectors: MemoizedSelectors;
+  selectors: Selectors;
 }
 
 const LAYER_ID__LOCATIONS = 'locations';
@@ -89,9 +80,8 @@ const LAYER_ID__LOCATION_AREAS = 'location-areas';
 const LAYER_ID__FLOWS = 'flows';
 const LAYER_ID__FLOWS_ACTIVE = 'flows-highlighted';
 
-function getPickType(sourceLayer: Layer<Data>): PickingType | undefined {
-  const { id } = sourceLayer;
-  switch (id || '') {
+function getPickType({ id }: Layer<Data>): PickingType | undefined {
+  switch (id) {
     case LAYER_ID__FLOWS:
     // fall through
     case LAYER_ID__FLOWS_ACTIVE:
@@ -138,13 +128,21 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
     });
   }
 
-  getPickingInfo(params: PickParams<Data>): LayerPickingInfo {
-    const info = params.info as LayerPickingInfo; // TODO: can we get rid of this cast?
+  getPickingInfo(params: PickParams<Data, LayerPickingInfo>): LayerPickingInfo {
+    const info = params.info;
     const type = getPickType(params.sourceLayer);
     if (type) {
       info.type = type;
-      if (type === PickingType.LOCATION && info.object) {
-        info.object = info.object.location;
+      if (info.object && (type === PickingType.LOCATION || type === PickingType.LOCATION_AREA)) {
+        if (type === PickingType.LOCATION) {
+          info.object = info.object.location;
+        }
+
+        const { selectors: { getLocationTotalInGetter, getLocationTotalOutGetter } } = this.state;
+        const getLocationTotalIn = getLocationTotalInGetter(this.props);
+        const getLocationTotalOut = getLocationTotalOutGetter(this.props);
+        info.object.properties.totalIn = getLocationTotalIn(info.object);
+        info.object.properties.totalOut = getLocationTotalOut(info.object);
       }
     }
 
@@ -152,7 +150,7 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
   }
 
   getLocationAreasLayer(id: string) {
-    const { locations, selectedLocationId, highlightedLocationId, getLocationId } = this.props;
+    const { locations, selectedLocationId, highlightedLocationId, highlightedFlow, getLocationId } = this.props;
     if (!getLocationId) {
       throw new Error('getLocationId must be defined');
     }
@@ -181,14 +179,18 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
 
     return new GeoJsonLayer({
       id,
+      getFillColor,
       data: locations,
       fp64: true,
-      opacity: 0.5,
       stroked: true,
       filled: true,
+      pickable: true,
+      opacity: 0.5,
       lineWidthMinPixels: 2,
       pointRadiusMinPixels: 2,
-      getFillColor,
+      updateTriggers: {
+        getFillColor: { selectedLocationId, highlightedLocationId, highlightedFlow },
+      },
     });
   }
 
@@ -239,15 +241,6 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
           return [l, l, l, 100] as RGBA;
         }
       : flow => colorAsArray(flowColorScale(getFlowMagnitude(flow)));
-    const updateTriggers: UpdateTriggers = {
-      instanceColors: !dimmed && {
-        highlightedLocationId,
-        highlightedFlow,
-      },
-      instanceEndpointOffsets: {
-        showTotals,
-      },
-    };
 
     return new FlowLinesLayer({
       id,
@@ -260,7 +253,15 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
       opacity: 1,
       pickable: dimmed,
       drawBorder: !dimmed,
-      updateTriggers,
+      updateTriggers: {
+        instanceColors: !dimmed && {
+          highlightedLocationId,
+          highlightedFlow,
+        },
+        instanceEndpointOffsets: {
+          showTotals,
+        },
+      },
     });
   }
 
@@ -291,7 +292,9 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
     const circles = getLocationCircles(this.props);
 
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid(locCircle.location);
-    const getCircleColor: LocationCircleAccessor<RGBA> = ({ location, type }) => {
+    const getColor: LocationCircleAccessor<RGBA> = ({ location, type }) => {
+      const { inner, incoming, outgoing, none, dimmed } = colors.locationCircleColors;
+
       if (
         (!this.props.highlightedLocationId && !highlightedFlow && !selectedLocationId) ||
         this.props.highlightedLocationId === getLocationId(location) ||
@@ -301,28 +304,28 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
             getLocationId(location) === getFlowDestId(highlightedFlow)))
       ) {
         if (type === LocationCircleType.INNER) {
-          return colors.locationCircleColors.inner;
+          return inner;
         }
 
         if (getLocationTotalIn(location) > getLocationTotalOut(location)) {
-          return colors.locationCircleColors.incoming;
+          return incoming;
         }
 
-        return colors.locationCircleColors.outgoing;
+        return outgoing;
       }
 
       if (type === LocationCircleType.INNER) {
-        return colors.locationCircleColors.none;
+        return none;
       }
 
-      return colors.locationCircleColors.dimmed;
+      return dimmed;
     };
 
     return new FlowCirclesLayer({
       id,
       getPosition,
+      getColor,
       getRadius: getLocationRadius,
-      getColor: getCircleColor,
       data: circles,
       opacity: 1,
       pickable: true,

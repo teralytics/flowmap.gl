@@ -1,9 +1,8 @@
 import * as d3Array from 'd3-array';
 import * as d3Collection from 'd3-collection';
-import { HCLColor } from 'd3-color';
 import * as d3Color from 'd3-color';
 import { interpolateHcl } from 'd3-interpolate';
-import * as d3scale from 'd3-scale';
+import * as d3Scale from 'd3-scale';
 import * as _ from 'lodash';
 import { createSelector } from 'reselect';
 import {
@@ -17,7 +16,7 @@ import {
 } from './FlowMapLayer';
 import { colorAsArray, RGBA } from './utils';
 
-export interface Getters {
+export interface InputGetters {
   getLocationId: LocationAccessor<string>;
   getFlowOriginId: FlowAccessor<string>;
   getFlowDestId: FlowAccessor<string>;
@@ -34,7 +33,7 @@ export interface LocationTotals {
 }
 
 export interface Colors {
-  flowLineColorRange: Array<HCLColor | string>;
+  flowLineColorRange: Array<d3Color.HCLColor | string>;
   locationCircleColors: {
     inner: RGBA;
     outgoing: RGBA;
@@ -55,20 +54,22 @@ export interface LocationsById {
   [key: string]: Location;
 }
 
-export type MemoizedSelector<T> = (props: Props) => T;
+export type Selector<T> = (props: Props) => T;
 
-export interface MemoizedSelectors {
-  getColors: MemoizedSelector<Colors>;
-  getLocationsById: MemoizedSelector<LocationsById>;
-  getActiveFlows: MemoizedSelector<Flow[]>;
-  getSortedNonSelfFlows: MemoizedSelector<Flow[]>;
-  isLocationConnectedGetter: MemoizedSelector<(id: string) => boolean>;
-  getFlowColorScale: MemoizedSelector<(value: number) => HCLColor>;
-  getFlowThicknessScale: MemoizedSelector<d3scale.ScaleLinear<number, number>>;
-  getLocationRadiusGetter: MemoizedSelector<(locCircle: LocationCircle) => number>;
-  getLocationCircles: MemoizedSelector<LocationCircle[]>;
-  getLocationTotalInGetter: MemoizedSelector<(location: Location) => number>;
-  getLocationTotalOutGetter: MemoizedSelector<(location: Location) => number>;
+export type ColorScale = (value: number) => d3Color.HCLColor;
+
+export interface Selectors {
+  getColors: Selector<Colors>;
+  getLocationsById: Selector<LocationsById>;
+  getActiveFlows: Selector<Flow[]>;
+  getSortedNonSelfFlows: Selector<Flow[]>;
+  isLocationConnectedGetter: Selector<(id: string) => boolean>;
+  getFlowColorScale: Selector<ColorScale>;
+  getFlowThicknessScale: Selector<d3Scale.ScaleLinear<number, number>>;
+  getLocationRadiusGetter: Selector<(locCircle: LocationCircle) => number>;
+  getLocationCircles: Selector<LocationCircle[]>;
+  getLocationTotalInGetter: Selector<(location: Location) => number>;
+  getLocationTotalOutGetter: Selector<(location: Location) => number>;
 }
 
 const getBaseColor = (props: Props) => props.baseColor;
@@ -79,12 +80,12 @@ const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationId = (props: Props) => props.selectedLocationId;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
 
-export default function createMemoizedSelectors({
+export default function createSelectors({
   getLocationId,
   getFlowOriginId,
   getFlowDestId,
   getFlowMagnitude,
-}: Getters): MemoizedSelectors {
+}: InputGetters): Selectors {
   const getColors = createSelector(getBaseColor, baseColor => {
     const NOCOLOR: RGBA = [255, 255, 255, 0];
     const DIMMED: RGBA = [0, 0, 0, 100];
@@ -116,9 +117,9 @@ export default function createMemoizedSelectors({
 
   const getLocationsById = createSelector(getLocationFeatures, locations =>
     d3Collection
-      .nest<Location, Location>()
+      .nest<Location, Location | undefined>()
       .key(getLocationId)
-      .rollup(([l]) => l)
+      .rollup(_.head)
       .object(locations),
   );
 
@@ -202,22 +203,24 @@ export default function createMemoizedSelectors({
     getLocationFeatures,
     getLocationTotalInGetter,
     getLocationTotalOutGetter,
-    (locations, getLocationTotalIn, getLocationTotalOut) =>
-      d3Array.max(locations, (location: Location) =>
+    (locations, getLocationTotalIn, getLocationTotalOut) => {
+      const max = d3Array.max(locations, (location: Location) =>
         Math.max(getLocationTotalIn(location), getLocationTotalOut(location)),
-      ),
+      );
+      return max || 0;
+    },
   );
 
   const getSizeScale = createSelector(getLocationMaxTotal, maxTotal =>
-    d3scale
+    d3Scale
       .scalePow()
       .exponent(1 / 2)
-      .domain([0, maxTotal || 0])
+      .domain([0, maxTotal])
       .range([0, 15]),
   );
 
   const getFlowThicknessScale = createSelector(getFlowMagnitudeExtent, ([minMagnitude, maxMagnitude]) =>
-    d3scale
+    d3Scale
       .scaleLinear()
       .range([0.05, 0.5])
       .domain([0, maxMagnitude || 0]),
@@ -227,16 +230,20 @@ export default function createMemoizedSelectors({
     getColors,
     getFlowMagnitudeExtent,
     getVaryFlowColorByMagnitude,
-    (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude) =>
-      // varyFlowColorByMagnitude
-      //   ? d3scale
-      //       .scalePow()
-      //       .exponent(1 / 3)
-      //       .interpolate(interpolateHcl)
-      //       .range(colors.flowLineColorRange)
-      //       .domain([0, maxMagnitude || 0])
-      //   :
-      () => colors.flowLineColorRange[1],
+    (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude) => {
+      if (!varyFlowColorByMagnitude) {
+        return () => colors.flowLineColorRange[1];
+      }
+
+      const scale = d3Scale
+        .scalePow<d3Color.HCLColor, string>()
+        .exponent(1 / 3)
+        .interpolate(interpolateHcl)
+        .range(colors.flowLineColorRange)
+        .domain([0, maxMagnitude || 0]);
+
+      return (magnitude: number) => d3Color.hcl(scale(magnitude));
+    },
   );
 
   const getLocationRadiusGetter = createSelector(
@@ -245,10 +252,6 @@ export default function createMemoizedSelectors({
     getLocationTotalOutGetter,
     (sizeScale, getLocationTotalIn, getLocationTotalOut) => {
       return ({ location, type }: LocationCircle) => {
-        if (!location) {
-          return 0;
-        }
-
         const getSide = type === LocationCircleType.INNER ? Math.min : Math.max;
         return sizeScale(getSide(getLocationTotalIn(location), getLocationTotalOut(location)));
       };

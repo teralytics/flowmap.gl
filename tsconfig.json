@@ -10,6 +10,7 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "pretty": true,
+    "jsx": "react",
     "lib": [
       "es2015",
       "dom"
