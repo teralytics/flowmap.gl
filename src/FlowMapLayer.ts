@@ -68,7 +68,7 @@ export interface Props extends LayerProps<Data, LayerPickingInfo> {
   varyFlowColorByMagnitude?: boolean;
   selectedLocationId?: string;
   highlightedLocationId?: string;
-  highlightedFlow?: {};
+  highlightedFlow?: Flow;
 }
 
 export interface State extends LayerState {

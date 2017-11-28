@@ -54,22 +54,22 @@ export interface LocationsById {
   [key: string]: Location;
 }
 
-export type Selector<T> = (props: Props) => T;
+export type PropsSelector<T> = (props: Props) => T;
 
 export type ColorScale = (value: number) => d3Color.HCLColor;
 
 export interface Selectors {
-  getColors: Selector<Colors>;
-  getLocationsById: Selector<LocationsById>;
-  getActiveFlows: Selector<Flow[]>;
-  getSortedNonSelfFlows: Selector<Flow[]>;
-  isLocationConnectedGetter: Selector<(id: string) => boolean>;
-  getFlowColorScale: Selector<ColorScale>;
-  getFlowThicknessScale: Selector<d3Scale.ScaleLinear<number, number>>;
-  getLocationRadiusGetter: Selector<(locCircle: LocationCircle) => number>;
-  getLocationCircles: Selector<LocationCircle[]>;
-  getLocationTotalInGetter: Selector<(location: Location) => number>;
-  getLocationTotalOutGetter: Selector<(location: Location) => number>;
+  getColors: PropsSelector<Colors>;
+  getLocationsById: PropsSelector<LocationsById>;
+  getActiveFlows: PropsSelector<Flow[]>;
+  getSortedNonSelfFlows: PropsSelector<Flow[]>;
+  isLocationConnectedGetter: PropsSelector<(id: string) => boolean>;
+  getFlowColorScale: PropsSelector<ColorScale>;
+  getFlowThicknessScale: PropsSelector<d3Scale.ScaleLinear<number, number>>;
+  getLocationRadiusGetter: PropsSelector<(locCircle: LocationCircle) => number>;
+  getLocationCircles: PropsSelector<LocationCircle[]>;
+  getLocationTotalInGetter: PropsSelector<(location: Location) => number>;
+  getLocationTotalOutGetter: PropsSelector<(location: Location) => number>;
 }
 
 const getBaseColor = (props: Props) => props.baseColor;
