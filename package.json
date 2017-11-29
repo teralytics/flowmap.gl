@@ -28,7 +28,7 @@
     "src"
   ],
   "scripts": {
-    "storybook:start": "STORYBOOK_MapboxAccessToken=$MapboxAccessToken start-storybook -p 6006",
+    "start": "STORYBOOK_MapboxAccessToken=$MapboxAccessToken start-storybook -p 6006",
     "storybook:build": "build-storybook",
     "build:mod": "rm -rf dist-mod && tsc -m es2015 --outDir dist-mod",
     "build:es5": "rm -rf dist && tsc",
@@ -58,6 +58,7 @@
     "@types/d3-scale": "^1.0.10",
     "@types/geojson": "^1.0.6",
     "@types/gl-matrix": "^2.4.0",
+    "@types/hammerjs": "^2.0.35",
     "@types/lodash": "^4.14.85",
     "@types/node": "^8.0.53",
     "@types/react": "^16.0.25",
