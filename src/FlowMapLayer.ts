@@ -331,6 +331,7 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
       pickable: true,
       fp64: true,
       updateTriggers: {
+        getRadius: { selectedLocationId },
         getColor: { highlightedLocationId, highlightedFlow, selectedLocationId },
       },
     });
