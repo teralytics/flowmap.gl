@@ -1,15 +1,16 @@
 import * as geoViewport from '@mapbox/geo-viewport';
 import DeckGL, { Layer } from 'deck.gl';
-import { Feature, FeatureCollection, GeometryObject } from 'geojson';
+import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
-import FlowMapLayer, { FlowLayerPickingInfo, PickingType } from '../src';
+import FlowMapLayer from '../src';
+import { FlowLayerPickingInfo, Location, PickingType } from '../src/types';
 
 // tslint:disable-next-line:no-var-requires
-const flowsData = require('./data/flows.json');
+const flowsData: Flow[] = require('./data/flows.json');
 // tslint:disable-next-line:no-var-requires
-const locationsData = require('./data/locations.json');
+const locationsData: FeatureCollection<GeometryObject, LocationProperties> = require('./data/locations.json');
 
 export interface Flow {
   origin: string;
@@ -23,8 +24,6 @@ export interface LocationProperties {
   no: number;
   centroid: [number, number];
 }
-
-export type Location = Feature<GeometryObject, LocationProperties>;
 
 export const enum HighlightType {
   LOCATION = 'location',
@@ -45,9 +44,6 @@ export type Highlight = LocationHighlight | FlowHighlight;
 
 export interface State {
   viewport: Viewport;
-  // tslint:disable-next-line:no-any
-  locations: FeatureCollection<GeometryObject, LocationProperties>;
-  flows: Flow[];
   highlight?: Highlight;
   selectedLocationId?: string;
 }
@@ -59,11 +55,7 @@ const HEIGHT = window.innerHeight;
 const BOUNDING_BOX = [5.9559111595, 45.8179931641, 10.4920501709, 47.808380127];
 const ESC_KEY = 27;
 
-const getLocationId = (l: Location) => l.properties.abbr;
-const getLocationCentroid = (l: Location) => l.properties.centroid;
-const getFlowOriginId = (f: Flow) => f.origin;
-const getFlowDestId = (f: Flow) => f.dest;
-const getFlowMagnitude = (f: Flow) => f.magnitude;
+const getLocationId = (loc: Location) => loc.properties.abbr;
 
 class Example extends React.Component<{}, State> {
   // tslint:disable-next-line:typedef
@@ -88,8 +80,6 @@ class Example extends React.Component<{}, State> {
         bearing: 0,
         pitch: 0,
       },
-      locations: locationsData,
-      flows: flowsData,
     };
   }
 
@@ -117,21 +107,13 @@ class Example extends React.Component<{}, State> {
   }
 
   private getDeckGlLayers(): Layer[] {
-    const { locations, flows, highlight, selectedLocationId } = this.state;
-    if (!locations || !flows) {
-      return [];
-    }
-
+    const { highlight, selectedLocationId } = this.state;
     const flowMap = new FlowMapLayer({
       id: 'flow-map-layer',
       baseColor: '#0084c1',
-      locations,
-      flows,
+      locations: locationsData,
+      flows: flowsData,
       getLocationId,
-      getLocationCentroid,
-      getFlowOriginId,
-      getFlowDestId,
-      getFlowMagnitude,
       selectedLocationId,
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,

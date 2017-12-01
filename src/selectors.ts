@@ -5,15 +5,8 @@ import { interpolateHcl } from 'd3-interpolate';
 import * as d3Scale from 'd3-scale';
 import * as _ from 'lodash';
 import { createSelector } from 'reselect';
-import {
-  Flow,
-  FlowAccessor,
-  Location,
-  LocationAccessor,
-  LocationCircle,
-  LocationCircleType,
-  Props,
-} from './FlowMapLayer';
+import { Props } from './FlowMapLayer';
+import { Flow, FlowAccessor, Location, LocationAccessor, LocationCircle, LocationCircleType } from './types';
 import { colorAsArray, RGBA } from './utils';
 
 export interface InputGetters {

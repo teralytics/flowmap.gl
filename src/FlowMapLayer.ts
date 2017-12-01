@@ -1,58 +1,21 @@
-import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickingInfo, PickParams } from 'deck.gl';
-import { Feature, FeatureCollection, GeometryObject } from 'geojson';
+import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickParams } from 'deck.gl';
+import { GeometryObject } from 'geojson';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import createSelectors, { Selectors } from './selectors';
+import {
+  Data,
+  Flow,
+  FlowAccessor,
+  FlowLayerPickingInfo,
+  Location,
+  LocationAccessor,
+  LocationCircleAccessor,
+  LocationCircleType,
+  Locations,
+  PickingType,
+} from './types';
 import { colorAsArray, RGBA } from './utils';
-
-// tslint:disable-next-line:no-any
-export type Flow = any;
-
-// tslint:disable-next-line:no-any
-export type LocationProperties = any;
-
-export type Location = Feature<GeometryObject, LocationProperties>;
-
-export type Locations = FeatureCollection<GeometryObject, LocationProperties>;
-
-export const enum LocationCircleType {
-  INNER = 'inner',
-  OUTER = 'outer',
-}
-
-export interface LocationCircle {
-  location: Location;
-  type: LocationCircleType;
-}
-
-export type Data = Flow | Location | LocationCircle;
-
-export const enum PickingType {
-  LOCATION = 'location',
-  FLOW = 'flow',
-  LOCATION_AREA = 'location-area',
-}
-
-export interface LocationPickingInfo extends PickingInfo<Data> {
-  type: PickingType.LOCATION;
-  object: Location;
-}
-
-export interface LocationAreaPickingInfo extends PickingInfo<Data> {
-  type: PickingType.LOCATION_AREA;
-  object: Location;
-}
-
-export interface FlowPickingInfo extends PickingInfo<Data> {
-  type: PickingType.FLOW;
-  object: Flow;
-}
-
-export type FlowLayerPickingInfo = LocationPickingInfo | LocationAreaPickingInfo | FlowPickingInfo;
-
-export type FlowAccessor<T> = (flow: Flow) => T;
-export type LocationAccessor<T> = (location: Location) => T;
-export type LocationCircleAccessor<T> = (locCircle: LocationCircle) => T;
 
 export interface Props extends LayerProps<Data, FlowLayerPickingInfo> {
   baseColor: string;
@@ -141,15 +104,18 @@ export default class FlowMapLayer extends CompositeLayer<Data, FlowLayerPickingI
         const { selectors: { getLocationTotalInGetter, getLocationTotalOutGetter } } = this.state;
         const getLocationTotalIn = getLocationTotalInGetter(this.props);
         const getLocationTotalOut = getLocationTotalOutGetter(this.props);
-        info.object.properties.totalIn = getLocationTotalIn(info.object);
-        info.object.properties.totalOut = getLocationTotalOut(info.object);
+        info.object.properties = {
+          ...info.object.properties,
+          totalIn: getLocationTotalIn(info.object),
+          totalOut: getLocationTotalOut(info.object),
+        };
       }
     }
 
     return info;
   }
 
-  getLocationAreasLayer(id: string) {
+  getLocationAreasLayer(id: string): GeoJsonLayer<GeometryObject> {
     const { locations, selectedLocationId, highlightedLocationId, highlightedFlow, getLocationId } = this.props;
     if (!getLocationId) {
       throw new Error('getLocationId must be defined');
@@ -194,7 +160,7 @@ export default class FlowMapLayer extends CompositeLayer<Data, FlowLayerPickingI
     });
   }
 
-  getFlowLinesLayer(id: string, flows: Flow[], dimmed: boolean) {
+  getFlowLinesLayer(id: string, flows: Flow[], dimmed: boolean): FlowLinesLayer {
     const {
       getFlowOriginId,
       getFlowDestId,
@@ -265,7 +231,7 @@ export default class FlowMapLayer extends CompositeLayer<Data, FlowLayerPickingI
     });
   }
 
-  getNodesLayer(id: string) {
+  getNodesLayer(id: string): FlowCirclesLayer {
     const {
       highlightedLocationId,
       highlightedFlow,
