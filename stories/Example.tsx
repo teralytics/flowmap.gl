@@ -4,7 +4,7 @@ import { Feature, FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
-import FlowMapLayer, { LayerPickingInfo, PickingType } from '../src';
+import FlowMapLayer, { FlowLayerPickingInfo, PickingType } from '../src';
 
 // tslint:disable-next-line:no-var-requires
 const flowsData = require('./data/flows.json');
@@ -150,7 +150,7 @@ class Example extends React.Component<{}, State> {
     this.highlightDebounced.cancel();
   }
 
-  private handleFlowMapHover = ({ type, object }: LayerPickingInfo) => {
+  private handleFlowMapHover = ({ type, object }: FlowLayerPickingInfo) => {
     switch (type) {
       case PickingType.FLOW: {
         if (!object) {
@@ -188,7 +188,7 @@ class Example extends React.Component<{}, State> {
     }
   };
 
-  private handleFlowMapClick = ({ type, object }: LayerPickingInfo) => {
+  private handleFlowMapClick = ({ type, object }: FlowLayerPickingInfo) => {
     switch (type) {
       case PickingType.LOCATION:
       // fall through

@@ -48,13 +48,13 @@ export interface FlowPickingInfo extends PickingInfo<Data> {
   object: Flow;
 }
 
-export type LayerPickingInfo = LocationPickingInfo | LocationAreaPickingInfo | FlowPickingInfo;
+export type FlowLayerPickingInfo = LocationPickingInfo | LocationAreaPickingInfo | FlowPickingInfo;
 
 export type FlowAccessor<T> = (flow: Flow) => T;
 export type LocationAccessor<T> = (location: Location) => T;
 export type LocationCircleAccessor<T> = (locCircle: LocationCircle) => T;
 
-export interface Props extends LayerProps<Data, LayerPickingInfo> {
+export interface Props extends LayerProps<Data, FlowLayerPickingInfo> {
   baseColor: string;
   locations: Locations;
   flows: Flow[];
@@ -95,7 +95,7 @@ function getPickType({ id }: Layer<Data>): PickingType | undefined {
   }
 }
 
-export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo, Props, State> {
+export default class FlowMapLayer extends CompositeLayer<Data, FlowLayerPickingInfo, Props, State> {
   static layerName: string = 'FlowMapLayer';
   static defaultProps: Partial<Props> = {
     getLocationId: l => l.id || l.properties.id,
@@ -128,7 +128,7 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
     });
   }
 
-  getPickingInfo(params: PickParams<Data, LayerPickingInfo>): LayerPickingInfo {
+  getPickingInfo(params: PickParams<Data, FlowLayerPickingInfo>): FlowLayerPickingInfo {
     const info = params.info;
     const type = getPickType(params.sourceLayer);
     if (type) {
