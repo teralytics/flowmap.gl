@@ -1,6 +1,7 @@
 import * as geoViewport from '@mapbox/geo-viewport';
 import DeckGL, { Layer } from 'deck.gl';
 import { Feature, FeatureCollection, GeometryObject } from 'geojson';
+import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
 import FlowMapLayer, { LayerPickingInfo, PickingType } from '../src';
@@ -91,6 +92,9 @@ function getHighlight({ type, object }: LayerPickingInfo): Highlight | undefined
 }
 
 class Example extends React.Component<{}, State> {
+  // tslint:disable-next-line:typedef
+  private highlightDebounced = _.debounce(this.highlight, 100);
+
   constructor(props: {}) {
     super(props);
 
@@ -167,10 +171,12 @@ class Example extends React.Component<{}, State> {
     return [flowMap] as Layer[];
   }
 
-  private handleFlowMapHover = (pickInfo: LayerPickingInfo) =>
-    this.setState({
-      highlight: getHighlight(pickInfo),
-    });
+  private highlight(highlight: Highlight | undefined) {
+    this.setState({ highlight });
+    this.highlightDebounced.cancel();
+  }
+
+  private handleFlowMapHover = (pickInfo: LayerPickingInfo) => this.highlightDebounced(getHighlight(pickInfo));
 
   private handleFlowMapClick = ({ type, object }: LayerPickingInfo) => {
     switch (type) {
