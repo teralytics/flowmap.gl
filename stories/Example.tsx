@@ -65,32 +65,6 @@ const getFlowOriginId = (f: Flow) => f.origin;
 const getFlowDestId = (f: Flow) => f.dest;
 const getFlowMagnitude = (f: Flow) => f.magnitude;
 
-function getHighlight({ type, object }: LayerPickingInfo): Highlight | undefined {
-  switch (type) {
-    case PickingType.FLOW:
-      return object
-        ? {
-            type: HighlightType.FLOW,
-            flow: object,
-          }
-        : undefined;
-    case PickingType.LOCATION:
-      return object
-        ? {
-            type: HighlightType.LOCATION,
-            locationId: getLocationId(object),
-          }
-        : undefined;
-    case PickingType.LOCATION_AREA:
-      return object
-        ? {
-            type: HighlightType.LOCATION,
-            locationId: getLocationId(object),
-          }
-        : undefined;
-  }
-}
-
 class Example extends React.Component<{}, State> {
   // tslint:disable-next-line:typedef
   private highlightDebounced = _.debounce(this.highlight, 100);
@@ -176,7 +150,43 @@ class Example extends React.Component<{}, State> {
     this.highlightDebounced.cancel();
   }
 
-  private handleFlowMapHover = (pickInfo: LayerPickingInfo) => this.highlightDebounced(getHighlight(pickInfo));
+  private handleFlowMapHover = ({ type, object }: LayerPickingInfo) => {
+    switch (type) {
+      case PickingType.FLOW: {
+        if (!object) {
+          this.highlight(undefined);
+        } else {
+          this.highlight({
+            type: HighlightType.FLOW,
+            flow: object,
+          });
+        }
+        break;
+      }
+      case PickingType.LOCATION: {
+        if (!object) {
+          this.highlight(undefined);
+        } else {
+          this.highlight({
+            type: HighlightType.LOCATION,
+            locationId: getLocationId(object),
+          });
+        }
+        break;
+      }
+      case PickingType.LOCATION_AREA: {
+        if (!object) {
+          this.highlightDebounced(undefined);
+        } else {
+          this.highlightDebounced({
+            type: HighlightType.LOCATION,
+            locationId: getLocationId(object),
+          });
+        }
+        break;
+      }
+    }
+  };
 
   private handleFlowMapClick = ({ type, object }: LayerPickingInfo) => {
     switch (type) {

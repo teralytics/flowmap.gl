@@ -254,11 +254,11 @@ export default class FlowMapLayer extends CompositeLayer<Data, LayerPickingInfo,
       pickable: dimmed,
       drawBorder: !dimmed,
       updateTriggers: {
-        instanceColors: !dimmed && {
+        getColor: !dimmed && {
           highlightedLocationId,
           highlightedFlow,
         },
-        instanceEndpointOffsets: {
+        getEndpointOffsets: {
           showTotals,
         },
       },

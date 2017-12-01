@@ -60,22 +60,27 @@ class FlowLinesLayer extends Layer<Data, PickingInfo<Data>, Props, LayerState, C
     const { attributeManager } = this.state;
     attributeManager.addInstanced({
       instanceSourcePositionsFP64: {
+        accessor: 'getSourcePosition',
         size: 4,
         update: this.calculateInstanceSourcePositions,
       },
       instanceTargetPositionsFP64: {
+        accessor: 'getTargetPosition',
         size: 4,
         update: this.calculateInstanceTargetPositions,
       },
       instanceThickness: {
+        accessor: 'getThickness',
         size: 1,
         update: this.calculateInstanceThickness,
       },
       instanceEndpointOffsets: {
+        accessor: 'getEndpointOffsets',
         size: 2,
         update: this.calculateInstanceEndpointOffsets,
       },
       instanceColors: {
+        accessor: 'getColor',
         size: 4,
         type: GL.UNSIGNED_BYTE,
         update: this.calculateInstanceColors,
