@@ -1,4 +1,4 @@
-import { Attribute, DrawParams, Layer, LayerProps, LayerState, PickingInfo, ShaderCache, Shaders } from 'deck.gl';
+import { Attribute, DrawParams, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
 import { Geometry, GL, Model } from 'luma.gl';
 import { fp64ify, RGBA } from '../utils';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
@@ -14,7 +14,7 @@ export interface FlowLineData {
 // tslint:disable-next-line:no-any
 export type Data = FlowLineData | any;
 
-export interface Props extends LayerProps<Data> {
+export interface Props extends LayerProps {
   data: Data[];
   drawBorder: boolean;
   borderColor?: RGBA;
@@ -34,7 +34,7 @@ const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
 const DEFAULT_BORDER_COLOR: RGBA = [0.85, 0.85, 0.85, 0.95];
 const DEFAULT_ENDPOINT_OFFSETS = [0, 0];
 
-class FlowLinesLayer extends Layer<Data, PickingInfo<Data>, Props, LayerState, Context> {
+class FlowLinesLayer extends Layer<Props, LayerState, Context> {
   static layerName: string = 'FlowLinesLayer';
   static defaultProps: Partial<Props> = {
     getSourcePosition: d => d.sourcePosition,

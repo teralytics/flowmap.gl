@@ -10,11 +10,9 @@ export function fp64ify(a: number): [number, number] {
   return [hiPart, loPart];
 }
 
-export function enable64bitSupport<T>(props: LayerProps<T>) {
-  if (props.fp64) {
-    if (props.projectionMode === COORDINATE_SYSTEM.LNGLAT) {
-      return true;
-    }
+export function enable64bitSupport(props: LayerProps) {
+  if (props.fp64 && props.projectionMode === COORDINATE_SYSTEM.LNGLAT) {
+    return true;
   }
 
   return false;

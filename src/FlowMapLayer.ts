@@ -1,4 +1,4 @@
-import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickParams } from 'deck.gl';
+import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickingHandler, PickParams } from 'deck.gl';
 import { GeometryObject } from 'geojson';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
@@ -17,10 +17,12 @@ import {
 } from './types';
 import { colorAsArray, RGBA } from './utils';
 
-export interface Props extends LayerProps<Data, FlowLayerPickingInfo> {
+export interface Props extends LayerProps {
   baseColor: string;
   locations: Locations;
   flows: Flow[];
+  onClick?: PickingHandler<FlowLayerPickingInfo>;
+  onHover?: PickingHandler<FlowLayerPickingInfo>;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
   getFlowOriginId?: FlowAccessor<string>;
@@ -58,7 +60,7 @@ function getPickType({ id }: Layer<Data>): PickingType | undefined {
   }
 }
 
-export default class FlowMapLayer extends CompositeLayer<Data, FlowLayerPickingInfo, Props, State> {
+export default class FlowMapLayer extends CompositeLayer<Props, State> {
   static layerName: string = 'FlowMapLayer';
   static defaultProps: Partial<Props> = {
     getLocationId: l => l.id || l.properties.id,
@@ -91,7 +93,7 @@ export default class FlowMapLayer extends CompositeLayer<Data, FlowLayerPickingI
     });
   }
 
-  getPickingInfo(params: PickParams<Data, FlowLayerPickingInfo>): FlowLayerPickingInfo {
+  getPickingInfo(params: PickParams): FlowLayerPickingInfo {
     const info = params.info;
     const type = getPickType(params.sourceLayer);
     if (type) {

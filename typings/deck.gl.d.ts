@@ -13,7 +13,7 @@ declare module 'deck.gl' {
   };
 
   export interface PickingInfo<T> {
-    layer: Layer<T>;
+    layer: Layer;
     index: number;
     object: T;
     x: number;
@@ -27,14 +27,12 @@ declare module 'deck.gl' {
     [key: string]: {};
   }
 
-  export interface LayerProps<TData, TPickingInfo = PickingInfo<TData>> {
+  export interface LayerProps {
     id: string;
     visible?: boolean;
     opacity?: number;
     pickable?: boolean;
     fp64?: boolean;
-    onClick?: PickingHandler<TPickingInfo>;
-    onHover?: PickingHandler<TPickingInfo>;
     updateTriggers?: UpdateTriggers;
     projectionMode?: number;
   }
@@ -72,10 +70,11 @@ declare module 'deck.gl' {
     HOVER = 'hover',
   }
 
-  export interface PickParams<TData, TPickingInfo> {
-    info: TPickingInfo;
+  export interface PickParams {
+    // tslint:disable-next-line:no-any
+    info: any;
     mode: PickingMode;
-    sourceLayer: Layer<TData>;
+    sourceLayer: Layer;
   }
 
   export interface DrawParams {
@@ -83,13 +82,7 @@ declare module 'deck.gl' {
     uniforms: any;
   }
 
-  export class Layer<
-    TData = {},
-    TPickingInfo = PickingInfo<TData>,
-    TProps extends LayerProps<TData, TPickingInfo> = LayerProps<TData, TPickingInfo>,
-    TState extends LayerState = LayerState,
-    TContext = {}
-  > {
+  export class Layer<TProps extends LayerProps = LayerProps, TState extends LayerState = LayerState, TContext = {}> {
     id: string;
     props: TProps;
     state: TState;
@@ -102,7 +95,7 @@ declare module 'deck.gl' {
     getShaders(): Shaders;
     calculateInstanceLocations(attribute: Attribute): void;
     calculateInstanceColors(attribute: Attribute): void;
-    getPickingInfo(params: PickParams<TData, TPickingInfo>): TPickingInfo;
+    getPickingInfo(params: PickParams): {};
     draw(drawParams: DrawParams): void;
   }
 
@@ -156,23 +149,25 @@ declare module 'deck.gl' {
   // tslint:disable-next-line:no-any
   export type PointData = PointDataSimple | any;
 
-  export interface PointCloudLayerProps<T extends PointData> extends LayerProps<T> {
+  export interface PointCloudLayerProps<T extends PointData> extends LayerProps {
     data: T[];
     radiusPixels?: number;
     pickable?: boolean;
+    onClick?: PickingHandler<PickingInfo<T>>;
+    onHover?: PickingHandler<PickingInfo<T>>;
     getPosition?: (x: T) => [number, number, number];
     getNormal?: (x: T) => [number, number, number];
     getColor?: (x: T) => [number, number, number];
   }
 
-  export class PointCloudLayer<T extends PointData> extends Layer<T, PickingInfo<T>, PointCloudLayerProps<T>> {
+  export class PointCloudLayer<T extends PointData> extends Layer<PointCloudLayerProps<T>> {
     constructor(props: PointCloudLayerProps<T>);
   }
 
   export type GeoJsonData<T extends GeometryObject> = Feature<T> | FeatureCollection<T>;
 
   // tslint:disable-next-line:no-any
-  export interface GeoJsonLayerProps<T extends GeometryObject> extends LayerProps<GeoJsonData<T>> {
+  export interface GeoJsonLayerProps<T extends GeometryObject> extends LayerProps {
     data: GeoJsonData<T>;
     stroked?: boolean;
     filled?: boolean;
@@ -186,6 +181,8 @@ declare module 'deck.gl' {
     pointRadiusScale?: number;
     pointRadiusMinPixels?: number;
     pointRadiusMaxPixels?: number;
+    onClick?: PickingHandler<PickingInfo<Feature<T>>>;
+    onHover?: PickingHandler<PickingInfo<Feature<T>>>;
     // tslint:disable-next-line:no-any
     getLineColor?: (feature: any) => [number, number, number, number];
     // tslint:disable-next-line:no-any
@@ -198,11 +195,7 @@ declare module 'deck.gl' {
     getElevation?: (feature: any) => number;
   }
 
-  export class GeoJsonLayer<T extends GeometryObject> extends Layer<
-    GeoJsonData<T>,
-    PickingInfo<GeoJsonData<T>>,
-    GeoJsonLayerProps<T>
-  > {
+  export class GeoJsonLayer<T extends GeometryObject> extends Layer<GeoJsonLayerProps<T>> {
     constructor(props: GeoJsonLayerProps<T>);
   }
 
@@ -215,15 +208,17 @@ declare module 'deck.gl' {
   // tslint:disable-next-line:no-any
   export type LineData = LineDataSimple | any;
 
-  export interface LineLayerProps<T extends LineData> extends LayerProps<T> {
+  export interface LineLayerProps<T extends LineData> extends LayerProps {
     data: T[];
     strokeWidth?: number;
+    onClick?: PickingHandler<PickingInfo<T>>;
+    onHover?: PickingHandler<PickingInfo<T>>;
     getSourcePosition?: (x: T) => [number, number, number];
     getTargetPosition?: (x: T) => [number, number, number];
     getColor?: (x: T) => [number, number, number];
   }
 
-  export class LineLayer<T extends LineData> extends Layer<T, PickingInfo<T>, LineLayerProps<T>> {
+  export class LineLayer<T extends LineData> extends Layer<LineLayerProps<T>> {
     constructor(props: LineLayerProps<T>);
   }
 
@@ -236,29 +231,29 @@ declare module 'deck.gl' {
   // tslint:disable-next-line:no-any
   export type ScatterplotData = ScatterplotDataSimple | any;
 
-  export interface ScatterplotLayerProps<T extends ScatterplotData> extends LayerProps<T> {
+  export interface ScatterplotLayerProps<T extends ScatterplotData> extends LayerProps {
     data: ScatterplotData[];
     radiusScale?: number;
     outline?: boolean;
     strokeWidth?: number;
     radiusMinPixels?: number;
     radiusMaxPixels?: number;
+    onClick?: PickingHandler<PickingInfo<T>>;
+    onHover?: PickingHandler<PickingInfo<T>>;
     getPosition?: (d: T) => [number, number];
     getRadius?: (d: T) => number;
     getColor?: (d: T) => [number, number, number, number];
   }
 
-  export class ScatterplotLayer<T extends ScatterplotData> extends Layer<T, PickingInfo<T>, ScatterplotLayerProps<T>> {
+  export class ScatterplotLayer<T extends ScatterplotData> extends Layer<ScatterplotLayerProps<T>> {
     constructor(props: ScatterplotLayerProps<T>);
   }
 
   export class CompositeLayer<
-    TData = {},
-    TPickingInfo = PickingInfo<TData>,
-    TProps extends LayerProps<TData, TPickingInfo> = LayerProps<TData, TPickingInfo>,
+    TProps extends LayerProps = LayerProps,
     TState extends LayerState = LayerState,
     TContext = {}
-  > extends Layer<TData, TPickingInfo, TProps, TState, TContext> {
-    renderLayers(): Array<Layer<TData>>;
+  > extends Layer<TProps, TState, TContext> {
+    renderLayers(): Layer[];
   }
 }

@@ -124,7 +124,7 @@ class Example extends React.Component<{}, State> {
       onClick: this.handleFlowMapClick,
     });
 
-    return [flowMap] as Layer[];
+    return [flowMap];
   }
 
   private highlight(highlight: Highlight | undefined) {
