@@ -4,7 +4,7 @@ import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
-import FlowMapLayer from '../src';
+import FlowMapLayer, { BaseColors } from '../src';
 import { FlowLayerPickingInfo, Location, PickingType } from '../src/types';
 
 // tslint:disable-next-line:no-var-requires
@@ -54,6 +54,14 @@ const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
 const BOUNDING_BOX = [5.9559111595, 45.8179931641, 10.4920501709, 47.808380127];
 const ESC_KEY = 27;
+
+const baseColors: BaseColors = {
+  flows: '#137CBD',
+  locations: {
+    normal: '#bbbbbb',
+    accent: '#D9822B',
+  },
+};
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 
@@ -109,12 +117,12 @@ class Example extends React.Component<{}, State> {
   private getDeckGlLayers(): Layer[] {
     const { highlight, selectedLocationId } = this.state;
     const flowMap = new FlowMapLayer({
-      id: 'flow-map-layer',
-      baseColor: '#0084c1',
-      locations: locationsData,
-      flows: flowsData,
+      baseColors,
       getLocationId,
       selectedLocationId,
+      id: 'flow-map-layer',
+      locations: locationsData,
+      flows: flowsData,
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
       showLocations: true,

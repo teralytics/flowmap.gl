@@ -1,6 +1,14 @@
 import { PickingInfo } from 'deck.gl';
 import { Feature, FeatureCollection, GeometryObject } from 'geojson';
 
+export interface BaseColors {
+  flows: string;
+  locations: {
+    normal: string;
+    accent: string;
+  };
+}
+
 // tslint:disable-next-line:no-any
 export type Flow = any;
 

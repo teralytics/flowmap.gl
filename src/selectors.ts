@@ -26,15 +26,15 @@ export interface LocationTotals {
 }
 
 export interface Colors {
-  flowLineColorRange: d3Color.HCLColor[];
-  locationCircleColors: {
+  arrows: d3Color.HCLColor[];
+  locationCircles: {
     inner: RGBA;
     outgoing: RGBA;
     incoming: RGBA;
     dimmed: RGBA;
     none: RGBA;
   };
-  locationAreaColors: {
+  locationAreas: {
     normal: RGBA;
     selected: RGBA;
     highlighted: RGBA;
@@ -65,7 +65,7 @@ export interface Selectors {
   getLocationTotalOutGetter: PropsSelector<(location: Location) => number>;
 }
 
-const getBaseColor = (props: Props) => props.baseColor;
+const getBaseColors = (props: Props) => props.baseColors;
 const getLocationFeatures = (props: Props) => props.locations.features;
 const getFlows = (props: Props) => props.flows;
 const getHighlightedFlow = (props: Props) => props.highlightedFlow;
@@ -79,30 +79,28 @@ export default function createSelectors({
   getFlowDestId,
   getFlowMagnitude,
 }: InputGetters): Selectors {
-  const getColors = createSelector(getBaseColor, baseColor => {
+  const getColors = createSelector(getBaseColors, ({ flows, locations }) => {
     const NOCOLOR: RGBA = [255, 255, 255, 0];
     const DIMMED: RGBA = [0, 0, 0, 100];
 
-    const baseColorHcl = d3Color.hcl(baseColor);
-    const baseColorDarker = baseColorHcl.darker(1.25);
-    const baseColorDarker2 = baseColorHcl.darker(1.5);
-    const baseColorBrighter2 = baseColorHcl.brighter(2);
-    const baseColorBrighter3 = baseColorHcl.brighter(3);
+    const flowsColorHcl = d3Color.hcl(flows);
+    const locationsNormalHcl = d3Color.hcl(locations.normal);
+    const locationsAccentColorHcl = d3Color.hcl(locations.accent);
 
     return {
-      flowLineColorRange: [baseColorBrighter2, baseColorHcl],
-      locationCircleColors: {
-        inner: colorAsArray(baseColorHcl),
-        outgoing: colorAsArray(baseColorBrighter3),
-        incoming: colorAsArray(baseColorDarker),
+      arrows: [flowsColorHcl.brighter(2), flowsColorHcl],
+      locationCircles: {
+        inner: colorAsArray(flowsColorHcl),
+        outgoing: colorAsArray(flowsColorHcl.brighter(3)),
+        incoming: colorAsArray(flowsColorHcl.darker(1.25)),
         dimmed: DIMMED,
         none: NOCOLOR,
       },
-      locationAreaColors: {
-        normal: colorAsArray(baseColorBrighter2),
-        selected: colorAsArray(baseColorDarker2),
-        highlighted: colorAsArray(baseColorHcl),
-        connected: colorAsArray(baseColorBrighter2),
+      locationAreas: {
+        normal: colorAsArray(locationsNormalHcl),
+        connected: colorAsArray(locationsNormalHcl),
+        selected: colorAsArray(locationsAccentColorHcl),
+        highlighted: colorAsArray(locationsAccentColorHcl.brighter(1)),
         none: NOCOLOR,
       },
     };
@@ -225,14 +223,14 @@ export default function createSelectors({
     getVaryFlowColorByMagnitude,
     (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude) => {
       if (!varyFlowColorByMagnitude) {
-        return () => colors.flowLineColorRange[1];
+        return () => colors.arrows[1];
       }
 
       const scale = d3Scale
         .scalePow<d3Color.HCLColor, string>()
         .exponent(1 / 3)
         .interpolate(interpolateHcl)
-        .range(colors.flowLineColorRange)
+        .range(colors.arrows)
         .domain([0, maxMagnitude || 0]);
 
       return (magnitude: number) => d3Color.hcl(scale(magnitude));

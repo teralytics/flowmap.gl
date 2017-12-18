@@ -4,6 +4,7 @@ import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import createSelectors, { Selectors } from './selectors';
 import {
+  BaseColors,
   Data,
   Flow,
   FlowAccessor,
@@ -18,7 +19,7 @@ import {
 import { colorAsArray, RGBA } from './utils';
 
 export interface Props extends LayerProps {
-  baseColor: string;
+  baseColors: BaseColors;
   locations: Locations;
   flows: Flow[];
   onClick?: PickingHandler<FlowLayerPickingInfo>;
@@ -129,7 +130,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
     const getFillColor = (location: Location) => {
       const locationId = getLocationId(location);
-      const { normal, highlighted, selected, connected } = colors.locationAreaColors;
+      const { normal, highlighted, selected, connected } = colors.locationAreas;
       if (locationId === selectedLocationId) {
         return selected;
       }
@@ -261,7 +262,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid(locCircle.location);
     const getColor: LocationCircleAccessor<RGBA> = ({ location, type }) => {
-      const { inner, incoming, outgoing, none, dimmed } = colors.locationCircleColors;
+      const { inner, incoming, outgoing, none, dimmed } = colors.locationCircles;
 
       if (
         (!this.props.highlightedLocationId && !highlightedFlow && !selectedLocationId) ||
