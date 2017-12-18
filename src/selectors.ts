@@ -34,6 +34,7 @@ export interface Colors {
     dimmed: RGBA;
     none: RGBA;
   };
+  locationOutlines: RGBA;
   locationAreas: {
     normal: RGBA;
     selected: RGBA;
@@ -86,6 +87,7 @@ export default function createSelectors({
     const flowsColorHcl = d3Color.hcl(flows);
     const locationsNormalHcl = d3Color.hcl(locations.normal);
     const locationsAccentColorHcl = d3Color.hcl(locations.accent);
+    const locationsOutlinesColorHcl = d3Color.hcl(locations.outlines);
 
     return {
       arrows: [flowsColorHcl.brighter(2), flowsColorHcl],
@@ -96,6 +98,7 @@ export default function createSelectors({
         dimmed: DIMMED,
         none: NOCOLOR,
       },
+      locationOutlines: colorAsArray(locationsOutlinesColorHcl),
       locationAreas: {
         normal: colorAsArray(locationsNormalHcl),
         connected: colorAsArray(locationsNormalHcl),

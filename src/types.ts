@@ -6,6 +6,7 @@ export interface BaseColors {
   locations: {
     normal: string;
     accent: string;
+    outlines: string;
   };
 }
 

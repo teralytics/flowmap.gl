@@ -60,6 +60,7 @@ const baseColors: BaseColors = {
   locations: {
     normal: '#bbbbbb',
     accent: '#D9822B',
+    outlines: '#5C7080',
   },
 };
 

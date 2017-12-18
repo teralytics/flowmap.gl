@@ -128,6 +128,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const isConnected = isLocationConnectedGetter(this.props);
     const colors = getColors(this.props);
 
+    const getLineColor = () => colors.locationOutlines;
     const getFillColor = (location: Location) => {
       const locationId = getLocationId(location);
       const { normal, highlighted, selected, connected } = colors.locationAreas;
@@ -149,14 +150,16 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     return new GeoJsonLayer({
       id,
       getFillColor,
+      getLineColor,
+      lineJointRounded: true,
       data: locations,
       fp64: true,
       stroked: true,
       filled: true,
       pickable: true,
       opacity: 0.5,
-      lineWidthMinPixels: 2,
-      pointRadiusMinPixels: 2,
+      lineWidthMinPixels: 1,
+      pointRadiusMinPixels: 1,
       updateTriggers: {
         getFillColor: { selectedLocationId, highlightedLocationId, highlightedFlow },
       },
