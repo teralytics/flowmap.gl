@@ -1,7 +1,0 @@
-{
-  "extends": "react-app",
-  "parser": "babel-eslint",
-  "rules": {
-    "no-lone-blocks": 0
-  }
-}

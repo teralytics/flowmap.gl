@@ -1,0 +1,40 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended",
+    "tslint-react",
+    "tslint-plugin-prettier",
+    "tslint-config-prettier"
+  ],
+  "rules": {
+    "prettier": [
+      true,
+      {
+        "printWidth": 120,
+        "singleQuote": true,
+        "trailingComma": "all"
+      }
+    ],
+    "interface-name": [
+      true,
+      "never-prefix"
+    ],
+    "no-any": true,
+    "object-literal-sort-keys": false,
+    "member-access": false,
+    "no-console": [
+      true,
+      "log"
+    ],
+    "typedef": [
+      true,
+      "parameter",
+      "member-variable-declaration"
+    ],
+    "no-namespace": [
+      true,
+      "allow-declarations"
+    ],
+    "jsx-no-lambda": false
+  }
+}

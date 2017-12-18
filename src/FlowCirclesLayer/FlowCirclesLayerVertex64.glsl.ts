@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Uber Technologies, Inc.
+// Copyright (c) 2015 Uber Technologies, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-module.exports = `
-#define SHADER_NAME circles-layer-64-vertex
+export default `\
+#define SHADER_NAME flow-circles-layer-64-vertex
 
 attribute vec3 positions;
 
@@ -45,39 +45,40 @@ varying float innerUnitRadius;
 void main(void) {
   // Multiply out radius and clamp to limits
   float outerRadiusPixels = instanceRadius;
-
+  
   // outline is centered at the radius
   // outer radius needs to offset by half stroke width
   outerRadiusPixels += outline * strokeWidth / 2.0;
-
+  
   // position on the containing square in [-1, 1] space
   unitPosition = positions.xy;
   // 0 - solid circle, 1 - stroke with lineWidth=0
   innerUnitRadius = outline * (1.0 - strokeWidth / outerRadiusPixels);
-
+  
   vec4 instancePositions64xy = vec4(instancePositions.x, instancePositions64xyLow.x, instancePositions.y, instancePositions64xyLow.y);
   vec2 projected_coord_xy[2];
   project_position_fp64(instancePositions64xy, projected_coord_xy);
-
+  
   vec2 vertex_pos_localspace[4];
   vec4_fp64(vec4(positions * outerRadiusPixels, 0.0), vertex_pos_localspace);
-
+  
   vec2 vertex_pos_modelspace[4];
   vertex_pos_modelspace[0] = sum_fp64(vertex_pos_localspace[0], projected_coord_xy[0]);
   vertex_pos_modelspace[1] = sum_fp64(vertex_pos_localspace[1], projected_coord_xy[1]);
   vertex_pos_modelspace[2] = sum_fp64(vertex_pos_localspace[2], vec2(project_scale(instancePositions.z), 0.0));
   vertex_pos_modelspace[3] = vec2(1.0, 0.0);
-
+  
   gl_Position = project_to_clipspace_fp64(vertex_pos_modelspace);
-
+  
   if (renderPickingBuffer > 0.5) {
     vColor = vec4(instancePickingColors / 255., 1.);
   } else {
     vColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
   }
-  // // Apply opacity to instance color, or return instance picking color
-  // vec4 color = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
-  // vec4 pickingColor = vec4(instancePickingColors / 255., 1.);
-  // vColor = mix(color, pickingColor, renderPickingBuffer);
+  
+  // Apply opacity to instance color, or return instance picking color
+  vec4 color = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
+  vec4 pickingColor = vec4(instancePickingColors / 255., 1.);
+  vColor = mix(color, pickingColor, renderPickingBuffer);
 }
-`
+`;
