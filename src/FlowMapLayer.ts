@@ -157,7 +157,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       stroked: true,
       filled: true,
       pickable: true,
-      opacity: 0.5,
+      opacity: 1,
       lineWidthMinPixels: 1,
       pointRadiusMinPixels: 1,
       updateTriggers: {
