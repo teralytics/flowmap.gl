@@ -89,6 +89,8 @@ void main(void) {
 
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
   vColor = mix(fillColor, vec4(borderColor.xyz, borderColor.w * fillColor.w), normals.z);
+  
+  // Set color to be rendered to picking fbo (also used to check for selection highlight).
   picking_setPickingColor(instancePickingColors);
 }
 `;

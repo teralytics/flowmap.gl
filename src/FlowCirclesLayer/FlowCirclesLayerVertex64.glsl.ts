@@ -69,7 +69,10 @@ void main(void) {
   
   gl_Position = project_to_clipspace_fp64(vertex_pos_modelspace);
   
+  // Apply opacity to instance color, or return instance picking color
   vColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
+  
+  // Set color to be rendered to picking fbo (also used to check for selection highlight).
   picking_setPickingColor(instancePickingColors);
 }
 `;
