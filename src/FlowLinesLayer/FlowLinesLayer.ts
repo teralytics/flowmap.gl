@@ -67,7 +67,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
 
     const { attributeManager } = this.state;
 
-    if (this.props.fp64 && this.props.projectionMode === COORDINATE_SYSTEM.LNGLAT) {
+    if (enable64bitSupport(this.props)) {
       attributeManager.addInstanced({
         instanceSourceTargetPositions64xyLow: {
           size: 4,
