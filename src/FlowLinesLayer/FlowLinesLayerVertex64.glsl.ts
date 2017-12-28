@@ -19,8 +19,7 @@
 // THE SOFTWARE.
 
 export default `\
-#define SHADER_NAME flow-line-layer-vertex-shader
-#define PI 3.1415926535897932384626433832795
+#define SHADER_NAME flow-line-layer-64-vertex-shader
 
 attribute vec3 positions;
 attribute vec3 normals;
@@ -28,6 +27,7 @@ attribute vec4 instanceColors;
 attribute float instanceThickness;
 attribute vec3 instanceSourcePositions;
 attribute vec3 instanceTargetPositions;
+attribute vec4 instanceSourceTargetPositions64xyLow;
 attribute vec3 instancePickingColors;
 attribute vec2 instanceEndpointOffsets;
 
@@ -43,37 +43,51 @@ mat2 rotation_mat2(float a) {
   return mat2(cos(a), sin(a), -sin(a), cos(a));
 }
 
-vec2 vec3_to_vec2(vec3 a) {
-  return vec2(a[0], a[1]);
+vec2 vec2_fp64_to_fp32(vec2 a[2]) {
+  return vec2(a[0][0], a[1][0]);
 }
 
+
 void main(void) {
-  vec2 projectedSourceCoord = vec3_to_vec2(project_position(instanceSourcePositions));
-  vec2 projectedTargetCoord = vec3_to_vec2(project_position(instanceTargetPositions));
+  // Position
+  vec4 instanceSourcePositions64 = vec4(
+    instanceSourcePositions.x, instanceSourceTargetPositions64xyLow.x,
+    instanceSourcePositions.y, instanceSourceTargetPositions64xyLow.y);
+
+  vec4 instanceTargetPositions64 = vec4(
+    instanceTargetPositions.x, instanceSourceTargetPositions64xyLow.z,
+    instanceTargetPositions.y, instanceSourceTargetPositions64xyLow.w);
 
 
-  vec2 sourceTarget = projectedTargetCoord - projectedSourceCoord;
+  vec2 projectedSourceCoord[2];
+  project_position_fp64(instanceSourcePositions64, projectedSourceCoord);
+  vec2 projectedTargetCoord[2];
+  project_position_fp64(instanceTargetPositions64, projectedTargetCoord);
+
+
+  vec2 sourceTarget = vec2_fp64_to_fp32(projectedTargetCoord) - vec2_fp64_to_fp32(projectedSourceCoord);
   float offsetLimit = length(sourceTarget) * 0.8;
   vec2 flowlineDirection = normalize(sourceTarget);
   vec2 limitedOffsetDistances = clamp(positions.yz * thicknessUnit, -offsetLimit, offsetLimit);
   float endpointOffset = mix(instanceEndpointOffsets.x, -instanceEndpointOffsets.y, positions.x);
   vec2 offset =
-    rotation_mat2(0.5*PI) * flowlineDirection * (instanceThickness * limitedOffsetDistances[0] + gap + normals.x) +
+    rotation_mat2(0.5*PI_FP64[0]) * flowlineDirection * (instanceThickness * limitedOffsetDistances[0] + gap + normals.x) +
     flowlineDirection * (instanceThickness * limitedOffsetDistances[1] + normals.y + endpointOffset)
   ;
 
 
-  vec2 mixed_temp = mix(projectedSourceCoord, projectedTargetCoord, positions.x);
+  vec2 mixed_temp[2];
+  vec2_mix_fp64(projectedSourceCoord, projectedTargetCoord, positions.x, mixed_temp);
 
-  vec4 vertex_pos_modelspace;
+  vec2 vertex_pos_modelspace[4];
 
-  vertex_pos_modelspace[0] = mixed_temp[0] + offset[0];
-  vertex_pos_modelspace[1] = mixed_temp[1] + offset[1];
-  vertex_pos_modelspace[2] = 0.0;
-  vertex_pos_modelspace[3] = 1.0;
+  vertex_pos_modelspace[0] = sum_fp64(mixed_temp[0], vec2(offset[0], 0.0));
+  vertex_pos_modelspace[1] = sum_fp64(mixed_temp[1], vec2(offset[1], 0.0));
+  vertex_pos_modelspace[2] = vec2(0.0, 0.0);
+  vertex_pos_modelspace[3] = vec2(1.0, 0.0);
 
 
-  gl_Position = project_to_clipspace(vertex_pos_modelspace);
+  gl_Position = project_to_clipspace_fp64(vertex_pos_modelspace);
 
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
   vec4 color = mix(fillColor, vec4(borderColor.xyz, borderColor.w * fillColor.w), normals.z);

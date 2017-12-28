@@ -1,8 +1,9 @@
-import { Attribute, DrawParams, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
+import { Attribute, COORDINATE_SYSTEM, DrawParams, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
 import { Geometry, GL, Model } from 'luma.gl';
-import { fp64ify, RGBA } from '../utils';
+import { enable64bitSupport, fp64ify, RGBA } from '../utils';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
+import VertexShader64 from './FlowLinesLayerVertex64.glsl';
 
 export interface FlowLineData {
   sourcePosition: [number, number];
@@ -45,12 +46,19 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
   };
 
   getShaders(): Shaders {
-    return {
-      vs: VertexShader,
-      fs: FragmentShader,
-      modules: ['project64'],
-      shaderCache: this.context.shaderCache,
-    };
+    return enable64bitSupport(this.props)
+      ? {
+          vs: VertexShader64,
+          fs: FragmentShader,
+          modules: ['project64'],
+          shaderCache: this.context.shaderCache,
+        }
+      : {
+          vs: VertexShader,
+          fs: FragmentShader,
+          modules: [],
+          shaderCache: this.context.shaderCache,
+        };
   }
 
   initializeState() {
@@ -58,15 +66,25 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     this.setState({ model: this.createModel(gl) });
 
     const { attributeManager } = this.state;
+
+    if (this.props.fp64 && this.props.projectionMode === COORDINATE_SYSTEM.LNGLAT) {
+      attributeManager.addInstanced({
+        instanceSourceTargetPositions64xyLow: {
+          size: 4,
+          accessor: ['getSourcePosition', 'getTargetPosition'],
+          update: this.calculateInstanceSourceTargetPositions64xyLow,
+        },
+      });
+    }
     attributeManager.addInstanced({
-      instanceSourcePositionsFP64: {
+      instanceSourcePositions: {
         accessor: 'getSourcePosition',
-        size: 4,
+        size: 3,
         update: this.calculateInstanceSourcePositions,
       },
-      instanceTargetPositionsFP64: {
+      instanceTargetPositions: {
         accessor: 'getTargetPosition',
-        size: 4,
+        size: 3,
         update: this.calculateInstanceTargetPositions,
       },
       instanceThickness: {
@@ -199,8 +217,9 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     let i = 0;
     for (const object of data) {
       const sourcePosition = getSourcePosition(object);
-      [value[i + 0], value[i + 1]] = fp64ify(sourcePosition[0]);
-      [value[i + 2], value[i + 3]] = fp64ify(sourcePosition[1]);
+      value[i + 0] = sourcePosition[0];
+      value[i + 1] = sourcePosition[1];
+      value[i + 2] = isNaN(sourcePosition[2]) ? 0 : sourcePosition[2];
       i += size;
     }
   }
@@ -215,8 +234,30 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     let i = 0;
     for (const object of data) {
       const targetPosition = getTargetPosition(object);
-      [value[i + 0], value[i + 1]] = fp64ify(targetPosition[0]);
-      [value[i + 2], value[i + 3]] = fp64ify(targetPosition[1]);
+      value[i + 0] = targetPosition[0];
+      value[i + 1] = targetPosition[1];
+      value[i + 2] = isNaN(targetPosition[2]) ? 0 : targetPosition[2];
+      i += size;
+    }
+  }
+
+  calculateInstanceSourceTargetPositions64xyLow(attribute: Attribute) {
+    const { data, getSourcePosition, getTargetPosition } = this.props;
+    if (!getSourcePosition) {
+      throw new Error('getSourcePosition must be defined');
+    }
+    if (!getTargetPosition) {
+      throw new Error('getTargetPosition must be defined');
+    }
+    const { value, size } = attribute;
+    let i = 0;
+    for (const object of data) {
+      const sourcePosition = getSourcePosition(object);
+      const targetPosition = getTargetPosition(object);
+      value[i + 0] = fp64ify(sourcePosition[0])[1];
+      value[i + 1] = fp64ify(sourcePosition[1])[1];
+      value[i + 2] = fp64ify(targetPosition[0])[1];
+      value[i + 3] = fp64ify(targetPosition[1])[1];
       i += size;
     }
   }

@@ -66,11 +66,15 @@ const baseColors: BaseColors = {
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 
-class Example extends React.Component<{}, State> {
+interface Props {
+  fp64?: boolean;
+}
+
+class Example extends React.Component<Props, State> {
   // tslint:disable-next-line:typedef
   private highlightDebounced = _.debounce(this.highlight, 100);
 
-  constructor(props: {}) {
+  constructor(props: Props) {
     super(props);
 
     const { center: [longitude, latitude], zoom } = geoViewport.viewport(
@@ -131,6 +135,7 @@ class Example extends React.Component<{}, State> {
       showTotals: true,
       onHover: this.handleFlowMapHover,
       onClick: this.handleFlowMapClick,
+      fp64: this.props.fp64,
     });
 
     return [flowMap];
