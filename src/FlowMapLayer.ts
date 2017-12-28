@@ -22,6 +22,7 @@ export interface Props extends LayerProps {
   baseColors: BaseColors;
   locations: Locations;
   flows: Flow[];
+  fp64?: boolean;
   onClick?: PickingHandler<FlowLayerPickingInfo>;
   onHover?: PickingHandler<FlowLayerPickingInfo>;
   getLocationId?: LocationAccessor<string>;
@@ -119,7 +120,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
   }
 
   getLocationAreasLayer(id: string): GeoJsonLayer<GeometryObject> {
-    const { locations, selectedLocationId, highlightedLocationId, highlightedFlow, getLocationId } = this.props;
+    const { locations, selectedLocationId, highlightedLocationId, highlightedFlow, getLocationId, fp64 } = this.props;
     if (!getLocationId) {
       throw new Error('getLocationId must be defined');
     }
@@ -153,7 +154,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       getLineColor,
       lineJointRounded: true,
       data: locations,
-      fp64: true,
+      fp64,
       stroked: true,
       filled: true,
       pickable: true,
@@ -175,6 +176,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       highlightedLocationId,
       highlightedFlow,
       showTotals,
+      fp64,
     } = this.props;
     if (!getFlowOriginId || !getFlowDestId || !getFlowMagnitude || !getLocationCentroid) {
       throw new Error('getters must be defined');
@@ -234,6 +236,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
           showTotals,
         },
       },
+      fp64,
     });
   }
 
@@ -246,6 +249,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       getLocationCentroid,
       getFlowOriginId,
       getFlowDestId,
+      fp64,
     } = this.props;
     if (!getLocationId || !getFlowOriginId || !getFlowDestId || !getLocationCentroid) {
       throw new Error('getters must be defined');
@@ -301,7 +305,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       data: circles,
       opacity: 1,
       pickable: true,
-      fp64: true,
+      fp64,
       updateTriggers: {
         getRadius: { selectedLocationId },
         getColor: { highlightedLocationId, highlightedFlow, selectedLocationId },
