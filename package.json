@@ -86,8 +86,8 @@
   "peerDependencies": {
     "react": "0.14.x - 16.x",
     "react-dom": "0.14.x - 16.x",
-    "deck.gl": "5.x.x",
-    "luma.gl": "5.x.x"
+    "deck.gl": "5.0.x",
+    "luma.gl": "5.0.x"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
