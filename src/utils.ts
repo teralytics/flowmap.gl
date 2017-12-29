@@ -1,22 +1,7 @@
 import * as d3Color from 'd3-color';
 import * as d3Scale from 'd3-scale';
-import { COORDINATE_SYSTEM, LayerProps } from 'deck.gl';
 
 export type RGBA = [number, number, number, number];
-
-export function fp64ify(a: number): [number, number] {
-  const hiPart = Math.fround(a);
-  const loPart = a - Math.fround(a);
-  return [hiPart, loPart];
-}
-
-export function enable64bitSupport(props: LayerProps) {
-  if (props.fp64 && props.projectionMode === COORDINATE_SYSTEM.LNGLAT) {
-    return true;
-  }
-
-  return false;
-}
 
 function opacityDecimalToInteger(opacity: number) {
   const scale = d3Scale

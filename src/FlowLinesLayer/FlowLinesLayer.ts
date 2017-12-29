@@ -1,6 +1,6 @@
-import { Attribute, COORDINATE_SYSTEM, DrawParams, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
+import { Attribute, DrawParams, experimental, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
 import { Geometry, GL, Model } from 'luma.gl';
-import { enable64bitSupport, fp64ify, RGBA } from '../utils';
+import { RGBA } from '../utils';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
 import VertexShader64 from './FlowLinesLayerVertex64.glsl';
@@ -31,6 +31,8 @@ export interface Context {
   shaderCache: ShaderCache;
 }
 
+const { enable64bitSupport, fp64ify } = experimental;
+
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
 const DEFAULT_BORDER_COLOR: RGBA = [0.85, 0.85, 0.85, 0.95];
 const DEFAULT_ENDPOINT_OFFSETS = [0, 0];
@@ -50,13 +52,13 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       ? {
           vs: VertexShader64,
           fs: FragmentShader,
-          modules: ['project64'],
+          modules: ['project64', 'picking'],
           shaderCache: this.context.shaderCache,
         }
       : {
           vs: VertexShader,
           fs: FragmentShader,
-          modules: [],
+          modules: ['picking'],
           shaderCache: this.context.shaderCache,
         };
   }
@@ -198,9 +200,11 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       id: this.props.id,
       ...this.getShaders(),
       geometry: new Geometry({
-        drawMode: GL.TRIANGLES,
-        positions: new Float32Array(positions),
-        normals: new Float32Array(pixelOffsets),
+        drawType: GL.TRIANGLES,
+        attributes: {
+          positions: new Float32Array(positions),
+          normals: new Float32Array(pixelOffsets),
+        },
       }),
       isInstanced: true,
       shaderCache: this.context.shaderCache,
