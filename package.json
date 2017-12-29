@@ -1,5 +1,5 @@
 {
-  "name": "@tera/flow-map.gl",
+  "name": "@tera/flowmap.gl",
   "description": "Flow map drawing layer for deck.gl",
   "author": "Teralytics AG",
   "license": "MIT",

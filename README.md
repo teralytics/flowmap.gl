@@ -1,4 +1,4 @@
-# flow-map.gl
+# flowmap.gl
 
 Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl).
 
