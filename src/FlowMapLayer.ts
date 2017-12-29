@@ -2,7 +2,7 @@ import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickingHan
 import { GeometryObject } from 'geojson';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
-import createSelectors, { Selectors } from './selectors';
+import createSelectors, { DEFAULT_DIMMED_OPACITY, Selectors } from './selectors';
 import {
   BaseColors,
   Data,
@@ -212,7 +212,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const getColor: FlowAccessor<RGBA> = dimmed
       ? flow => {
           const { l } = flowColorScale(getFlowMagnitude(flow));
-          return [l, l, l, 100] as RGBA;
+          return [l, l, l, DEFAULT_DIMMED_OPACITY] as RGBA;
         }
       : flow => colorAsArray(flowColorScale(getFlowMagnitude(flow)));
 
