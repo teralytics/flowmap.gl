@@ -74,6 +74,8 @@ const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationId = (props: Props) => props.selectedLocationId;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
 
+export const DEFAULT_DIMMED_OPACITY = 25;
+
 export default function createSelectors({
   getLocationId,
   getFlowOriginId,
@@ -82,7 +84,7 @@ export default function createSelectors({
 }: InputGetters): Selectors {
   const getColors = createSelector(getBaseColors, ({ flows, locations }) => {
     const NOCOLOR: RGBA = [255, 255, 255, 0];
-    const DIMMED: RGBA = [0, 0, 0, 100];
+    const DIMMED: RGBA = [0, 0, 0, DEFAULT_DIMMED_OPACITY];
 
     const flowsColorHcl = d3Color.hcl(flows);
     const locationsNormalHcl = d3Color.hcl(locations.normal);
