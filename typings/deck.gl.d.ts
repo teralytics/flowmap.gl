@@ -34,7 +34,7 @@ declare module 'deck.gl' {
     pickable?: boolean;
     fp64?: boolean;
     updateTriggers?: UpdateTriggers;
-    projectionMode?: number;
+    coordinateSystem?: number;
   }
 
   export class AttributeManager {
@@ -256,4 +256,11 @@ declare module 'deck.gl' {
   > extends Layer<TProps, TState, TContext> {
     renderLayers(): Layer[];
   }
+
+  interface Experimental {
+    enable64bitSupport: (props: LayerProps) => boolean,
+    fp64ify: (a: number) => [number, number];
+  }
+
+  export const experimental: Experimental;
 }

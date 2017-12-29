@@ -35,7 +35,6 @@ uniform vec4 borderColor;
 uniform float thicknessUnit;
 uniform float gap;
 uniform float opacity;
-uniform float renderPickingBuffer;
 
 varying vec4 vColor;
 
@@ -72,8 +71,7 @@ void main(void) {
   float endpointOffset = mix(instanceEndpointOffsets.x, -instanceEndpointOffsets.y, positions.x);
   vec2 offset =
     rotation_mat2(0.5*PI_FP64[0]) * flowlineDirection * (instanceThickness * limitedOffsetDistances[0] + gap + normals.x) +
-    flowlineDirection * (instanceThickness * limitedOffsetDistances[1] + normals.y + endpointOffset)
-  ;
+    flowlineDirection * (instanceThickness * limitedOffsetDistances[1] + normals.y + endpointOffset);
 
 
   vec2 mixed_temp[2];
@@ -90,14 +88,9 @@ void main(void) {
   gl_Position = project_to_clipspace_fp64(vertex_pos_modelspace);
 
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
-  vec4 color = mix(fillColor, vec4(borderColor.xyz, borderColor.w * fillColor.w), normals.z);
-  vec4 pickingColor = vec4(instancePickingColors / 255., 1.);
-
-  vColor = mix(
-    color,
-    pickingColor,
-    renderPickingBuffer
-  );
-
+  vColor = mix(fillColor, vec4(borderColor.xyz, borderColor.w * fillColor.w), normals.z);
+  
+  // Set color to be rendered to picking fbo (also used to check for selection highlight).
+  picking_setPickingColor(instancePickingColors);
 }
 `;

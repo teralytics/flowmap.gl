@@ -35,7 +35,6 @@ uniform vec4 borderColor;
 uniform float thicknessUnit;
 uniform float gap;
 uniform float opacity;
-uniform float renderPickingBuffer;
 
 varying vec4 vColor;
 
@@ -74,16 +73,11 @@ void main(void) {
 
 
   gl_Position = project_to_clipspace(vertex_pos_modelspace);
-
+  
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
-  vec4 color = mix(fillColor, vec4(borderColor.xyz, borderColor.w * fillColor.w), normals.z);
-  vec4 pickingColor = vec4(instancePickingColors / 255., 1.);
-
-  vColor = mix(
-    color,
-    pickingColor,
-    renderPickingBuffer
-  );
-
+  vColor = mix(fillColor, vec4(borderColor.xyz, borderColor.w * fillColor.w), normals.z);
+  
+  // Set color to be rendered to picking fbo (also used to check for selection highlight).
+  picking_setPickingColor(instancePickingColors);
 }
 `;
