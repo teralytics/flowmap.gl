@@ -5,9 +5,9 @@ import { interpolateHcl } from 'd3-interpolate';
 import * as d3Scale from 'd3-scale';
 import * as _ from 'lodash';
 import { createSelector } from 'reselect';
-import { Props } from './FlowMapLayer';
+import { default as FlowMapLayer, Props } from './FlowMapLayer';
 import { Flow, FlowAccessor, Location, LocationAccessor, LocationCircle, LocationCircleType } from './types';
-import { colorAsArray, RGBA } from './utils';
+import { colorAsArray, opacityFloatToInteger, RGBA } from './utils';
 
 export interface InputGetters {
   getLocationId: LocationAccessor<string>;
@@ -73,8 +73,7 @@ const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationId = (props: Props) => props.selectedLocationId;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
-
-export const DEFAULT_DIMMED_OPACITY = 25;
+const getDimmedOpacity = (props: Props) => props.dimmedOpacity;
 
 export default function createSelectors({
   getLocationId,
@@ -82,9 +81,9 @@ export default function createSelectors({
   getFlowDestId,
   getFlowMagnitude,
 }: InputGetters): Selectors {
-  const getColors = createSelector(getBaseColors, ({ flows, locations }) => {
+  const getColors = createSelector(getBaseColors, getDimmedOpacity, ({ flows, locations }, dimmedOpacity) => {
     const NOCOLOR: RGBA = [255, 255, 255, 0];
-    const DIMMED: RGBA = [0, 0, 0, DEFAULT_DIMMED_OPACITY];
+    const DIMMED: RGBA = [0, 0, 0, opacityFloatToInteger(dimmedOpacity as number)];
 
     const flowsColorHcl = d3Color.hcl(flows);
     const locationsNormalHcl = d3Color.hcl(locations.normal);
