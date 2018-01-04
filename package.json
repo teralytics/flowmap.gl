@@ -3,7 +3,7 @@
   "description": "Flow map drawing layer for deck.gl",
   "author": "Teralytics AG",
   "license": "MIT",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "keywords": [
     "flows",
     "flow map",
@@ -21,22 +21,19 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "module": "dist-mod/index.js",
   "files": [
     "dist",
-    "dist-mod",
     "src"
   ],
   "scripts": {
     "start": "STORYBOOK_MapboxAccessToken=$MapboxAccessToken start-storybook -p 6006",
     "storybook:build": "build-storybook",
-    "build:mod": "rm -rf dist-mod && tsc -m es2015 --outDir dist-mod",
     "build:es5": "rm -rf dist && tsc",
     "build": "npm-run-all build:*",
     "typecheck": "tsc --noEmit",
     "lint": "tslint 'src/**/*.{ts,tsx}'",
     "precommit": "lint-staged & npm run typecheck",
-    "prepare": "npm run build:es5"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "d3-array": "^1.2.1",
