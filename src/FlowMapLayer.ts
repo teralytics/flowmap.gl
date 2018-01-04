@@ -2,7 +2,8 @@ import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickingHan
 import { GeometryObject } from 'geojson';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
-import createSelectors, { DEFAULT_DIMMED_OPACITY, Selectors } from './selectors';
+import { opacityFloatToInteger } from './utils'
+import createSelectors, { Selectors } from './selectors';
 import {
   BaseColors,
   Data,
@@ -32,6 +33,7 @@ export interface Props extends LayerProps {
   getFlowMagnitude?: FlowAccessor<number>;
   showTotals?: boolean;
   showLocations?: boolean;
+  dimmedOpacity?: number;
   varyFlowColorByMagnitude?: boolean;
   selectedLocationId?: string;
   highlightedLocationId?: string;
@@ -72,6 +74,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     getFlowMagnitude: f => f.magnitude,
     showTotals: true,
     showLocations: true,
+    dimmedOpacity: 0.05,
     varyFlowColorByMagnitude: false,
   };
 
@@ -177,6 +180,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       highlightedFlow,
       showTotals,
       fp64,
+      dimmedOpacity,
     } = this.props;
     if (!getFlowOriginId || !getFlowDestId || !getFlowMagnitude || !getLocationCentroid) {
       throw new Error('getters must be defined');
@@ -212,7 +216,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const getColor: FlowAccessor<RGBA> = dimmed
       ? flow => {
           const { l } = flowColorScale(getFlowMagnitude(flow));
-          return [l, l, l, DEFAULT_DIMMED_OPACITY] as RGBA;
+          return [l, l, l, opacityFloatToInteger(dimmedOpacity as number)] as RGBA;
         }
       : flow => colorAsArray(flowColorScale(getFlowMagnitude(flow)));
 
