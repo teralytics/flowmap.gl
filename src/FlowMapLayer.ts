@@ -2,7 +2,6 @@ import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickingHan
 import { GeometryObject } from 'geojson';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
-import { opacityFloatToInteger } from './utils'
 import createSelectors, { Selectors } from './selectors';
 import {
   BaseColors,
@@ -17,6 +16,7 @@ import {
   Locations,
   PickingType,
 } from './types';
+import { opacityFloatToInteger } from './utils';
 import { colorAsArray, RGBA } from './utils';
 
 export interface Props extends LayerProps {
@@ -324,7 +324,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const flows = getSortedNonSelfFlows(this.props);
     const activeFlows = getActiveFlows(this.props);
 
-    const layers = [];
+    const layers: Layer[] = [];
 
     if (showLocations) {
       layers.push(this.getLocationAreasLayer(LAYER_ID__LOCATION_AREAS));
