@@ -21,16 +21,13 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "module": "dist-mod/index.js",
   "files": [
     "dist",
-    "dist-mod",
     "src"
   ],
   "scripts": {
     "start": "STORYBOOK_MapboxAccessToken=$MapboxAccessToken start-storybook -p 6006",
     "storybook:build": "build-storybook",
-    "build:mod": "rm -rf dist-mod && tsc -m es2015 --outDir dist-mod",
     "build:es5": "rm -rf dist && tsc",
     "build": "npm-run-all build:*",
     "typecheck": "tsc --noEmit",
