@@ -36,7 +36,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "tslint 'src/**/*.{ts,tsx}'",
     "precommit": "lint-staged & npm run typecheck",
-    "prepare": "npm run build:es5"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "d3-array": "^1.2.1",

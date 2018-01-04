@@ -10,7 +10,9 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "pretty": true,
+    "noImplicitAny": false,
     "jsx": "react",
+    "moduleResolution": "node",
     "lib": [
       "es2015",
       "dom"
