@@ -20,6 +20,7 @@ import { opacityFloatToInteger } from './utils';
 import { colorAsArray, RGBA } from './utils';
 
 export interface Props extends LayerProps {
+  id: string;
   baseColors: BaseColors;
   locations: Locations;
   flows: Flow[];

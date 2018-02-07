@@ -66,7 +66,7 @@ const baseColors: BaseColors = {
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 
-interface Props {
+export interface Props {
   fp64?: boolean;
 }
 
