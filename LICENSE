@@ -175,17 +175,20 @@
 
    END OF TERMS AND CONDITIONS
 
-   APPENDIX: How to apply the Apache License to source code in this repository
+   APPENDIX: How to apply the Apache License to your work.
 
-      To apply the Apache License to source code in this repository, attach 
-      the following boilerplate notice into each of the source code files. 
-      We also recommend that a file or class name and description of 
-      purpose be included on the same "printed page" as the copyright notice 
-      for easier identification within third-party archives.
+   To apply the Apache License to your work, attach the following
+   boilerplate notice, with the fields enclosed by brackets "[]"
+   replaced with your own identifying information. (Don't include
+   the brackets!)  The text should be enclosed in the appropriate
+   comment syntax for the file format. We also recommend that a
+   file or class name and description of purpose be included on the
+   same "printed page" as the copyright notice for easier
+   identification within third-party archives.
 
-   ------ BOILERPLATE NOTICE FOR SOURCE CODE FILES ---------
+   ------ BOILERPLATE NOTICE TO ADD AS A HEADER TO SOURCE CODE FILES -------
 
-   Copyright 2018 Teralytics
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -201,13 +204,12 @@
 
    ------ END OF THE BOILERPLATE NOTICE ---------------------
    
-   ============================================================================
+   ========================================================================
    FLOWMAP.GL COMPONENTS:
 
-   The flowmap.gl project uses components with separate copyright
-   notices and license terms. Your use of the source code for the these
-   components is subject to the terms and conditions of the following
-   licenses.
+   The flowmap.gl project bundles the following components with separate 
+   copyright notices and license terms. Your use of the these components 
+   is subject to the terms and conditions of the following licenses.
    
    ========================================================================
    MIT licenses
