@@ -72,6 +72,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-map-gl": "^3.1.5",
+    "style-loader": "^0.20.1",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.6.0",
     "tslint-loader": "^3.5.3",

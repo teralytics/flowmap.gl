@@ -1,3 +1,5 @@
+require('mapbox-gl/dist/mapbox-gl.css');
+
 import { configure } from '@storybook/react';
 
 function loadStories() {
@@ -5,3 +7,4 @@ function loadStories() {
 }
 
 configure(loadStories, module);
+
