@@ -10,7 +10,7 @@ import { FlowLayerPickingInfo, Location, PickingType } from '../src/types';
 export interface Flow {
   origin: string;
   dest: string;
-  magnitude: number;
+  count: number;
 }
 
 export interface LocationProperties {
@@ -67,7 +67,7 @@ export interface Props {
   fp64?: boolean;
 }
 
-class Example extends React.Component<Props, State> {
+class FlowMap extends React.Component<Props, State> {
   // tslint:disable-next-line:typedef
   private highlightDebounced = _.debounce(this.highlight, 100);
 
@@ -111,12 +111,12 @@ class Example extends React.Component<Props, State> {
         onViewportChange={this.handleChangeViewport}
         mapboxApiAccessToken={MAPBOX_TOKEN}
       >
-        <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={this.getDeckGlLayers()} />
+        <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={this.getLayers()} />
       </MapGL>
     );
   }
 
-  private getDeckGlLayers(): Layer[] {
+  private getLayers(): Layer[] {
     const { locations, flows, fp64 } = this.props;
     const { highlight, selectedLocationId } = this.state;
     const flowMap = new FlowMapLayer({
@@ -214,4 +214,4 @@ class Example extends React.Component<Props, State> {
   };
 }
 
-export default Example;
+export default FlowMap;

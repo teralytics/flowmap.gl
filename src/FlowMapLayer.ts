@@ -75,7 +75,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     getLocationCentroid: l => l.properties.centroid,
     getFlowOriginId: f => f.origin,
     getFlowDestId: f => f.dest,
-    getFlowMagnitude: f => f.magnitude,
+    getFlowMagnitude: f => f.count,
     showTotals: true,
     showLocations: true,
     varyFlowColorByMagnitude: false,
