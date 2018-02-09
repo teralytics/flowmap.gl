@@ -4,13 +4,8 @@ import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
-import FlowMapLayer, { BaseColors } from '../src';
+import FlowMapLayer, { BaseColors, prepareColors } from '../src';
 import { FlowLayerPickingInfo, Location, PickingType } from '../src/types';
-
-// tslint:disable-next-line:no-var-requires
-const flowsData: Flow[] = require('./data/flows.json');
-// tslint:disable-next-line:no-var-requires
-const locationsData: FeatureCollection<GeometryObject, LocationProperties> = require('./data/locations.json');
 
 export interface Flow {
   origin: string;
@@ -58,15 +53,17 @@ const ESC_KEY = 27;
 const baseColors: BaseColors = {
   flows: '#137CBD',
   locations: {
-    normal: '#bbbbbb',
-    accent: '#D9822B',
-    outlines: '#5C7080',
+    normal: 'rgba(187,187,187,0.5)',
+    accent: 'rgba(217,130,43,0.5)',
+    outlines: 'rgba(92,112,128,0.5)',
   },
 };
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 
 export interface Props {
+  flows: Flow[];
+  locations: FeatureCollection<GeometryObject, LocationProperties>;
   fp64?: boolean;
 }
 
@@ -120,14 +117,15 @@ class Example extends React.Component<Props, State> {
   }
 
   private getDeckGlLayers(): Layer[] {
+    const { locations, flows, fp64 } = this.props;
     const { highlight, selectedLocationId } = this.state;
     const flowMap = new FlowMapLayer({
-      baseColors,
+      colors: prepareColors(baseColors),
       getLocationId,
       selectedLocationId,
       id: 'flow-map-layer',
-      locations: locationsData,
-      flows: flowsData,
+      locations,
+      flows,
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
       showLocations: true,
@@ -135,7 +133,7 @@ class Example extends React.Component<Props, State> {
       showTotals: true,
       onHover: this.handleFlowMapHover,
       onClick: this.handleFlowMapClick,
-      fp64: this.props.fp64,
+      fp64,
     });
 
     return [flowMap];

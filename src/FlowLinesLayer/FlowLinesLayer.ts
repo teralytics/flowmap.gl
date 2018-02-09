@@ -1,6 +1,6 @@
 import { Attribute, DrawParams, experimental, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
 import { Geometry, GL, Model } from 'luma.gl';
-import { RGBA } from '../utils';
+import { RGBA } from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
 import VertexShader64 from './FlowLinesLayerVertex64.glsl';

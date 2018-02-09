@@ -1,13 +1,50 @@
 import { PickingInfo } from 'deck.gl';
 import { Feature, FeatureCollection, GeometryObject } from 'geojson';
 
-export interface BaseColors {
-  flows: string;
-  locations: {
-    normal: string;
-    accent: string;
-    outlines: string;
+export type RGBA = [number, number, number, number];
+
+export interface Colors {
+  flows: FlowColors;
+  locationCircles: LocationCircleColors;
+  locationAreas: LocationAreaColors;
+}
+
+export interface FlowColors {
+  max: RGBA;
+  min: RGBA;
+}
+
+export interface LocationCircleColors {
+  inner: RGBA;
+  outgoing: RGBA;
+  incoming: RGBA;
+  dimmed: RGBA;
+  none: RGBA;
+}
+
+export interface LocationAreaColors {
+  outline: RGBA;
+  normal: RGBA;
+  selected: RGBA;
+  highlighted: RGBA;
+  connected: RGBA;
+  none: RGBA;
+}
+
+export interface DiffColors {
+  positive: {
+    flows: FlowColors;
+    locationCircles: LocationCircleColors;
   };
+  negative: {
+    flows: FlowColors;
+    locationCircles: LocationCircleColors;
+  };
+  locationAreas: LocationAreaColors;
+}
+
+export function isDiffColors(colors: DiffColors | Colors): colors is DiffColors {
+  return (colors as DiffColors).positive !== undefined;
 }
 
 // tslint:disable-next-line:no-any
@@ -58,3 +95,5 @@ export type FlowLayerPickingInfo = LocationPickingInfo | LocationAreaPickingInfo
 export type FlowAccessor<T> = (flow: Flow) => T;
 export type LocationAccessor<T> = (location: Location) => T;
 export type LocationCircleAccessor<T> = (locCircle: LocationCircle) => T;
+
+export type ColorScale = (value: number) => string;

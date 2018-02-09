@@ -1,11 +1,13 @@
+import * as d3Color from 'd3-color';
 import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickingHandler, PickParams } from 'deck.gl';
 import { GeometryObject } from 'geojson';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import createSelectors, { Selectors } from './selectors';
 import {
-  BaseColors,
+  Colors,
   Data,
+  DiffColors,
   Flow,
   FlowAccessor,
   FlowLayerPickingInfo,
@@ -15,13 +17,14 @@ import {
   LocationCircleType,
   Locations,
   PickingType,
+  RGBA,
 } from './types';
 import { opacityFloatToInteger } from './utils';
-import { colorAsArray, RGBA } from './utils';
+import { colorAsArray } from './utils';
 
 export interface Props extends LayerProps {
   id: string;
-  baseColors: BaseColors;
+  colors: Colors | DiffColors;
   locations: Locations;
   flows: Flow[];
   fp64?: boolean;
@@ -75,8 +78,8 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     getFlowMagnitude: f => f.magnitude,
     showTotals: true,
     showLocations: true,
-    dimmedOpacity: 0.05,
     varyFlowColorByMagnitude: false,
+    dimmedOpacity: 0.05,
   };
 
   constructor(props: Props) {
@@ -133,7 +136,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const isConnected = isLocationConnectedGetter(this.props);
     const colors = getColors(this.props);
 
-    const getLineColor = () => colors.locationOutlines;
+    const getLineColor = () => colors.locationAreas.outline;
     const getFillColor = (location: Location) => {
       const locationId = getLocationId(location);
       const { normal, highlighted, selected, connected } = colors.locationAreas;
@@ -216,7 +219,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
         : [0, 0];
     const getColor: FlowAccessor<RGBA> = dimmed
       ? flow => {
-          const { l } = flowColorScale(getFlowMagnitude(flow));
+          const { l } = d3Color.hcl(flowColorScale(getFlowMagnitude(flow)));
           return [l, l, l, opacityFloatToInteger(dimmedOpacity as number)] as RGBA;
         }
       : flow => colorAsArray(flowColorScale(getFlowMagnitude(flow)));
@@ -274,7 +277,9 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid(locCircle.location);
     const getColor: LocationCircleAccessor<RGBA> = ({ location, type }) => {
-      const { inner, incoming, outgoing, none, dimmed } = colors.locationCircles;
+      const { inner, incoming, outgoing, none, dimmed } = (
+        (colors as DiffColors).positive || (colors as Colors)
+      ).locationCircles;
 
       if (
         (!this.props.highlightedLocationId && !highlightedFlow && !selectedLocationId) ||
