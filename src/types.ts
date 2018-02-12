@@ -96,4 +96,5 @@ export type FlowAccessor<T> = (flow: Flow) => T;
 export type LocationAccessor<T> = (location: Location) => T;
 export type LocationCircleAccessor<T> = (locCircle: LocationCircle) => T;
 
+export type NumberScale = (value: number) => number;
 export type ColorScale = (value: number) => string;

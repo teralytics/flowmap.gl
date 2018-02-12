@@ -1,7 +1,7 @@
 import * as d3Color from 'd3-color';
 import * as d3Scale from 'd3-scale';
 import { Colors } from './index';
-import { RGBA } from './types';
+import { DiffColors, RGBA } from './types';
 
 const opacityFloatToIntegerScale = d3Scale
   .scaleLinear()
@@ -22,57 +22,83 @@ export function rgbaToString(color: RGBA): string {
   return `rgba(${r},${g},${b},${a})`;
 }
 
+export interface BaseLocationColors {
+  normal: string;
+  accent: string;
+  outlines: string;
+}
 export interface BaseColors {
   flows: string;
-  locations: {
-    normal: string;
-    accent: string;
-    outlines: string;
-  };
+  locations: BaseLocationColors;
 }
 
-export function prepareColors(colors: BaseColors, dimmedOpacity: number = 0.05): Colors {
-  const { flows, locations } = colors;
+export interface BaseDiffColors {
+  flows: {
+    positive: string;
+    negative: string;
+  };
+  locations: BaseLocationColors;
+}
 
+function prepareFlowsAndCirclesColors(color: string, dimmedOpacity: number) {
   return {
     flows: {
       min: colorAsArray(
         d3Color
-          .hcl(flows)
+          .hcl(color)
           .brighter(2)
           .toString(),
       ),
-      max: colorAsArray(flows),
-    },
-    locationAreas: {
-      outline: colorAsArray(locations.outlines),
-      normal: colorAsArray(locations.normal),
-      connected: colorAsArray(locations.normal),
-      selected: colorAsArray(locations.accent),
-      highlighted: colorAsArray(
-        d3Color
-          .hcl(locations.accent)
-          .brighter(1)
-          .toString(),
-      ),
-      none: [255, 255, 255, 255],
+      max: colorAsArray(color),
     },
     locationCircles: {
-      inner: colorAsArray(flows),
+      inner: colorAsArray(color),
       outgoing: colorAsArray(
         d3Color
-          .hcl(flows)
+          .hcl(color)
           .brighter(3)
           .toString(),
       ),
       incoming: colorAsArray(
         d3Color
-          .hcl(flows)
+          .hcl(color)
           .darker(1.25)
           .toString(),
       ),
-      dimmed: [0, 0, 0, opacityFloatToInteger(dimmedOpacity)],
-      none: [255, 255, 255, 0],
+      dimmed: [0, 0, 0, opacityFloatToInteger(dimmedOpacity)] as RGBA,
+      none: [255, 255, 255, 0] as RGBA,
     },
+  };
+}
+
+function prepareLocationAreasColors(locations: BaseLocationColors) {
+  return {
+    outline: colorAsArray(locations.outlines),
+    normal: colorAsArray(locations.normal),
+    connected: colorAsArray(locations.normal),
+    selected: colorAsArray(locations.accent),
+    highlighted: colorAsArray(
+      d3Color
+        .hcl(locations.accent)
+        .brighter(1)
+        .toString(),
+    ),
+    none: [255, 255, 255, 255] as RGBA,
+  };
+}
+
+export function isDiffColors(colors: BaseColors | BaseDiffColors): colors is BaseDiffColors {
+  return (colors as BaseDiffColors).flows.positive !== undefined;
+}
+
+export function prepareColors(colors: BaseColors | BaseDiffColors, dimmedOpacity: number = 0.05): Colors | DiffColors {
+  return {
+    ...isDiffColors(colors)
+      ? {
+          positive: prepareFlowsAndCirclesColors(colors.flows.positive, dimmedOpacity),
+          negative: prepareFlowsAndCirclesColors(colors.flows.negative, dimmedOpacity),
+        }
+      : prepareFlowsAndCirclesColors(colors.flows, dimmedOpacity),
+    locationAreas: prepareLocationAreasColors(colors.locations),
   };
 }

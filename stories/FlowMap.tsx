@@ -6,6 +6,7 @@ import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
 import FlowMapLayer, { BaseColors, prepareColors } from '../src';
 import { FlowLayerPickingInfo, Location, PickingType } from '../src/types';
+import {BaseDiffColors} from "../src/utils";
 
 export interface Flow {
   origin: string;
@@ -59,11 +60,24 @@ const baseColors: BaseColors = {
   },
 };
 
+const baseDiffColors: BaseDiffColors = {
+  flows: {
+    positive: '#e28740',
+    negative: '#0275b8',
+  },
+  locations: {
+    normal: 'rgba(187,187,187,0.5)',
+    accent: 'rgba(217,130,43,0.5)',
+    outlines: 'rgba(92,112,128,0.5)',
+  },
+};
+
 const getLocationId = (loc: Location) => loc.properties.abbr;
 
 export interface Props {
   flows: Flow[];
   locations: FeatureCollection<GeometryObject, LocationProperties>;
+  diff?: boolean;
   fp64?: boolean;
 }
 
@@ -117,10 +131,10 @@ class FlowMap extends React.Component<Props, State> {
   }
 
   private getLayers(): Layer[] {
-    const { locations, flows, fp64 } = this.props;
+    const { locations, flows, fp64, diff } = this.props;
     const { highlight, selectedLocationId } = this.state;
     const flowMap = new FlowMapLayer({
-      colors: prepareColors(baseColors),
+      colors: prepareColors(diff ? baseDiffColors : baseColors),
       getLocationId,
       selectedLocationId,
       id: 'flow-map-layer',

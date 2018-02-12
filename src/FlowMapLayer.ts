@@ -11,6 +11,7 @@ import {
   Flow,
   FlowAccessor,
   FlowLayerPickingInfo,
+  isDiffColors,
   Location,
   LocationAccessor,
   LocationCircleAccessor,
@@ -277,34 +278,38 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid(locCircle.location);
     const getColor: LocationCircleAccessor<RGBA> = ({ location, type }) => {
-      const { inner, incoming, outgoing, none, dimmed } = (
-        (colors as DiffColors).positive || (colors as Colors)
-      ).locationCircles;
-
-      if (
-        (!this.props.highlightedLocationId && !highlightedFlow && !selectedLocationId) ||
-        this.props.highlightedLocationId === getLocationId(location) ||
+      const isActive =
+        (!highlightedLocationId && !highlightedFlow && !selectedLocationId) ||
+        highlightedLocationId === getLocationId(location) ||
         selectedLocationId === getLocationId(location) ||
         (highlightedFlow &&
           (getLocationId(location) === getFlowOriginId(highlightedFlow) ||
-            getLocationId(location) === getFlowDestId(highlightedFlow)))
-      ) {
+            getLocationId(location) === getFlowDestId(highlightedFlow)));
+
+      const totalIn = getLocationTotalIn(location);
+      const totalOut = getLocationTotalOut(location);
+      const isIncoming = type === LocationCircleType.OUTER && Math.abs(totalIn) > Math.abs(totalOut);
+
+      let cols;
+      if (isDiffColors(colors)) {
+        const isPositive = (isIncoming && totalIn >= 0) || totalOut >= 0;
+        cols = (isPositive ? colors.positive : colors.negative).locationCircles;
+      } else {
+        cols = colors.locationCircles;
+      }
+      if (isActive) {
         if (type === LocationCircleType.INNER) {
-          return inner;
+          return cols.inner;
         }
-
-        if (getLocationTotalIn(location) > getLocationTotalOut(location)) {
-          return incoming;
+        if (isIncoming) {
+          return cols.incoming;
         }
-
-        return outgoing;
+        return cols.outgoing;
       }
-
       if (type === LocationCircleType.INNER) {
-        return none;
+        return cols.none;
       }
-
-      return dimmed;
+      return cols.dimmed;
     };
 
     return new FlowCirclesLayer({

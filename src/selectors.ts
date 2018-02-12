@@ -15,8 +15,9 @@ import {
   LocationAccessor,
   LocationCircle,
   LocationCircleType,
+  NumberScale,
 } from './types';
-import { ColorScale } from './types';
+import { ColorScale, RGBA } from './types';
 import { rgbaToString } from './utils';
 
 export interface InputGetters {
@@ -48,7 +49,7 @@ export interface Selectors {
   getSortedNonSelfFlows: PropsSelector<Flow[]>;
   isLocationConnectedGetter: PropsSelector<(id: string) => boolean>;
   getFlowColorScale: PropsSelector<ColorScale>;
-  getFlowThicknessScale: PropsSelector<d3Scale.ScaleLinear<number, number>>;
+  getFlowThicknessScale: PropsSelector<NumberScale>;
   getLocationRadiusGetter: PropsSelector<(locCircle: LocationCircle) => number>;
   getLocationCircles: PropsSelector<LocationCircle[]>;
   getLocationTotalInGetter: PropsSelector<(location: Location) => number>;
@@ -127,7 +128,9 @@ export default function createSelectors({
     flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow)),
   );
 
-  const getSortedNonSelfFlows = createSelector(getNonSelfFlows, flows => _.orderBy(flows, [getFlowMagnitude, 'desc']));
+  const getSortedNonSelfFlows = createSelector(getNonSelfFlows, flows =>
+    _.orderBy(flows, [(f: Flow) => Math.abs(getFlowMagnitude(f)), 'desc']),
+  );
 
   const getFlowMagnitudeExtent = createSelector(getNonSelfFlows, flows => d3Array.extent(flows, getFlowMagnitude));
 
@@ -153,52 +156,76 @@ export default function createSelectors({
     return (location: Location) => outgoing[getLocationId(location)] || 0;
   });
 
-  const getLocationMaxTotal = createSelector(
+  const getLocationMaxAbsTotal = createSelector(
     getLocationFeatures,
     getLocationTotalInGetter,
     getLocationTotalOutGetter,
     (locations, getLocationTotalIn, getLocationTotalOut) => {
       const max = d3Array.max(locations, (location: Location) =>
-        Math.max(getLocationTotalIn(location), getLocationTotalOut(location)),
+        Math.max(Math.abs(getLocationTotalIn(location)), Math.abs(getLocationTotalOut(location))),
       );
       return max || 0;
     },
   );
 
-  const getSizeScale = createSelector(getLocationMaxTotal, maxTotal =>
-    d3Scale
+  const getSizeScale = createSelector(getLocationMaxAbsTotal, maxTotal => {
+    const scale = d3Scale
       .scalePow()
       .exponent(1 / 2)
       .domain([0, maxTotal])
-      .range([0, 15]),
-  );
+      .range([0, 15]);
 
-  const getFlowThicknessScale = createSelector(getFlowMagnitudeExtent, ([minMagnitude, maxMagnitude]) =>
-    d3Scale
+    return (v: number) => scale(Math.abs(v));
+  });
+
+  const getFlowThicknessScale = createSelector(getFlowMagnitudeExtent, ([minMagnitude, maxMagnitude]) => {
+    const scale = d3Scale
       .scaleLinear()
       .range([0.05, 0.5])
-      .domain([0, maxMagnitude || 0]),
-  );
+      .domain([0, Math.max(Math.abs(minMagnitude || 0), Math.abs(maxMagnitude || 0))]);
+
+    return (magnitude: number) => scale(Math.abs(magnitude));
+  });
+
+  const createFlowColorScale = (domain: [number, number], range: [RGBA, RGBA]) =>
+    d3Scale
+      .scalePow<string, string>()
+      .exponent(1 / 3)
+      .interpolate(interpolateHcl)
+      .range(range.map(rgbaToString))
+      .domain(domain);
 
   const getFlowColorScale = createSelector(
     getColors,
     getFlowMagnitudeExtent,
     getVaryFlowColorByMagnitude,
     (colors: Colors | DiffColors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude) => {
-      const { flows: flowColors } = isDiffColors(colors) ? colors.positive : colors;
-
       if (!varyFlowColorByMagnitude) {
-        return () => rgbaToString(flowColors.max);
+        if (isDiffColors(colors)) {
+          const posColor = rgbaToString(colors.positive.flows.max);
+          const negColor = rgbaToString(colors.negative.flows.max);
+          return (v: number) => (v >= 0 ? posColor : negColor);
+        } else {
+          const flowColor = rgbaToString(colors.flows.max);
+          return () => flowColor;
+        }
       }
 
-      const scale = d3Scale
-        .scalePow<string, string>()
-        .exponent(1 / 3)
-        .interpolate(interpolateHcl)
-        .range([rgbaToString(flowColors.min), rgbaToString(flowColors.max)])
-        .domain([0, maxMagnitude || 0]);
-
-      return (magnitude: number) => scale(magnitude);
+      if (isDiffColors(colors)) {
+        const pos = createFlowColorScale(
+          [0, maxMagnitude || 0],
+          [colors.positive.flows.min, colors.positive.flows.max],
+        );
+        const neg = createFlowColorScale(
+          [minMagnitude || 0, 0],
+          [colors.negative.flows.max, colors.negative.flows.min],
+        );
+        return (magnitude: number) => (magnitude >= 0 ? pos(magnitude) : neg(magnitude));
+      } else {
+        const { flows } = colors;
+        const scale = createFlowColorScale([0, maxMagnitude || 0], [flows.min, flows.max]);
+        return (magnitude: number) => scale(magnitude);
+      }
     },
   );
 
