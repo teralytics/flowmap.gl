@@ -221,7 +221,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const getColor: FlowAccessor<RGBA> = dimmed
       ? flow => {
           const { l } = d3Color.hcl(flowColorScale(getFlowMagnitude(flow)));
-          return [l, l, l, opacityFloatToInteger(dimmedOpacity as number)] as RGBA;
+          return [l, l, l, opacityFloatToInteger(dimmedOpacity as number)];
         }
       : flow => colorAsArray(flowColorScale(getFlowMagnitude(flow)));
 
