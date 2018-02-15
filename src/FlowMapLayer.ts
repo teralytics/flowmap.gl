@@ -4,23 +4,22 @@ import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import createSelectors, { Selectors } from './selectors';
 import {
-  BaseColors,
+  Colors,
   Data,
+  DiffColors,
   Flow,
   FlowAccessor,
   FlowLayerPickingInfo,
-  Location,
   LocationAccessor,
   LocationCircleAccessor,
   LocationCircleType,
   Locations,
   PickingType,
 } from './types';
-import { opacityFloatToInteger } from './utils';
-import { colorAsArray, RGBA } from './utils';
 
 export interface Props extends LayerProps {
-  baseColors: BaseColors;
+  id: string;
+  colors: Colors | DiffColors;
   locations: Locations;
   flows: Flow[];
   fp64?: boolean;
@@ -33,7 +32,6 @@ export interface Props extends LayerProps {
   getFlowMagnitude?: FlowAccessor<number>;
   showTotals?: boolean;
   showLocations?: boolean;
-  dimmedOpacity?: number;
   varyFlowColorByMagnitude?: boolean;
   selectedLocationId?: string;
   highlightedLocationId?: string;
@@ -74,13 +72,8 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     getFlowMagnitude: f => f.magnitude,
     showTotals: true,
     showLocations: true,
-    dimmedOpacity: 0.05,
     varyFlowColorByMagnitude: false,
   };
-
-  constructor(props: Props) {
-    super(props);
-  }
 
   initializeState() {
     const { getLocationId, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
@@ -108,7 +101,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
           info.object = info.object.location;
         }
 
-        const { selectors: { getLocationTotalInGetter, getLocationTotalOutGetter } } = this.state;
+        const { getLocationTotalInGetter, getLocationTotalOutGetter } = this.state.selectors;
         const getLocationTotalIn = getLocationTotalInGetter(this.props);
         const getLocationTotalOut = getLocationTotalOutGetter(this.props);
         info.object.properties = {
@@ -128,28 +121,9 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       throw new Error('getLocationId must be defined');
     }
 
-    const { selectors: { getColors, isLocationConnectedGetter } } = this.state;
-    const isConnected = isLocationConnectedGetter(this.props);
-    const colors = getColors(this.props);
-
-    const getLineColor = () => colors.locationOutlines;
-    const getFillColor = (location: Location) => {
-      const locationId = getLocationId(location);
-      const { normal, highlighted, selected, connected } = colors.locationAreas;
-      if (locationId === selectedLocationId) {
-        return selected;
-      }
-
-      if (locationId === highlightedLocationId) {
-        return highlighted;
-      }
-
-      if (isConnected(locationId)) {
-        return connected;
-      }
-
-      return normal;
-    };
+    const { getLocationAreaLineColorGetter, getLocationAreaFillColorGetter } = this.state.selectors;
+    const getLineColor = getLocationAreaLineColorGetter(this.props);
+    const getFillColor = getLocationAreaFillColorGetter(this.props);
 
     return new GeoJsonLayer({
       id,
@@ -180,45 +154,44 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       highlightedFlow,
       showTotals,
       fp64,
-      dimmedOpacity,
     } = this.props;
     if (!getFlowOriginId || !getFlowDestId || !getFlowMagnitude || !getLocationCentroid) {
       throw new Error('getters must be defined');
     }
 
     const {
-      selectors: { getLocationsById, getFlowThicknessScale, getFlowColorScale, getLocationRadiusGetter },
-    } = this.state;
+      getLocationsById,
+      getMakeFlowLinesColorGetter,
+      getFlowThicknessScale,
+      getLocationCircleRadiusGetter,
+    } = this.state.selectors;
 
-    const getLocationRadius = getLocationRadiusGetter(this.props);
+    const getLocationRadius = getLocationCircleRadiusGetter(this.props);
     const locationsById = getLocationsById(this.props);
     const flowThicknessScale = getFlowThicknessScale(this.props);
-    const flowColorScale = getFlowColorScale(this.props);
-
     const getSourcePosition: FlowAccessor<[number, number]> = flow =>
       getLocationCentroid(locationsById[getFlowOriginId(flow)]);
     const getTargetPosition: FlowAccessor<[number, number]> = flow =>
       getLocationCentroid(locationsById[getFlowDestId(flow)]);
     const getThickness: FlowAccessor<number> = flow => flowThicknessScale(getFlowMagnitude(flow));
-    const getEndpointOffsets: FlowAccessor<[number, number]> = flow =>
-      showTotals
-        ? [
-            getLocationRadius({
-              location: locationsById[getFlowOriginId(flow)],
-              type: LocationCircleType.INNER,
-            }),
-            getLocationRadius({
-              location: locationsById[getFlowDestId(flow)],
-              type: LocationCircleType.OUTER,
-            }),
-          ]
-        : [0, 0];
-    const getColor: FlowAccessor<RGBA> = dimmed
-      ? flow => {
-          const { l } = flowColorScale(getFlowMagnitude(flow));
-          return [l, l, l, opacityFloatToInteger(dimmedOpacity as number)] as RGBA;
-        }
-      : flow => colorAsArray(flowColorScale(getFlowMagnitude(flow)));
+    const getEndpointOffsets: FlowAccessor<[number, number]> = flow => {
+      if (!showTotals) {
+        return [0, 0];
+      }
+
+      return [
+        getLocationRadius({
+          location: locationsById[getFlowOriginId(flow)],
+          type: LocationCircleType.INNER,
+        }),
+        getLocationRadius({
+          location: locationsById[getFlowDestId(flow)],
+          type: LocationCircleType.OUTER,
+        }),
+      ];
+    };
+    const getFlowLinesColorGetter = getMakeFlowLinesColorGetter(this.props);
+    const getColor = getFlowLinesColorGetter(dimmed);
 
     return new FlowLinesLayer({
       id,
@@ -259,52 +232,17 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       throw new Error('getters must be defined');
     }
 
-    const {
-      selectors: { getLocationCircles, getLocationRadiusGetter, getLocationTotalInGetter, getLocationTotalOutGetter },
-    } = this.state;
+    const { getLocationCircleColorGetter, getLocationCircles, getLocationCircleRadiusGetter } = this.state.selectors;
 
-    const getLocationTotalIn = getLocationTotalInGetter(this.props);
-    const getLocationTotalOut = getLocationTotalOutGetter(this.props);
-    const getLocationRadius = getLocationRadiusGetter(this.props);
-
-    const { selectors: { getColors } } = this.state;
-    const colors = getColors(this.props);
+    const getLocationRadius = getLocationCircleRadiusGetter(this.props);
     const circles = getLocationCircles(this.props);
-
+    const getColor = getLocationCircleColorGetter(this.props);
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid(locCircle.location);
-    const getColor: LocationCircleAccessor<RGBA> = ({ location, type }) => {
-      const { inner, incoming, outgoing, none, dimmed } = colors.locationCircles;
-
-      if (
-        (!this.props.highlightedLocationId && !highlightedFlow && !selectedLocationId) ||
-        this.props.highlightedLocationId === getLocationId(location) ||
-        selectedLocationId === getLocationId(location) ||
-        (highlightedFlow &&
-          (getLocationId(location) === getFlowOriginId(highlightedFlow) ||
-            getLocationId(location) === getFlowDestId(highlightedFlow)))
-      ) {
-        if (type === LocationCircleType.INNER) {
-          return inner;
-        }
-
-        if (getLocationTotalIn(location) > getLocationTotalOut(location)) {
-          return incoming;
-        }
-
-        return outgoing;
-      }
-
-      if (type === LocationCircleType.INNER) {
-        return none;
-      }
-
-      return dimmed;
-    };
 
     return new FlowCirclesLayer({
       id,
-      getPosition,
       getColor,
+      getPosition,
       getRadius: getLocationRadius,
       data: circles,
       opacity: 1,
@@ -319,7 +257,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
   renderLayers() {
     const { showTotals, showLocations } = this.props;
-    const { selectors: { getActiveFlows, getSortedNonSelfFlows } } = this.state;
+    const { getActiveFlows, getSortedNonSelfFlows } = this.state.selectors;
 
     const flows = getSortedNonSelfFlows(this.props);
     const activeFlows = getActiveFlows(this.props);

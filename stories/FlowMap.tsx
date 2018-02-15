@@ -4,18 +4,12 @@ import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
-import FlowMapLayer, { BaseColors } from '../src';
-import { FlowLayerPickingInfo, Location, PickingType } from '../src/types';
-
-// tslint:disable-next-line:no-var-requires
-const flowsData: Flow[] = require('./data/flows.json');
-// tslint:disable-next-line:no-var-requires
-const locationsData: FeatureCollection<GeometryObject, LocationProperties> = require('./data/locations.json');
+import FlowMapLayer, { Colors, DiffColors, FlowLayerPickingInfo, Location, PickingType } from '../src';
 
 export interface Flow {
   origin: string;
   dest: string;
-  magnitude: number;
+  count: number;
 }
 
 export interface LocationProperties {
@@ -55,22 +49,45 @@ const HEIGHT = window.innerHeight;
 const BOUNDING_BOX = [5.9559111595, 45.8179931641, 10.4920501709, 47.808380127];
 const ESC_KEY = 27;
 
-const baseColors: BaseColors = {
-  flows: '#137CBD',
-  locations: {
-    normal: '#bbbbbb',
-    accent: '#D9822B',
-    outlines: '#5C7080',
+const colors: Colors = {
+  flows: {
+    max: '#137CBD',
+  },
+  locationAreas: {
+    outline: 'rgba(92,112,128,0.5)',
+    normal: 'rgba(187,187,187,0.5)',
+    selected: 'rgba(217,130,43,0.5)',
+  },
+};
+
+const diffColors: DiffColors = {
+  positive: {
+    flows: {
+      max: '#e28740',
+    },
+  },
+  negative: {
+    flows: {
+      max: '#0275b8',
+    },
+  },
+  locationAreas: {
+    outline: 'rgba(92,112,128,0.5)',
+    normal: 'rgba(187,187,187,0.5)',
+    selected: 'rgba(217,130,43,0.5)',
   },
 };
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 
-interface Props {
+export interface Props {
+  flows: Flow[];
+  locations: FeatureCollection<GeometryObject, LocationProperties>;
+  diff?: boolean;
   fp64?: boolean;
 }
 
-class Example extends React.Component<Props, State> {
+class FlowMap extends React.Component<Props, State> {
   // tslint:disable-next-line:typedef
   private highlightDebounced = _.debounce(this.highlight, 100);
 
@@ -114,28 +131,30 @@ class Example extends React.Component<Props, State> {
         onViewportChange={this.handleChangeViewport}
         mapboxApiAccessToken={MAPBOX_TOKEN}
       >
-        <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={this.getDeckGlLayers()} />
+        <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={this.getLayers()} />
       </MapGL>
     );
   }
 
-  private getDeckGlLayers(): Layer[] {
+  private getLayers(): Layer[] {
+    const { locations, flows, fp64, diff } = this.props;
     const { highlight, selectedLocationId } = this.state;
     const flowMap = new FlowMapLayer({
-      baseColors,
+      colors: diff ? diffColors : colors,
       getLocationId,
       selectedLocationId,
       id: 'flow-map-layer',
-      locations: locationsData,
-      flows: flowsData,
+      locations,
+      flows,
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
+      getFlowMagnitude: f => f.count,
       showLocations: true,
       varyFlowColorByMagnitude: true,
       showTotals: true,
       onHover: this.handleFlowMapHover,
       onClick: this.handleFlowMapClick,
-      fp64: this.props.fp64,
+      fp64,
     });
 
     return [flowMap];
@@ -216,4 +235,4 @@ class Example extends React.Component<Props, State> {
   };
 }
 
-export default Example;
+export default FlowMap;

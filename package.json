@@ -3,7 +3,7 @@
   "description": "Flow map drawing layer for deck.gl",
   "author": "Teralytics AG",
   "license": "MIT",
-  "version": "2.0.3",
+  "version": "3.0.0-alpha.1",
   "keywords": [
     "flows",
     "flow map",
@@ -28,10 +28,10 @@
   "scripts": {
     "start": "STORYBOOK_MapboxAccessToken=$MapboxAccessToken start-storybook -p 6006",
     "storybook:build": "build-storybook",
-    "build:es5": "rm -rf dist && tsc",
+    "build:es5": "rm -rf dist && tsc --project tsconfig.build.json",
     "build": "npm-run-all build:*",
     "typecheck": "tsc --noEmit",
-    "lint": "tslint 'src/**/*.{ts,tsx}'",
+    "lint": "tslint '{src,test,stories}/**/*.{ts,tsx}'",
     "precommit": "lint-staged & npm run typecheck",
     "prepare": "npm run build"
   },
@@ -72,6 +72,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-map-gl": "^3.1.5",
+    "style-loader": "^0.20.1",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.6.0",
     "tslint-loader": "^3.5.3",
@@ -87,7 +88,7 @@
     "luma.gl": "5.0.x"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx}": [
+    "{src,test,stories}/**/*.{ts,tsx}": [
       "tslint --fix",
       "git add"
     ]
