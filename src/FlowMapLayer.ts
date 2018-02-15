@@ -32,7 +32,6 @@ export interface Props extends LayerProps {
   getFlowMagnitude?: FlowAccessor<number>;
   showTotals?: boolean;
   showLocations?: boolean;
-  dimmedOpacity?: number;
   varyFlowColorByMagnitude?: boolean;
   selectedLocationId?: string;
   highlightedLocationId?: string;
@@ -74,7 +73,6 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     showTotals: true,
     showLocations: true,
     varyFlowColorByMagnitude: false,
-    dimmedOpacity: 0.05,
   };
 
   constructor(props: Props) {
