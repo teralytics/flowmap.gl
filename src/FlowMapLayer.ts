@@ -75,10 +75,6 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     varyFlowColorByMagnitude: false,
   };
 
-  constructor(props: Props) {
-    super(props);
-  }
-
   initializeState() {
     const { getLocationId, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
     if (!getLocationId || !getFlowOriginId || !getFlowDestId || !getFlowMagnitude) {
