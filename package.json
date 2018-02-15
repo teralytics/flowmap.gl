@@ -28,10 +28,10 @@
   "scripts": {
     "start": "STORYBOOK_MapboxAccessToken=$MapboxAccessToken start-storybook -p 6006",
     "storybook:build": "build-storybook",
-    "build:es5": "rm -rf dist && tsc",
+    "build:es5": "rm -rf dist && tsc --project tsconfig.build.json",
     "build": "npm-run-all build:*",
     "typecheck": "tsc --noEmit",
-    "lint": "tslint 'src/**/*.{ts,tsx}'",
+    "lint": "tslint '{src,test,stories}/**/*.{ts,tsx}'",
     "precommit": "lint-staged & npm run typecheck",
     "prepare": "npm run build"
   },
@@ -88,7 +88,7 @@
     "luma.gl": "5.0.x"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx}": [
+    "{src,test,stories}/**/*.{ts,tsx}": [
       "tslint --fix",
       "git add"
     ]
