@@ -4,9 +4,7 @@ import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
-import FlowMapLayer, { BaseColors, prepareColors } from '../src';
-import { FlowLayerPickingInfo, Location, PickingType } from '../src/types';
-import {BaseDiffColors} from "../src/utils";
+import FlowMapLayer, { Colors, DiffColors, FlowLayerPickingInfo, Location, PickingType } from '../src';
 
 export interface Flow {
   origin: string;
@@ -51,24 +49,32 @@ const HEIGHT = window.innerHeight;
 const BOUNDING_BOX = [5.9559111595, 45.8179931641, 10.4920501709, 47.808380127];
 const ESC_KEY = 27;
 
-const baseColors: BaseColors = {
-  flows: '#137CBD',
-  locations: {
+const colors: Colors = {
+  flows: {
+    max: '#137CBD',
+  },
+  locationAreas: {
+    outline: 'rgba(92,112,128,0.5)',
     normal: 'rgba(187,187,187,0.5)',
-    accent: 'rgba(217,130,43,0.5)',
-    outlines: 'rgba(92,112,128,0.5)',
+    selected: 'rgba(217,130,43,0.5)',
   },
 };
 
-const baseDiffColors: BaseDiffColors = {
-  flows: {
-    positive: '#e28740',
-    negative: '#0275b8',
+const diffColors: DiffColors = {
+  positive: {
+    flows: {
+      max: '#e28740',
+    },
   },
-  locations: {
+  negative: {
+    flows: {
+      max: '#0275b8',
+    },
+  },
+  locationAreas: {
+    outline: 'rgba(92,112,128,0.5)',
     normal: 'rgba(187,187,187,0.5)',
-    accent: 'rgba(217,130,43,0.5)',
-    outlines: 'rgba(92,112,128,0.5)',
+    selected: 'rgba(217,130,43,0.5)',
   },
 };
 
@@ -134,7 +140,7 @@ class FlowMap extends React.Component<Props, State> {
     const { locations, flows, fp64, diff } = this.props;
     const { highlight, selectedLocationId } = this.state;
     const flowMap = new FlowMapLayer({
-      colors: prepareColors(diff ? baseDiffColors : baseColors),
+      colors: diff ? diffColors : colors,
       getLocationId,
       selectedLocationId,
       id: 'flow-map-layer',
