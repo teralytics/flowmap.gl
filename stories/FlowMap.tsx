@@ -142,6 +142,7 @@ class FlowMap extends React.Component<Props, State> {
       flows,
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
+      getFlowMagnitude: f => f.count,
       showLocations: true,
       varyFlowColorByMagnitude: true,
       showTotals: true,
