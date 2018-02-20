@@ -70,7 +70,7 @@ const getLocationFeatures = (props: Props) => props.locations.features;
 const getFlows = (props: Props) => props.flows;
 const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
-const getSelectedLocationId = (props: Props) => props.selectedLocationId;
+const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
 
 export default function createSelectors({
@@ -87,10 +87,12 @@ export default function createSelectors({
       .object(locations),
   );
 
-  const getFilteredFlows = createSelector(getFlows, getSelectedLocationId, (flows, selectedLocationId) => {
-    if (selectedLocationId) {
+  const getFilteredFlows = createSelector(getFlows, getSelectedLocationIds, (flows, selectedLocationIds) => {
+    if (selectedLocationIds) {
       return flows.filter(
-        flow => getFlowOriginId(flow) === selectedLocationId || getFlowDestId(flow) === selectedLocationId,
+        flow =>
+          _.includes(selectedLocationIds, getFlowOriginId(flow)) ||
+          _.includes(selectedLocationIds, getFlowDestId(flow)),
       );
     }
 
@@ -109,8 +111,8 @@ export default function createSelectors({
     getSortedNonSelfFlows,
     getHighlightedFlow,
     getHighlightedLocationId,
-    getSelectedLocationId,
-    (flows, highlightedFlow, highlightedLocationId, selectedLocationId) => {
+    getSelectedLocationIds,
+    (flows, highlightedFlow, highlightedLocationId, selectedLocationIds) => {
       if (highlightedFlow) {
         return flows.filter(
           flow =>
@@ -125,9 +127,11 @@ export default function createSelectors({
         );
       }
 
-      if (selectedLocationId) {
+      if (selectedLocationIds) {
         return flows.filter(
-          flow => getFlowOriginId(flow) === selectedLocationId || getFlowDestId(flow) === selectedLocationId,
+          flow =>
+            _.includes(selectedLocationIds, getFlowOriginId(flow)) ||
+            _.includes(selectedLocationIds, getFlowDestId(flow)),
         );
       }
 
@@ -269,15 +273,15 @@ export default function createSelectors({
     getColors,
     getHighlightedFlow,
     getHighlightedLocationId,
-    getSelectedLocationId,
+    getSelectedLocationIds,
     getLocationTotalInGetter,
     getLocationTotalOutGetter,
-    (colors, highlightedFlow, highlightedLocationId, selectedLocationId, getLocationTotalIn, getLocationTotalOut) => {
+    (colors, highlightedFlow, highlightedLocationId, selectedLocationIds, getLocationTotalIn, getLocationTotalOut) => {
       return ({ location, type }: Flow) => {
         const isActive =
-          (!highlightedLocationId && !highlightedFlow && !selectedLocationId) ||
+          (!highlightedLocationId && !highlightedFlow && !selectedLocationIds) ||
           highlightedLocationId === getLocationId(location) ||
-          selectedLocationId === getLocationId(location) ||
+          _.includes(selectedLocationIds, getLocationId(location)) ||
           (highlightedFlow &&
             (getLocationId(location) === getFlowOriginId(highlightedFlow) ||
               getLocationId(location) === getFlowDestId(highlightedFlow)));
@@ -313,8 +317,8 @@ export default function createSelectors({
     getFilteredFlows,
     getHighlightedLocationId,
     getHighlightedFlow,
-    getSelectedLocationId,
-    (flows, highlightedLocationId, highlightedFlow, selectedLocationId) => {
+    getSelectedLocationIds,
+    (flows, highlightedLocationId, highlightedFlow, selectedLocationIds) => {
       if (highlightedFlow) {
         return (id: string) => id === getFlowOriginId(highlightedFlow) || id === getFlowDestId(highlightedFlow);
       }
@@ -325,9 +329,9 @@ export default function createSelectors({
           const destId = getFlowDestId(flow);
           return (
             originId === highlightedLocationId ||
-            originId === selectedLocationId ||
+            _.includes(selectedLocationIds, originId) ||
             destId === highlightedLocationId ||
-            destId === selectedLocationId
+            _.includes(selectedLocationIds, destId)
           );
         };
 
@@ -348,14 +352,14 @@ export default function createSelectors({
 
   const getLocationAreaFillColorGetter = createSelector(
     getColors,
-    getSelectedLocationId,
+    getSelectedLocationIds,
     getHighlightedLocationId,
     isLocationConnectedGetter,
-    (colors, selectedLocationId, highlightedLocationId, isLocationConnected) => {
+    (colors, selectedLocationIds, highlightedLocationId, isLocationConnected) => {
       return (location: Location) => {
         const locationId = getLocationId(location);
         const { normal, selected, highlighted, connected } = colors.locationAreas;
-        if (locationId === selectedLocationId) {
+        if (_.includes(selectedLocationIds, locationId)) {
           return colorAsArray(selected);
         }
 

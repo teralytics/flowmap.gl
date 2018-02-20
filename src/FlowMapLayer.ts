@@ -33,7 +33,7 @@ export interface Props extends LayerProps {
   showTotals?: boolean;
   showLocations?: boolean;
   varyFlowColorByMagnitude?: boolean;
-  selectedLocationId?: string;
+  selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
 }
@@ -116,7 +116,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
   }
 
   getLocationAreasLayer(id: string): GeoJsonLayer<GeometryObject> {
-    const { locations, selectedLocationId, highlightedLocationId, highlightedFlow, getLocationId, fp64 } = this.props;
+    const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow, getLocationId, fp64 } = this.props;
     if (!getLocationId) {
       throw new Error('getLocationId must be defined');
     }
@@ -139,7 +139,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       lineWidthMinPixels: 1,
       pointRadiusMinPixels: 1,
       updateTriggers: {
-        getFillColor: { selectedLocationId, highlightedLocationId, highlightedFlow },
+        getFillColor: { selectedLocationIds, highlightedLocationId, highlightedFlow },
       },
     });
   }
@@ -221,7 +221,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const {
       highlightedLocationId,
       highlightedFlow,
-      selectedLocationId,
+      selectedLocationIds,
       getLocationId,
       getLocationCentroid,
       getFlowOriginId,
@@ -234,7 +234,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
     const { getLocationCircleColorGetter, getLocationCircles, getLocationCircleRadiusGetter } = this.state.selectors;
 
-    const getLocationRadius = getLocationCircleRadiusGetter(this.props);
+    const getRadius = getLocationCircleRadiusGetter(this.props);
     const circles = getLocationCircles(this.props);
     const getColor = getLocationCircleColorGetter(this.props);
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid(locCircle.location);
@@ -243,14 +243,14 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       id,
       getColor,
       getPosition,
-      getRadius: getLocationRadius,
+      getRadius,
       data: circles,
       opacity: 1,
       pickable: true,
       fp64,
       updateTriggers: {
-        getRadius: { selectedLocationId },
-        getColor: { highlightedLocationId, highlightedFlow, selectedLocationId },
+        getRadius: { selectedLocationIds },
+        getColor: { highlightedLocationId, highlightedFlow, selectedLocationIds },
       },
     });
   }

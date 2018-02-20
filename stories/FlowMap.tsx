@@ -39,14 +39,21 @@ export type Highlight = LocationHighlight | FlowHighlight;
 export interface State {
   viewport: Viewport;
   highlight?: Highlight;
-  selectedLocationId?: string;
+  selectedLocationIds?: string[];
+}
+
+export interface Props {
+  flows: Flow[];
+  locations: FeatureCollection<GeometryObject, LocationProperties>;
+  diff?: boolean;
+  fp64?: boolean;
 }
 
 const MAPBOX_TOKEN = process.env.STORYBOOK_MapboxAccessToken;
-
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
 const BOUNDING_BOX = [5.9559111595, 45.8179931641, 10.4920501709, 47.808380127];
+
 const ESC_KEY = 27;
 
 const colors: Colors = {
@@ -80,11 +87,19 @@ const diffColors: DiffColors = {
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 
-export interface Props {
-  flows: Flow[];
-  locations: FeatureCollection<GeometryObject, LocationProperties>;
-  diff?: boolean;
-  fp64?: boolean;
+function getNextSelectedLocationIds(
+  selectedLocationIds: string[] | undefined,
+  nextSelectedId: string,
+): string[] | undefined {
+  if (!selectedLocationIds) {
+    return [nextSelectedId];
+  }
+
+  const nextSelectedIds = _.includes(selectedLocationIds, nextSelectedId)
+    ? _.without(selectedLocationIds, nextSelectedId)
+    : selectedLocationIds.concat(nextSelectedId);
+
+  return _.isEmpty(nextSelectedIds) ? undefined : nextSelectedIds;
 }
 
 class FlowMap extends React.Component<Props, State> {
@@ -138,11 +153,11 @@ class FlowMap extends React.Component<Props, State> {
 
   private getLayers(): Layer[] {
     const { locations, flows, fp64, diff } = this.props;
-    const { highlight, selectedLocationId } = this.state;
+    const { highlight, selectedLocationIds } = this.state;
     const flowMap = new FlowMapLayer({
       colors: diff ? diffColors : colors,
       getLocationId,
-      selectedLocationId,
+      selectedLocationIds,
       id: 'flow-map-layer',
       locations,
       flows,
@@ -208,11 +223,13 @@ class FlowMap extends React.Component<Props, State> {
       case PickingType.LOCATION:
       // fall through
       case PickingType.LOCATION_AREA: {
-        const { selectedLocationId } = this.state;
-        const nextSelectedId = object ? getLocationId(object) : undefined;
-        this.setState({
-          selectedLocationId: nextSelectedId === selectedLocationId ? undefined : nextSelectedId,
-        });
+        if (object) {
+          const nextSelectedId = getLocationId(object);
+          this.setState(state => ({
+            ...state,
+            selectedLocationIds: getNextSelectedLocationIds(state.selectedLocationIds, nextSelectedId),
+          }));
+        }
         break;
       }
     }
@@ -228,9 +245,7 @@ class FlowMap extends React.Component<Props, State> {
 
   private handleKeyDown = (evt: Event) => {
     if (evt instanceof KeyboardEvent && evt.keyCode === ESC_KEY) {
-      this.setState({
-        selectedLocationId: undefined,
-      });
+      this.setState({ selectedLocationIds: [] });
     }
   };
 }
