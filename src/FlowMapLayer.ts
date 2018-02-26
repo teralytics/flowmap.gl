@@ -227,6 +227,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       getFlowOriginId,
       getFlowDestId,
       fp64,
+      flows,
     } = this.props;
     if (!getLocationId || !getFlowOriginId || !getFlowDestId || !getLocationCentroid) {
       throw new Error('getters must be defined');
@@ -249,8 +250,8 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       pickable: true,
       fp64,
       updateTriggers: {
-        getRadius: { selectedLocationIds },
-        getColor: { highlightedLocationId, highlightedFlow, selectedLocationIds },
+        getRadius: { selectedLocationIds, flows },
+        getColor: { highlightedLocationId, highlightedFlow, selectedLocationIds, flows },
       },
     });
   }
