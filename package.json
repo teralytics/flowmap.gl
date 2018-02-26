@@ -24,7 +24,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "src"
+    "dist-esm"
   ],
   "scripts": {
     "start": "STORYBOOK_MapboxAccessToken=$MapboxAccessToken start-storybook -p 6006",
