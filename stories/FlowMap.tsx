@@ -91,7 +91,7 @@ function getNextSelectedLocationIds(
   selectedLocationIds: string[] | undefined,
   nextSelectedId: string,
 ): string[] | undefined {
-  if (!selectedLocationIds) {
+  if (!selectedLocationIds || _.isEmpty(selectedLocationIds)) {
     return [nextSelectedId];
   }
 
