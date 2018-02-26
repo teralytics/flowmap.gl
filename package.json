@@ -20,15 +20,17 @@
     "url": "https://github.com/teralytics/flow-map.gl.git"
   },
   "main": "dist/index.js",
+  "module": "dist-esm/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "src"
+    "dist-esm"
   ],
   "scripts": {
     "start": "STORYBOOK_MapboxAccessToken=$MapboxAccessToken start-storybook -p 6006",
     "storybook:build": "build-storybook",
     "build:es5": "rm -rf dist && tsc --project tsconfig.build.json",
+    "build:esm": "rm -rf dist-esm && tsc --project tsconfig.build.esm.json",
     "build": "npm-run-all build:*",
     "typecheck": "tsc --noEmit",
     "lint": "tslint '{src,test,stories}/**/*.{ts,tsx}'",

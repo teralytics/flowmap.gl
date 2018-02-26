@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
+    "esModuleInterop": true,
     "outDir": "dist",
     "declaration": true,
     "sourceMap": true,
