@@ -30,6 +30,8 @@ import {
 
 export interface InputGetters {
   getLocationId: LocationAccessor<string>;
+  getLocationTotalIn?: LocationAccessor<number>;
+  getLocationTotalOut?: LocationAccessor<number>;
   getFlowOriginId: FlowAccessor<string>;
   getFlowDestId: FlowAccessor<string>;
   getFlowMagnitude: FlowAccessor<number>;
@@ -73,12 +75,9 @@ const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
 
-export default function createSelectors({
-  getLocationId,
-  getFlowOriginId,
-  getFlowDestId,
-  getFlowMagnitude,
-}: InputGetters): Selectors {
+export default function createSelectors(getters: InputGetters): Selectors {
+  const { getLocationId, getFlowOriginId, getFlowDestId, getFlowMagnitude } = getters;
+
   const getLocationsById = createSelector(getLocationFeatures, locations =>
     d3Collection
       .nest<Location, Location | undefined>()
@@ -214,13 +213,23 @@ export default function createSelectors({
     ),
   );
 
-  const getLocationTotalInGetter = createSelector(getLocationTotals, ({ incoming }) => {
-    return (location: Location) => incoming[getLocationId(location)] || 0;
-  });
+  function getLocationTotalInGetter(props: Props) {
+    if (getters.getLocationTotalIn) {
+      return getters.getLocationTotalIn;
+    }
 
-  const getLocationTotalOutGetter = createSelector(getLocationTotals, ({ outgoing }) => {
+    const { incoming } = getLocationTotals(props);
+    return (location: Location) => incoming[getLocationId(location)] || 0;
+  }
+
+  function getLocationTotalOutGetter(props: Props) {
+    if (getters.getLocationTotalOut) {
+      return getters.getLocationTotalOut;
+    }
+
+    const { outgoing } = getLocationTotals(props);
     return (location: Location) => outgoing[getLocationId(location)] || 0;
-  });
+  }
 
   const getLocationCircles = createSelector(getLocationFeatures, locations =>
     _.flatMap(locations, location => [

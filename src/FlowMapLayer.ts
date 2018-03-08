@@ -27,6 +27,8 @@ export interface Props extends LayerProps {
   onHover?: PickingHandler<FlowLayerPickingInfo>;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
+  getLocationTotalIn?: LocationAccessor<number>;
+  getLocationTotalOut?: LocationAccessor<number>;
   getFlowOriginId?: FlowAccessor<string>;
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
@@ -76,7 +78,14 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
   };
 
   initializeState() {
-    const { getLocationId, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
+    const {
+      getLocationId,
+      getLocationTotalIn,
+      getLocationTotalOut,
+      getFlowOriginId,
+      getFlowDestId,
+      getFlowMagnitude,
+    } = this.props;
     if (!getLocationId || !getFlowOriginId || !getFlowDestId || !getFlowMagnitude) {
       throw new Error('getters must be defined');
     }
@@ -84,6 +93,8 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     this.setState({
       selectors: createSelectors({
         getLocationId,
+        getLocationTotalIn,
+        getLocationTotalOut,
         getFlowOriginId,
         getFlowDestId,
         getFlowMagnitude,
