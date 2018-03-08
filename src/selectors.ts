@@ -67,8 +67,6 @@ export interface Selectors {
   getLocationAreaFillColorGetter: PropsSelector<(location: Location) => RGBA>;
 }
 
-const identity = (props: Props) => props;
-
 const getColors = (props: Props) => props.colors;
 const getLocationFeatures = (props: Props) => props.locations.features;
 const getFlows = (props: Props) => props.flows;
@@ -215,23 +213,23 @@ export default function createSelectors(getters: InputGetters): Selectors {
     ),
   );
 
-  const getLocationTotalInGetter = createSelector(identity, props => {
+  function getLocationTotalInGetter(props: Props) {
     if (getters.getLocationTotalIn) {
       return getters.getLocationTotalIn;
     }
 
     const { incoming } = getLocationTotals(props);
     return (location: Location) => incoming[getLocationId(location)] || 0;
-  });
+  }
 
-  const getLocationTotalOutGetter = createSelector(identity, props => {
+  function getLocationTotalOutGetter(props: Props) {
     if (getters.getLocationTotalOut) {
       return getters.getLocationTotalOut;
     }
 
     const { outgoing } = getLocationTotals(props);
     return (location: Location) => outgoing[getLocationId(location)] || 0;
-  });
+  }
 
   const getLocationCircles = createSelector(getLocationFeatures, locations =>
     _.flatMap(locations, location => [
