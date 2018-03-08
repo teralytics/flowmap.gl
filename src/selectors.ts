@@ -30,6 +30,8 @@ import {
 
 export interface InputGetters {
   getLocationId: LocationAccessor<string>;
+  getLocationTotalIn?: LocationAccessor<number>;
+  getLocationTotalOut?: LocationAccessor<number>;
   getFlowOriginId: FlowAccessor<string>;
   getFlowDestId: FlowAccessor<string>;
   getFlowMagnitude: FlowAccessor<number>;
@@ -65,6 +67,8 @@ export interface Selectors {
   getLocationAreaFillColorGetter: PropsSelector<(location: Location) => RGBA>;
 }
 
+const identity = (props: Props) => props;
+
 const getColors = (props: Props) => props.colors;
 const getLocationFeatures = (props: Props) => props.locations.features;
 const getFlows = (props: Props) => props.flows;
@@ -73,12 +77,9 @@ const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
 
-export default function createSelectors({
-  getLocationId,
-  getFlowOriginId,
-  getFlowDestId,
-  getFlowMagnitude,
-}: InputGetters): Selectors {
+export default function createSelectors(getters: InputGetters): Selectors {
+  const { getLocationId, getFlowOriginId, getFlowDestId, getFlowMagnitude } = getters;
+
   const getLocationsById = createSelector(getLocationFeatures, locations =>
     d3Collection
       .nest<Location, Location | undefined>()
@@ -214,11 +215,21 @@ export default function createSelectors({
     ),
   );
 
-  const getLocationTotalInGetter = createSelector(getLocationTotals, ({ incoming }) => {
+  const getLocationTotalInGetter = createSelector(identity, props => {
+    if (getters.getLocationTotalIn) {
+      return getters.getLocationTotalIn;
+    }
+
+    const { incoming } = getLocationTotals(props);
     return (location: Location) => incoming[getLocationId(location)] || 0;
   });
 
-  const getLocationTotalOutGetter = createSelector(getLocationTotals, ({ outgoing }) => {
+  const getLocationTotalOutGetter = createSelector(identity, props => {
+    if (getters.getLocationTotalOut) {
+      return getters.getLocationTotalOut;
+    }
+
+    const { outgoing } = getLocationTotals(props);
     return (location: Location) => outgoing[getLocationId(location)] || 0;
   });
 
