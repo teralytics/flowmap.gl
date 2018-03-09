@@ -155,6 +155,7 @@ class FlowMap extends React.Component<Props, State> {
 
   render() {
     const { viewport } = this.state;
+    const flowMapLayer = this.getFlowMapLayer();
     return (
       <MapGL
         {...viewport}
@@ -163,15 +164,28 @@ class FlowMap extends React.Component<Props, State> {
         onViewportChange={this.handleChangeViewport}
         mapboxApiAccessToken={MAPBOX_TOKEN}
       >
-        <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={this.getLayers()} />
+        <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={[flowMapLayer]} />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 40,
+            left: 5,
+            background: '#fff',
+            padding: 10,
+            borderRadius: 4,
+            border: '1px solid #ccc',
+          }}
+        >
+          {flowMapLayer.renderLocationCirclesLegend(100, 100)}
+        </div>
       </MapGL>
     );
   }
 
-  private getLayers(): Layer[] {
+  private getFlowMapLayer() {
     const { locations, flows, fp64, diff } = this.props;
     const { highlight, selectedLocationIds } = this.state;
-    const flowMap = new FlowMapLayer({
+    return new FlowMapLayer({
       colors: diff ? diffColors : colors,
       getLocationId,
       selectedLocationIds,
@@ -188,8 +202,6 @@ class FlowMap extends React.Component<Props, State> {
       onClick: this.handleFlowMapClick,
       fp64,
     });
-
-    return [flowMap];
   }
 
   private highlight(highlight: Highlight | undefined) {

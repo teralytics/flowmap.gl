@@ -17,8 +17,10 @@
 
 import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickingHandler, PickParams } from 'deck.gl';
 import { GeometryObject } from 'geojson';
+import * as React from 'react';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
+import * as LocationCirclesLegend from './LocationCirclesLegend';
 import createSelectors, { Selectors } from './selectors';
 import {
   Colors,
@@ -303,5 +305,10 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     }
 
     return layers;
+  }
+
+  renderLocationCirclesLegend(width: number, height: number) {
+    const { colors } = this.props;
+    return React.createElement(LocationCirclesLegend.default, { width, height, colors });
   }
 }
