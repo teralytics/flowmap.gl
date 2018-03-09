@@ -64,6 +64,7 @@ export interface Props {
   locations: FeatureCollection<GeometryObject, LocationProperties>;
   diff?: boolean;
   fp64?: boolean;
+  showTotals: boolean;
 }
 
 const MAPBOX_TOKEN = process.env.STORYBOOK_MapboxAccessToken;
@@ -169,7 +170,7 @@ class FlowMap extends React.Component<Props, State> {
   }
 
   private getLayers(): Layer[] {
-    const { locations, flows, fp64, diff } = this.props;
+    const { locations, flows, fp64, diff, showTotals } = this.props;
     const { highlight, selectedLocationIds } = this.state;
     const flowMap = new FlowMapLayer({
       colors: diff ? diffColors : colors,
@@ -183,7 +184,7 @@ class FlowMap extends React.Component<Props, State> {
       getFlowMagnitude: f => f.count,
       showLocations: true,
       varyFlowColorByMagnitude: true,
-      showTotals: true,
+      showTotals,
       onHover: this.handleFlowMapHover,
       onClick: this.handleFlowMapClick,
       fp64,
@@ -262,7 +263,7 @@ class FlowMap extends React.Component<Props, State> {
 
   private handleKeyDown = (evt: Event) => {
     if (evt instanceof KeyboardEvent && evt.keyCode === ESC_KEY) {
-      this.setState({ selectedLocationIds: [] });
+      this.setState({ selectedLocationIds: undefined });
     }
   };
 }
