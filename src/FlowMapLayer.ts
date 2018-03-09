@@ -1,3 +1,20 @@
+/*
+ * Copyright 2018 Teralytics
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 import { CompositeLayer, GeoJsonLayer, Layer, LayerProps, LayerState, PickingHandler, PickParams } from 'deck.gl';
 import { GeometryObject } from 'geojson';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
@@ -27,13 +44,15 @@ export interface Props extends LayerProps {
   onHover?: PickingHandler<FlowLayerPickingInfo>;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
+  getLocationTotalIn?: LocationAccessor<number>;
+  getLocationTotalOut?: LocationAccessor<number>;
   getFlowOriginId?: FlowAccessor<string>;
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
   showTotals?: boolean;
   showLocations?: boolean;
   varyFlowColorByMagnitude?: boolean;
-  selectedLocationId?: string;
+  selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
 }
@@ -76,7 +95,14 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
   };
 
   initializeState() {
-    const { getLocationId, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
+    const {
+      getLocationId,
+      getLocationTotalIn,
+      getLocationTotalOut,
+      getFlowOriginId,
+      getFlowDestId,
+      getFlowMagnitude,
+    } = this.props;
     if (!getLocationId || !getFlowOriginId || !getFlowDestId || !getFlowMagnitude) {
       throw new Error('getters must be defined');
     }
@@ -84,6 +110,8 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     this.setState({
       selectors: createSelectors({
         getLocationId,
+        getLocationTotalIn,
+        getLocationTotalOut,
         getFlowOriginId,
         getFlowDestId,
         getFlowMagnitude,
@@ -116,7 +144,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
   }
 
   getLocationAreasLayer(id: string): GeoJsonLayer<GeometryObject> {
-    const { locations, selectedLocationId, highlightedLocationId, highlightedFlow, getLocationId, fp64 } = this.props;
+    const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow, getLocationId, fp64 } = this.props;
     if (!getLocationId) {
       throw new Error('getLocationId must be defined');
     }
@@ -139,7 +167,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       lineWidthMinPixels: 1,
       pointRadiusMinPixels: 1,
       updateTriggers: {
-        getFillColor: { selectedLocationId, highlightedLocationId, highlightedFlow },
+        getFillColor: { selectedLocationIds, highlightedLocationId, highlightedFlow },
       },
     });
   }
@@ -221,12 +249,13 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const {
       highlightedLocationId,
       highlightedFlow,
-      selectedLocationId,
+      selectedLocationIds,
       getLocationId,
       getLocationCentroid,
       getFlowOriginId,
       getFlowDestId,
       fp64,
+      flows,
     } = this.props;
     if (!getLocationId || !getFlowOriginId || !getFlowDestId || !getLocationCentroid) {
       throw new Error('getters must be defined');
@@ -234,7 +263,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
     const { getLocationCircleColorGetter, getLocationCircles, getLocationCircleRadiusGetter } = this.state.selectors;
 
-    const getLocationRadius = getLocationCircleRadiusGetter(this.props);
+    const getRadius = getLocationCircleRadiusGetter(this.props);
     const circles = getLocationCircles(this.props);
     const getColor = getLocationCircleColorGetter(this.props);
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid(locCircle.location);
@@ -243,14 +272,14 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       id,
       getColor,
       getPosition,
-      getRadius: getLocationRadius,
+      getRadius,
       data: circles,
       opacity: 1,
       pickable: true,
       fp64,
       updateTriggers: {
-        getRadius: { selectedLocationId },
-        getColor: { highlightedLocationId, highlightedFlow, selectedLocationId },
+        getRadius: { selectedLocationIds, flows },
+        getColor: { highlightedLocationId, highlightedFlow, selectedLocationIds, flows },
       },
     });
   }
