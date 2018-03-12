@@ -21,7 +21,16 @@ import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
-import FlowMapLayer, { Colors, DiffColors, FlowLayerPickingInfo, Location, LocationTotalsLegend, PickingType } from '../src';
+import FlowMapLayer, {
+  Colors,
+  DiffColors,
+  DiffColorsLegend,
+  FlowLayerPickingInfo,
+  Location,
+  LocationTotalsLegend,
+  PickingType,
+} from '../src';
+import LegendBox from './LegendBox';
 
 export interface Flow {
   origin: string;
@@ -154,6 +163,7 @@ class FlowMap extends React.Component<Props, State> {
   }
 
   render() {
+    const { diff } = this.props;
     const { viewport } = this.state;
     const flowMapLayer = this.getFlowMapLayer();
     return (
@@ -165,21 +175,11 @@ class FlowMap extends React.Component<Props, State> {
         mapboxApiAccessToken={MAPBOX_TOKEN}
       >
         <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={[flowMapLayer]} />
-        <div
-          style={{
-            position: 'absolute',
-            top: 5,
-            left: 5,
-            background: '#fff',
-            padding: 10,
-            borderRadius: 4,
-            border: '1px solid #ccc',
-            fontFamily: 'sans-serif',
-            fontSize: 11,
-          }}
-        >
+        <LegendBox top={10} left={10}>
+          {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
+          {diff && <hr />}
           <LocationTotalsLegend colors={flowMapLayer.props.colors} />
-        </div>
+        </LegendBox>
       </MapGL>
     );
   }

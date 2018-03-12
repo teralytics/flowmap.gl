@@ -16,8 +16,9 @@
  */
 
 import * as React from 'react';
-import { getLocationCircleColors } from './colorUtils';
-import { Colors, DiffColors, isDiffColors } from './types';
+import { getLocationCircleColors } from '../colorUtils';
+import { Colors, DiffColors, isDiffColors } from '../types';
+import Disc from './Disc';
 
 export interface Props {
   colors: Colors | DiffColors;
@@ -27,9 +28,6 @@ const styles = {
   outer: {
     display: 'flex',
     flexDirection: 'column' as 'column',
-  },
-  disc: {
-    marginRight: 5,
   },
   item: {
     outer: {
@@ -44,42 +42,12 @@ const styles = {
   },
 };
 
-interface DiscProps {
-  size: number;
-  inner: string;
-  outer: string;
-}
-
-const Disc: React.SFC<DiscProps> = ({ size, inner, outer }) => {
-  return (
-    <svg width={size} height={size} style={styles.disc}>
-      <circle cx={size / 2} cy={size / 2} r={size * 0.5} fill={outer} />
-      <circle cx={size / 2} cy={size / 2} r={size * 0.5 * 0.5} fill={inner} />
-    </svg>
-  );
-};
-
 const LocationTotalsLegend = ({ colors }: Props) => {
   const size = 20;
   const pos = getLocationCircleColors(colors, true);
   const neg = isDiffColors(colors) ? getLocationCircleColors(colors, false) : undefined;
   return (
     <div style={styles.outer}>
-      {neg && (
-        <div style={styles.item}>
-          <div style={styles.item.outer}>
-            <Disc size={size} inner={pos.inner} outer={pos.inner} />
-            <div style={styles.item.caption}>positive difference</div>
-          </div>
-
-          <div style={styles.item.outer}>
-            <Disc size={size} inner={neg.inner} outer={neg.inner} />
-            <div style={styles.item.caption}>negative difference</div>
-          </div>
-          <hr />
-        </div>
-      )}
-
       <div>
         <div style={styles.item.outer}>
           <Disc size={size} inner={pos.inner} outer={pos.inner} />

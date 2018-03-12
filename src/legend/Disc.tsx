@@ -15,10 +15,21 @@
  *
  */
 
-import FlowMapLayer from './FlowMapLayer';
+import React from 'react';
 
-export * from './FlowMapLayer';
-export * from './types';
-export * from './legend';
+export interface DiscProps {
+  size: number;
+  inner: string;
+  outer: string;
+}
 
-export default FlowMapLayer;
+const Disc: React.SFC<DiscProps> = ({ size, inner, outer }) => {
+  return (
+    <svg width={size} height={size} style={{ marginRight: 5 }}>
+      <circle cx={size / 2} cy={size / 2} r={size * 0.5} fill={outer} />
+      <circle cx={size / 2} cy={size / 2} r={size * 0.5 * 0.5} fill={inner} />
+    </svg>
+  );
+};
+
+export default Disc;
