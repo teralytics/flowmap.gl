@@ -21,7 +21,7 @@ import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
-import FlowMapLayer, { Colors, DiffColors, FlowLayerPickingInfo, Location, PickingType } from '../src';
+import FlowMapLayer, { Colors, DiffColors, FlowLayerPickingInfo, Location, LocationTotalsLegend, PickingType } from '../src';
 
 export interface Flow {
   origin: string;
@@ -168,15 +168,17 @@ class FlowMap extends React.Component<Props, State> {
         <div
           style={{
             position: 'absolute',
-            bottom: 40,
+            top: 5,
             left: 5,
             background: '#fff',
             padding: 10,
             borderRadius: 4,
             border: '1px solid #ccc',
+            fontFamily: 'sans-serif',
+            fontSize: 11,
           }}
         >
-          {flowMapLayer.renderLocationCirclesLegend(100, 100)}
+          <LocationTotalsLegend colors={flowMapLayer.props.colors} />
         </div>
       </MapGL>
     );

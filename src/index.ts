@@ -21,3 +21,5 @@ export * from './FlowMapLayer';
 export * from './types';
 
 export default FlowMapLayer;
+
+export { default as LocationTotalsLegend } from './LocationTotalsLegend';
