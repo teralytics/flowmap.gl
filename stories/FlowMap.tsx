@@ -21,7 +21,16 @@ import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
 import MapGL, { Viewport } from 'react-map-gl';
-import FlowMapLayer, { Colors, DiffColors, FlowLayerPickingInfo, Location, PickingType } from '../src';
+import FlowMapLayer, {
+  Colors,
+  DiffColors,
+  DiffColorsLegend,
+  FlowLayerPickingInfo,
+  Location,
+  LocationTotalsLegend,
+  PickingType,
+} from '../src';
+import LegendBox from './LegendBox';
 
 export interface Flow {
   origin: string;
@@ -154,7 +163,9 @@ class FlowMap extends React.Component<Props, State> {
   }
 
   render() {
+    const { diff } = this.props;
     const { viewport } = this.state;
+    const flowMapLayer = this.getFlowMapLayer();
     return (
       <MapGL
         {...viewport}
@@ -163,15 +174,20 @@ class FlowMap extends React.Component<Props, State> {
         onViewportChange={this.handleChangeViewport}
         mapboxApiAccessToken={MAPBOX_TOKEN}
       >
-        <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={this.getLayers()} />
+        <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={[flowMapLayer]} />
+        <LegendBox top={10} left={10}>
+          {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
+          {diff && <hr />}
+          <LocationTotalsLegend colors={flowMapLayer.props.colors} />
+        </LegendBox>
       </MapGL>
     );
   }
 
-  private getLayers(): Layer[] {
+  private getFlowMapLayer() {
     const { locations, flows, fp64, diff } = this.props;
     const { highlight, selectedLocationIds } = this.state;
-    const flowMap = new FlowMapLayer({
+    return new FlowMapLayer({
       colors: diff ? diffColors : colors,
       getLocationId,
       selectedLocationIds,
@@ -188,8 +204,6 @@ class FlowMap extends React.Component<Props, State> {
       onClick: this.handleFlowMapClick,
       fp64,
     });
-
-    return [flowMap];
   }
 
   private highlight(highlight: Highlight | undefined) {
