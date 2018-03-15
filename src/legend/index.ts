@@ -15,10 +15,5 @@
  *
  */
 
-import FlowMapLayer from './FlowMapLayer';
-
-export * from './FlowMapLayer';
-export * from './types';
-export * from './legend';
-
-export default FlowMapLayer;
+export { default as LocationTotalsLegend } from './LocationTotalsLegend';
+export { default as DiffColorsLegend } from './DiffColorsLegend';
