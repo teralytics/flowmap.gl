@@ -15,7 +15,7 @@
  *
  */
 
-import React from 'react';
+import * as React from 'react';
 
 export interface DiscProps {
   size: number;
