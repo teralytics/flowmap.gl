@@ -3,7 +3,7 @@
   "description": "Flow map drawing layer for deck.gl",
   "author": "Teralytics AG",
   "license": "Apache-2.0",
-  "version": "3.0.0-alpha.10",
+  "version": "3.0.0-alpha.11",
   "keywords": [
     "flows",
     "flow map",
@@ -43,6 +43,7 @@
     "d3-color": "^1.0.3",
     "d3-interpolate": "^1.1.6",
     "d3-scale": "^2.0.0",
+    "lodash": "^4.17.5",
     "reselect": "^3.0.1"
   },
   "devDependencies": {
@@ -67,7 +68,6 @@
     "file-loader": "^1.1.7",
     "husky": "^0.14.3",
     "lint-staged": "^6.1.1",
-    "lodash": "^4.17.5",
     "luma.gl": "^5.1.1",
     "npm-run-all": "^4.1.2",
     "prettier": "^1.10.2",
