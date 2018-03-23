@@ -2,7 +2,7 @@
   "name": "@tera/flowmap.gl",
   "description": "Flow map drawing layer for deck.gl",
   "author": "Teralytics AG",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "version": "3.0.0-alpha.10",
   "keywords": [
     "flows",
