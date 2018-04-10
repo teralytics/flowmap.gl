@@ -122,27 +122,36 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
   }
 
   getPickingInfo(params: PickParams): FlowLayerPickingInfo {
-    const info = params.info;
     const type = getPickType(params.sourceLayer);
-    if (type) {
-      info.type = type;
-      if (info.object && (type === PickingType.LOCATION || type === PickingType.LOCATION_AREA)) {
-        if (type === PickingType.LOCATION) {
-          info.object = info.object.location;
-        }
-
-        const { getLocationTotalInGetter, getLocationTotalOutGetter } = this.state.selectors;
-        const getLocationTotalIn = getLocationTotalInGetter(this.props);
-        const getLocationTotalOut = getLocationTotalOutGetter(this.props);
-        info.object.properties = {
-          ...info.object.properties,
-          totalIn: getLocationTotalIn(info.object),
-          totalOut: getLocationTotalOut(info.object),
-        };
-      }
+    if (!type) {
+      return params.info;
     }
 
-    return info;
+    const info = {
+      ...params.info,
+      type,
+    };
+
+    if (!info.object || type === PickingType.FLOW) {
+      return info;
+    }
+
+    const object = type === PickingType.LOCATION ? info.object.location : info.object;
+    const { getLocationTotalInGetter, getLocationTotalOutGetter } = this.state.selectors;
+    const getLocationTotalIn = getLocationTotalInGetter(this.props);
+    const getLocationTotalOut = getLocationTotalOutGetter(this.props);
+
+    return {
+      ...info,
+      object: {
+        ...object,
+        properties: {
+          ...object.properties,
+          totalIn: getLocationTotalIn(object),
+          totalOut: getLocationTotalOut(object),
+        },
+      },
+    };
   }
 
   getLocationAreasLayer(id: string): GeoJsonLayer<GeometryObject> {
