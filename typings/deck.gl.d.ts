@@ -67,7 +67,7 @@ declare module 'deck.gl' {
 
   export interface ChangeFlags {
     dataChanged: boolean | string;
-    propChanged: boolean | string;
+    propsChanged: boolean | string;
     propsOrDataChanged: boolean | string;
     updateTriggersChanged: boolean | string;
     viewportChanged: boolean | string;
