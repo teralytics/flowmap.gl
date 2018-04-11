@@ -66,12 +66,12 @@ declare module 'deck.gl' {
   }
 
   export interface ChangeFlags {
-    dataChanged: false | string;
-    propChanged: false | string;
-    propsOrDataChanged: false | string;
-    updateTriggersChanged: false | string;
-    viewportChanged: false | string;
-    somethingChanged: false | string;
+    dataChanged: boolean | string;
+    propChanged: boolean | string;
+    propsOrDataChanged: boolean | string;
+    updateTriggersChanged: boolean | string;
+    viewportChanged: boolean | string;
+    somethingChanged: boolean | string;
   }
 
   export interface UpdateStateParams<TProps, TContext> {
