@@ -65,6 +65,23 @@ declare module 'deck.gl' {
     model: any;
   }
 
+  export interface ChangeFlags {
+    dataChanged: boolean;
+    propChanged: boolean;
+    propsOrDataChanged: boolean;
+    updateTriggersChanged: boolean;
+    viewportChanged: boolean;
+    somethingChanged: boolean;
+  }
+
+  export interface UpdateStateParams<TProps, TContext> {
+    props: TProps;
+    oldProps: TProps;
+    context: TContext;
+    oldContext: TContext;
+    changeFlags: ChangeFlags;
+  }
+
   // tslint:disable-next-line:no-any
   export type ShaderCache = any; // TODO: figure out type
 
@@ -108,6 +125,7 @@ declare module 'deck.gl' {
     constructor(props: TProps);
 
     initializeState(): void;
+    updateState(params: UpdateStateParams<TProps, TContext>): void;
     setState(state: Partial<TState>): void;
     getShaders(): Shaders;
     calculateInstanceLocations(attribute: Attribute): void;
@@ -275,7 +293,7 @@ declare module 'deck.gl' {
   }
 
   interface Experimental {
-    enable64bitSupport: (props: LayerProps) => boolean,
+    enable64bitSupport: (props: LayerProps) => boolean;
     fp64ify: (a: number) => [number, number];
   }
 
