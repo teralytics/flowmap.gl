@@ -1,19 +1,4 @@
-/*
- * Copyright 2018 Teralytics
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+// tslint:disable:member-ordering
 
 import * as d3Array from 'd3-array';
 import * as d3Collection from 'd3-collection';
@@ -34,6 +19,7 @@ import {
 } from './colorUtils';
 import { Props } from './FlowMapLayer';
 import {
+  ColorScale,
   Flow,
   FlowAccessor,
   isDiffColors,
@@ -54,6 +40,8 @@ export interface InputGetters {
   getFlowMagnitude: FlowAccessor<number>;
 }
 
+export type PropsSelector<T> = (props: Props) => T;
+
 export interface LocationTotals {
   incoming: {
     [key: string]: number;
@@ -67,23 +55,6 @@ export interface LocationsById {
   [key: string]: Location;
 }
 
-export type PropsSelector<T> = (props: Props) => T;
-
-export interface Selectors {
-  getLocationsById: PropsSelector<LocationsById>;
-  getSortedNonSelfFlows: PropsSelector<Flow[]>;
-  getActiveFlows: PropsSelector<Flow[]>;
-  getFlowThicknessScale: PropsSelector<NumberScale>;
-  getMakeFlowLinesColorGetter: PropsSelector<(dimmed: boolean) => (flow: Flow) => RGBA>;
-  getLocationTotalInGetter: PropsSelector<(location: Location) => number>;
-  getLocationTotalOutGetter: PropsSelector<(location: Location) => number>;
-  getLocationCircles: PropsSelector<LocationCircle[]>;
-  getLocationCircleRadiusGetter: PropsSelector<(locCircle: LocationCircle) => number>;
-  getLocationCircleColorGetter: PropsSelector<(flow: Flow) => RGBA>;
-  getLocationAreaLineColorGetter: PropsSelector<() => RGBA>;
-  getLocationAreaFillColorGetter: PropsSelector<(location: Location) => RGBA>;
-}
-
 const getColors = (props: Props) => props.colors;
 const getLocationFeatures = (props: Props) => props.locations.features;
 const getFlows = (props: Props) => props.flows;
@@ -92,43 +63,48 @@ const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
 
-export default function createSelectors(getters: InputGetters): Selectors {
-  const { getLocationId, getFlowOriginId, getFlowDestId, getFlowMagnitude } = getters;
+class SelectorsStore {
+  constructor(private inputGetters: InputGetters) {}
 
-  const getLocationsById = createSelector(getLocationFeatures, locations =>
+  getLocationsById: PropsSelector<LocationsById> = createSelector([getLocationFeatures], locations =>
     d3Collection
       .nest<Location, Location | undefined>()
-      .key(getLocationId)
+      .key(this.inputGetters.getLocationId)
       .rollup(_.head)
       .object(locations),
   );
 
-  const getFilteredFlows = createSelector(getFlows, getSelectedLocationIds, (flows, selectedLocationIds) => {
-    if (selectedLocationIds) {
-      return flows.filter(
-        flow =>
-          _.includes(selectedLocationIds, getFlowOriginId(flow)) ||
-          _.includes(selectedLocationIds, getFlowDestId(flow)),
-      );
-    }
+  private getFilteredFlows: PropsSelector<Flow[]> = createSelector(
+    [getFlows, getSelectedLocationIds],
+    (flows, selectedLocationIds) => {
+      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
 
-    return flows;
+      if (selectedLocationIds) {
+        return flows.filter(
+          flow =>
+            _.includes(selectedLocationIds, getFlowOriginId(flow)) ||
+            _.includes(selectedLocationIds, getFlowDestId(flow)),
+        );
+      }
+
+      return flows;
+    },
+  );
+
+  private getNonSelfFlows: PropsSelector<Flow[]> = createSelector([this.getFilteredFlows], flows => {
+    const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+    return flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow));
   });
 
-  const getNonSelfFlows = createSelector(getFilteredFlows, flows =>
-    flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow)),
+  getSortedNonSelfFlows: PropsSelector<Flow[]> = createSelector([this.getNonSelfFlows], flows =>
+    _.orderBy(flows, [(f: Flow) => Math.abs(this.inputGetters.getFlowMagnitude(f)), 'desc']),
   );
 
-  const getSortedNonSelfFlows = createSelector(getNonSelfFlows, flows =>
-    _.orderBy(flows, [(f: Flow) => Math.abs(getFlowMagnitude(f)), 'desc']),
-  );
-
-  const getActiveFlows = createSelector(
-    getSortedNonSelfFlows,
-    getHighlightedFlow,
-    getHighlightedLocationId,
-    getSelectedLocationIds,
+  getActiveFlows: PropsSelector<Flow[]> = createSelector(
+    [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId, getSelectedLocationIds],
     (flows, highlightedFlow, highlightedLocationId, selectedLocationIds) => {
+      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+
       if (highlightedFlow) {
         return flows.filter(
           flow =>
@@ -155,21 +131,25 @@ export default function createSelectors(getters: InputGetters): Selectors {
     },
   );
 
-  const getFlowMagnitudeExtent = createSelector(getNonSelfFlows, flows => d3Array.extent(flows, getFlowMagnitude));
+  private getFlowMagnitudeExtent: PropsSelector<[number, number] | [undefined, undefined]> = createSelector(
+    [this.getNonSelfFlows],
+    flows => d3Array.extent(flows, this.inputGetters.getFlowMagnitude),
+  );
 
-  const getFlowThicknessScale = createSelector(getFlowMagnitudeExtent, ([minMagnitude, maxMagnitude]) => {
-    const scale = d3Scale
-      .scaleLinear()
-      .range([0.05, 0.5])
-      .domain([0, Math.max(Math.abs(minMagnitude || 0), Math.abs(maxMagnitude || 0))]);
+  getFlowThicknessScale: PropsSelector<NumberScale> = createSelector(
+    [this.getFlowMagnitudeExtent],
+    ([minMagnitude, maxMagnitude]) => {
+      const scale = d3Scale
+        .scaleLinear()
+        .range([0.05, 0.5])
+        .domain([0, Math.max(Math.abs(minMagnitude || 0), Math.abs(maxMagnitude || 0))]);
 
-    return (magnitude: number) => scale(Math.abs(magnitude));
-  });
+      return (magnitude: number) => scale(Math.abs(magnitude));
+    },
+  );
 
-  const getFlowColorScale = createSelector(
-    getColors,
-    getFlowMagnitudeExtent,
-    getVaryFlowColorByMagnitude,
+  private getFlowColorScale: PropsSelector<ColorScale> = createSelector(
+    [getColors, this.getFlowMagnitudeExtent, getVaryFlowColorByMagnitude],
     (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude) => {
       if (!varyFlowColorByMagnitude) {
         if (isDiffColors(colors)) {
@@ -204,51 +184,42 @@ export default function createSelectors(getters: InputGetters): Selectors {
     },
   );
 
-  const getMakeFlowLinesColorGetter = createSelector(getColors, getFlowColorScale, (colors, flowColorScale) => {
-    return (dimmed: boolean) => (flow: Flow) => {
-      if (!dimmed) {
-        return colorAsArray(flowColorScale(getFlowMagnitude(flow)));
-      }
+  getMakeFlowLinesColorGetter: PropsSelector<(dimmed: boolean) => (flow: Flow) => RGBA> = createSelector(
+    [getColors, this.getFlowColorScale],
+    (colors, flowColorScale) => {
+      const { getFlowMagnitude } = this.inputGetters;
 
-      const dimmedOpacity = colors.dimmedOpacity || DEFAULT_DIMMED_OPACITY;
-      const { l } = d3Color.hcl(flowColorScale(getFlowMagnitude(flow)));
-      return [l, l, l, opacityFloatToInteger(dimmedOpacity)] as RGBA;
-    };
-  });
+      return (dimmed: boolean) => (flow: Flow) => {
+        if (!dimmed) {
+          return colorAsArray(flowColorScale(getFlowMagnitude(flow)));
+        }
 
-  const getLocationTotals = createSelector(getLocationFeatures, getFilteredFlows, (locations, flows) =>
-    flows.reduce<LocationTotals>(
-      (acc, curr) => {
-        const originId = getFlowOriginId(curr);
-        const destId = getFlowDestId(curr);
-        const magnitude = getFlowMagnitude(curr);
-        acc.outgoing[originId] = (acc.outgoing[originId] || 0) + magnitude;
-        acc.incoming[destId] = (acc.incoming[destId] || 0) + magnitude;
-        return acc;
-      },
-      { incoming: {}, outgoing: {} },
-    ),
+        const dimmedOpacity = colors.dimmedOpacity || DEFAULT_DIMMED_OPACITY;
+        const { l } = d3Color.hcl(flowColorScale(getFlowMagnitude(flow)));
+        return [l, l, l, opacityFloatToInteger(dimmedOpacity)] as RGBA;
+      };
+    },
   );
 
-  function getLocationTotalInGetter(props: Props) {
-    if (getters.getLocationTotalIn) {
-      return getters.getLocationTotalIn;
-    }
+  private getLocationTotals: PropsSelector<LocationTotals> = createSelector(
+    [getLocationFeatures, this.getFilteredFlows],
+    (locations, flows) => {
+      const { getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.inputGetters;
+      return flows.reduce<LocationTotals>(
+        (acc, curr) => {
+          const originId = getFlowOriginId(curr);
+          const destId = getFlowDestId(curr);
+          const magnitude = getFlowMagnitude(curr);
+          acc.outgoing[originId] = (acc.outgoing[originId] || 0) + magnitude;
+          acc.incoming[destId] = (acc.incoming[destId] || 0) + magnitude;
+          return acc;
+        },
+        { incoming: {}, outgoing: {} },
+      );
+    },
+  );
 
-    const { incoming } = getLocationTotals(props);
-    return (location: Location) => incoming[getLocationId(location)] || 0;
-  }
-
-  function getLocationTotalOutGetter(props: Props) {
-    if (getters.getLocationTotalOut) {
-      return getters.getLocationTotalOut;
-    }
-
-    const { outgoing } = getLocationTotals(props);
-    return (location: Location) => outgoing[getLocationId(location)] || 0;
-  }
-
-  const getLocationCircles = createSelector(getLocationFeatures, locations =>
+  getLocationCircles: PropsSelector<LocationCircle[]> = createSelector([getLocationFeatures], locations =>
     _.flatMap(locations, location => [
       {
         location,
@@ -261,10 +232,28 @@ export default function createSelectors(getters: InputGetters): Selectors {
     ]),
   );
 
-  const getLocationMaxAbsTotal = createSelector(
-    getLocationFeatures,
-    getLocationTotalInGetter,
-    getLocationTotalOutGetter,
+  getLocationTotalInGetter = (props: Props) => {
+    const { getLocationTotalIn, getLocationId } = this.inputGetters;
+    if (getLocationTotalIn) {
+      return getLocationTotalIn;
+    }
+
+    const { incoming } = this.getLocationTotals(props);
+    return (location: Location) => incoming[getLocationId(location)] || 0;
+  };
+
+  getLocationTotalOutGetter = (props: Props) => {
+    const { getLocationTotalOut, getLocationId } = this.inputGetters;
+    if (getLocationTotalOut) {
+      return getLocationTotalOut;
+    }
+
+    const { outgoing } = this.getLocationTotals(props);
+    return (location: Location) => outgoing[getLocationId(location)] || 0;
+  };
+
+  private getLocationMaxAbsTotal: PropsSelector<number> = createSelector(
+    [getLocationFeatures, this.getLocationTotalInGetter, this.getLocationTotalOutGetter],
     (locations, getLocationTotalIn, getLocationTotalOut) => {
       const max = d3Array.max(locations, (location: Location) =>
         Math.max(Math.abs(getLocationTotalIn(location)), Math.abs(getLocationTotalOut(location))),
@@ -273,7 +262,7 @@ export default function createSelectors(getters: InputGetters): Selectors {
     },
   );
 
-  const getSizeScale = createSelector(getLocationMaxAbsTotal, maxTotal => {
+  private getSizeScale: PropsSelector<NumberScale> = createSelector([this.getLocationMaxAbsTotal], maxTotal => {
     const scale = d3Scale
       .scalePow()
       .exponent(1 / 2)
@@ -283,10 +272,8 @@ export default function createSelectors(getters: InputGetters): Selectors {
     return (v: number) => scale(Math.abs(v));
   });
 
-  const getLocationCircleRadiusGetter = createSelector(
-    getSizeScale,
-    getLocationTotalInGetter,
-    getLocationTotalOutGetter,
+  getLocationCircleRadiusGetter: PropsSelector<(locCircle: LocationCircle) => number> = createSelector(
+    [this.getSizeScale, this.getLocationTotalInGetter, this.getLocationTotalOutGetter],
     (sizeScale, getLocationTotalIn, getLocationTotalOut) => {
       return ({ location, type }: LocationCircle) => {
         const getSide = type === LocationCircleType.INNER ? Math.min : Math.max;
@@ -295,14 +282,18 @@ export default function createSelectors(getters: InputGetters): Selectors {
     },
   );
 
-  const getLocationCircleColorGetter = createSelector(
-    getColors,
-    getHighlightedFlow,
-    getHighlightedLocationId,
-    getSelectedLocationIds,
-    getLocationTotalInGetter,
-    getLocationTotalOutGetter,
+  getLocationCircleColorGetter: PropsSelector<(flow: Flow) => RGBA> = createSelector(
+    [
+      getColors,
+      getHighlightedFlow,
+      getHighlightedLocationId,
+      getSelectedLocationIds,
+      this.getLocationTotalInGetter,
+      this.getLocationTotalOutGetter,
+    ],
     (colors, highlightedFlow, highlightedLocationId, selectedLocationIds, getLocationTotalIn, getLocationTotalOut) => {
+      const { getLocationId, getFlowOriginId, getFlowDestId } = this.inputGetters;
+
       return ({ location, type }: Flow) => {
         const isActive =
           (!highlightedLocationId && !highlightedFlow && !selectedLocationIds) ||
@@ -335,16 +326,15 @@ export default function createSelectors(getters: InputGetters): Selectors {
     },
   );
 
-  const getLocationAreaLineColorGetter = createSelector(getColors, colors => {
+  getLocationAreaLineColorGetter: PropsSelector<() => RGBA> = createSelector([getColors], colors => {
     return () => colorAsArray(colors.locationAreas.outline);
   });
 
-  const isLocationConnectedGetter = createSelector(
-    getFilteredFlows,
-    getHighlightedLocationId,
-    getHighlightedFlow,
-    getSelectedLocationIds,
+  private isLocationConnectedGetter: PropsSelector<(id: string) => boolean> = createSelector(
+    [this.getFilteredFlows, getHighlightedLocationId, getHighlightedFlow, getSelectedLocationIds],
     (flows, highlightedLocationId, highlightedFlow, selectedLocationIds) => {
+      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+
       if (highlightedFlow) {
         return (id: string) => id === getFlowOriginId(highlightedFlow) || id === getFlowDestId(highlightedFlow);
       }
@@ -376,14 +366,11 @@ export default function createSelectors(getters: InputGetters): Selectors {
     },
   );
 
-  const getLocationAreaFillColorGetter = createSelector(
-    getColors,
-    getSelectedLocationIds,
-    getHighlightedLocationId,
-    isLocationConnectedGetter,
+  getLocationAreaFillColorGetter: PropsSelector<(location: Location) => RGBA> = createSelector(
+    [getColors, getSelectedLocationIds, getHighlightedLocationId, this.isLocationConnectedGetter],
     (colors, selectedLocationIds, highlightedLocationId, isLocationConnected) => {
       return (location: Location) => {
-        const locationId = getLocationId(location);
+        const locationId = this.inputGetters.getLocationId(location);
         const { normal, selected, highlighted, connected } = colors.locationAreas;
         if (_.includes(selectedLocationIds, locationId)) {
           return colorAsArray(selected);
@@ -402,18 +389,9 @@ export default function createSelectors(getters: InputGetters): Selectors {
     },
   );
 
-  return {
-    getLocationsById,
-    getSortedNonSelfFlows,
-    getActiveFlows,
-    getFlowThicknessScale,
-    getMakeFlowLinesColorGetter,
-    getLocationTotalInGetter,
-    getLocationTotalOutGetter,
-    getLocationCircles,
-    getLocationCircleRadiusGetter,
-    getLocationCircleColorGetter,
-    getLocationAreaLineColorGetter,
-    getLocationAreaFillColorGetter,
-  };
+  setInputGetters(inputGetters: InputGetters) {
+    this.inputGetters = inputGetters;
+  }
 }
+
+export default SelectorsStore;
