@@ -120,7 +120,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
   }
 
   updateState({ props, changeFlags }: UpdateStateParams<Props, {}>) {
-    if (changeFlags.propChanged === true) {
+    if (changeFlags.propChanged) {
       const { getLocationTotalIn, getLocationTotalOut } = props;
       this.state.selectorsStore.setInputGetters({
         getLocationId: props.getLocationId!,
