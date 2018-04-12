@@ -230,14 +230,10 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
 
   calculateInstanceSourcePositions(attribute: Attribute) {
     const { data, getSourcePosition } = this.props;
-    if (!getSourcePosition) {
-      throw new Error('getSourcePosition must be defined');
-    }
-
     const { value, size } = attribute;
     let i = 0;
     for (const object of data) {
-      const sourcePosition = getSourcePosition(object);
+      const sourcePosition = getSourcePosition!(object);
       value[i + 0] = sourcePosition[0];
       value[i + 1] = sourcePosition[1];
       value[i + 2] = isNaN(sourcePosition[2]) ? 0 : sourcePosition[2];
@@ -247,14 +243,10 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
 
   calculateInstanceTargetPositions(attribute: Attribute) {
     const { data, getTargetPosition } = this.props;
-    if (!getTargetPosition) {
-      throw new Error('getTargetPosition must be defined');
-    }
-
     const { value, size } = attribute;
     let i = 0;
     for (const object of data) {
-      const targetPosition = getTargetPosition(object);
+      const targetPosition = getTargetPosition!(object);
       value[i + 0] = targetPosition[0];
       value[i + 1] = targetPosition[1];
       value[i + 2] = isNaN(targetPosition[2]) ? 0 : targetPosition[2];
@@ -264,17 +256,11 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
 
   calculateInstanceSourceTargetPositions64xyLow(attribute: Attribute) {
     const { data, getSourcePosition, getTargetPosition } = this.props;
-    if (!getSourcePosition) {
-      throw new Error('getSourcePosition must be defined');
-    }
-    if (!getTargetPosition) {
-      throw new Error('getTargetPosition must be defined');
-    }
     const { value, size } = attribute;
     let i = 0;
     for (const object of data) {
-      const sourcePosition = getSourcePosition(object);
-      const targetPosition = getTargetPosition(object);
+      const sourcePosition = getSourcePosition!(object);
+      const targetPosition = getTargetPosition!(object);
       value[i + 0] = fp64ify(sourcePosition[0])[1];
       value[i + 1] = fp64ify(sourcePosition[1])[1];
       value[i + 2] = fp64ify(targetPosition[0])[1];
@@ -299,14 +285,10 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
 
   calculateInstanceThickness(attribute: Attribute) {
     const { data, getThickness } = this.props;
-    if (!getThickness) {
-      throw new Error('getThickness must be defined');
-    }
-
     const { value, size } = attribute;
     let i = 0;
     for (const object of data) {
-      value[i] = getThickness(object);
+      value[i] = getThickness!(object);
       i += size;
     }
   }
