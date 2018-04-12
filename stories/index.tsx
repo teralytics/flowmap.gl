@@ -20,6 +20,7 @@ import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
 import InteractiveExample, { Flow, LocationProperties } from './InteractiveExample';
 import StaticExample from './StaticExample';
+import { getViewportForFeature } from './utils';
 
 const mapboxAccessToken = process.env.STORYBOOK_MapboxAccessToken || '';
 
@@ -28,27 +29,68 @@ const flows16: Flow[] = require('./data/flows-2016.json');
 const flowsDiff1516: Flow[] = require('./data/flows-diff-2015-2016.json');
 const locationsData: FeatureCollection<GeometryObject, LocationProperties> = require('./data/locations.json');
 
-storiesOf('Swiss cantons migration', module)
-  .add('static', () => (
-    <StaticExample
-      flows={flows16}
-      locations={locationsData}
-      mapboxAccessToken={mapboxAccessToken}
+storiesOf('Static', module).add('simple', () => (
+  <StaticExample
+    width={window.innerWidth}
+    height={window.innerHeight}
+    flows={flows16}
+    locations={locationsData}
+    viewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+    mapboxAccessToken={mapboxAccessToken}
+  />
+));
+
+storiesOf('Interactive', module)
+  .add('interactive', () => (
+    <InteractiveExample
       width={window.innerWidth}
       height={window.innerHeight}
-      viewport={{
-        longitude: 8.223980665200001,
-        latitude: 46.813186645550005,
-        zoom: 7,
-      }}
+      fp64={false}
+      showTotals={true}
+      showLocationAreas={true}
+      locations={locationsData}
+      flows={flows16}
+      initialViewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      mapboxAccessToken={mapboxAccessToken}
     />
   ))
-  .add('interactive', () => (
-    <InteractiveExample fp64={false} showTotals={true} locations={locationsData} flows={flows16} />
+  .add('no location areas', () => (
+    <InteractiveExample
+      width={window.innerWidth}
+      height={window.innerHeight}
+      fp64={false}
+      showTotals={true}
+      showLocationAreas={false}
+      locations={locationsData}
+      flows={flows16}
+      initialViewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      mapboxAccessToken={mapboxAccessToken}
+    />
   ))
   .add('no totals', () => (
-    <InteractiveExample fp64={false} showTotals={false} locations={locationsData} flows={flows16} />
+    <InteractiveExample
+      width={window.innerWidth}
+      height={window.innerHeight}
+      fp64={false}
+      showTotals={false}
+      showLocationAreas={true}
+      locations={locationsData}
+      flows={flows16}
+      initialViewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      mapboxAccessToken={mapboxAccessToken}
+    />
   ))
   .add('diff', () => (
-    <InteractiveExample fp64={false} showTotals={true} locations={locationsData} flows={flowsDiff1516} diff={true} />
+    <InteractiveExample
+      width={window.innerWidth}
+      height={window.innerHeight}
+      fp64={false}
+      showTotals={true}
+      showLocationAreas={true}
+      locations={locationsData}
+      flows={flowsDiff1516}
+      diff={true}
+      initialViewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      mapboxAccessToken={mapboxAccessToken}
+    />
   ));
