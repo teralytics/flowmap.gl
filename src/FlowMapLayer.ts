@@ -103,6 +103,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     locationCircleSize: 3,
     showLocations: true,
     varyFlowColorByMagnitude: false,
+    fp64: false,
   };
 
   initializeState() {
