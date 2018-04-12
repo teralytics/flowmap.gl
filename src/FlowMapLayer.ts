@@ -28,7 +28,7 @@ import {
 import { GeometryObject } from 'geojson';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
-import SelectorsStore from './SelectorsStore';
+import Selectors from './Selectors';
 import {
   Colors,
   Data,
@@ -68,7 +68,7 @@ export interface Props extends LayerProps {
 }
 
 export interface State extends LayerState {
-  selectorsStore: SelectorsStore;
+  selectors: Selectors;
 }
 
 const LAYER_ID__LOCATIONS = 'locations';
@@ -107,7 +107,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
   initializeState() {
     const { getLocationTotalIn, getLocationTotalOut } = this.props;
-    const selectorsStore = new SelectorsStore({
+    const selectors = new Selectors({
       getLocationId: this.props.getLocationId!,
       getLocationTotalIn,
       getLocationTotalOut,
@@ -116,7 +116,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       getFlowMagnitude: this.props.getFlowMagnitude!,
     });
 
-    this.setState({ selectorsStore });
+    this.setState({ selectors });
   }
 
   updateState(params: UpdateStateParams<Props, {}>) {
@@ -125,7 +125,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const { props, changeFlags } = params;
     if (changeFlags.propsChanged) {
       const { getLocationTotalIn, getLocationTotalOut } = props;
-      this.state.selectorsStore.setInputGetters({
+      this.state.selectors.setInputGetters({
         getLocationId: props.getLocationId!,
         getLocationTotalIn,
         getLocationTotalOut,
@@ -152,9 +152,9 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     }
 
     const object = type === PickingType.LOCATION ? info.object.location : info.object;
-    const { selectorsStore } = this.state;
-    const getLocationTotalIn = selectorsStore.getLocationTotalInGetter(this.props);
-    const getLocationTotalOut = selectorsStore.getLocationTotalOutGetter(this.props);
+    const { selectors } = this.state;
+    const getLocationTotalIn = selectors.getLocationTotalInGetter(this.props);
+    const getLocationTotalOut = selectors.getLocationTotalOutGetter(this.props);
 
     return {
       ...info,
@@ -171,10 +171,10 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
   renderLayers() {
     const { showLocations } = this.props;
-    const { selectorsStore } = this.state;
+    const { selectors } = this.state;
 
-    const flows = selectorsStore.getSortedNonSelfFlows(this.props);
-    const activeFlows = selectorsStore.getActiveFlows(this.props);
+    const flows = selectors.getSortedNonSelfFlows(this.props);
+    const activeFlows = selectors.getActiveFlows(this.props);
 
     const layers: Layer[] = [];
 
@@ -190,9 +190,9 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
   private getLocationAreasLayer(id: string): GeoJsonLayer<GeometryObject> {
     const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow, fp64 } = this.props;
-    const { selectorsStore } = this.state;
-    const getLineColor = selectorsStore.getLocationAreaLineColorGetter(this.props);
-    const getFillColor = selectorsStore.getLocationAreaFillColorGetter(this.props);
+    const { selectors } = this.state;
+    const getLineColor = selectors.getLocationAreaLineColorGetter(this.props);
+    const getFillColor = selectors.getLocationAreaFillColorGetter(this.props);
 
     return new GeoJsonLayer({
       id,
@@ -225,12 +225,12 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       fp64,
       locationCircleSize,
     } = this.props;
-    const { selectorsStore } = this.state;
+    const { selectors } = this.state;
 
     const endpointOffsets: [number, number] = [(locationCircleSize || 0) + 1, (locationCircleSize || 0) + 1];
-    const getLocationRadius = selectorsStore.getLocationCircleRadiusGetter(this.props);
-    const locationsById = selectorsStore.getLocationsById(this.props);
-    const flowThicknessScale = selectorsStore.getFlowThicknessScale(this.props);
+    const getLocationRadius = selectors.getLocationCircleRadiusGetter(this.props);
+    const locationsById = selectors.getLocationsById(this.props);
+    const flowThicknessScale = selectors.getFlowThicknessScale(this.props);
     const getSourcePosition: FlowAccessor<[number, number]> = flow =>
       getLocationCentroid!(locationsById[getFlowOriginId!(flow)]);
     const getTargetPosition: FlowAccessor<[number, number]> = flow =>
@@ -252,7 +252,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
         }),
       ];
     };
-    const getFlowLinesColorGetter = selectorsStore.getMakeFlowLinesColorGetter(this.props);
+    const getFlowLinesColorGetter = selectors.getMakeFlowLinesColorGetter(this.props);
     const getColor = getFlowLinesColorGetter(dimmed);
 
     return new FlowLinesLayer({
@@ -289,13 +289,13 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
       flows,
       showTotals,
     } = this.props;
-    const { selectorsStore } = this.state;
+    const { selectors } = this.state;
 
     const getRadius = showTotals
-      ? selectorsStore.getLocationCircleRadiusGetter(this.props)
+      ? selectors.getLocationCircleRadiusGetter(this.props)
       : () => this.props.locationCircleSize!;
-    const circles = selectorsStore.getLocationCircles(this.props);
-    const getColor = selectorsStore.getLocationCircleColorGetter(this.props);
+    const circles = selectors.getLocationCircles(this.props);
+    const getColor = selectors.getLocationCircleColorGetter(this.props);
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid!(locCircle.location);
 
     return new FlowCirclesLayer({

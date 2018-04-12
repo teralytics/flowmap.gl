@@ -63,7 +63,7 @@ const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
 
-class SelectorsStore {
+class Selectors {
   constructor(private inputGetters: InputGetters) {}
 
   getLocationsById: PropsSelector<LocationsById> = createSelector([getLocationFeatures], locations =>
@@ -394,4 +394,4 @@ class SelectorsStore {
   }
 }
 
-export default SelectorsStore;
+export default Selectors;
