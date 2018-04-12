@@ -129,7 +129,7 @@ function getNextSelectedLocationIds(
   return _.isEmpty(nextSelectedIds) ? undefined : nextSelectedIds;
 }
 
-class FlowMap extends React.Component<Props, State> {
+export default class InteractiveExample extends React.Component<Props, State> {
   // tslint:disable-next-line:typedef
   private highlightDebounced = _.debounce(this.highlight, 100);
 
@@ -155,7 +155,7 @@ class FlowMap extends React.Component<Props, State> {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
   }
 
@@ -281,5 +281,3 @@ class FlowMap extends React.Component<Props, State> {
     }
   };
 }
-
-export default FlowMap;
