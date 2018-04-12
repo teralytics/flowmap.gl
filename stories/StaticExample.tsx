@@ -61,7 +61,7 @@ const StaticExample: React.SFC<Props> = ({ width, height, locations, flows, view
     locations,
     flows,
     getLocationId: (loc: Location) => loc.properties.abbr,
-    showLocations: true,
+    showLocationAreas: true,
     getFlowMagnitude: f => f.count,
     varyFlowColorByMagnitude: true,
     showTotals: true,

@@ -184,7 +184,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
       getFlowMagnitude: f => f.count,
-      showLocations: showLocationAreas,
+      showLocationAreas,
       varyFlowColorByMagnitude: true,
       showTotals,
       onHover: this.handleFlowMapHover,
