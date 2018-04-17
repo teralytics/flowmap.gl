@@ -60,7 +60,7 @@ export interface Props extends LayerProps {
   getFlowMagnitude?: FlowAccessor<number>;
   showTotals?: boolean;
   locationCircleSize?: number;
-  showLocations?: boolean;
+  showLocationAreas?: boolean;
   varyFlowColorByMagnitude?: boolean;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
@@ -101,8 +101,9 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     getFlowMagnitude: f => f.magnitude,
     showTotals: true,
     locationCircleSize: 3,
-    showLocations: true,
+    showLocationAreas: true,
     varyFlowColorByMagnitude: false,
+    fp64: false,
   };
 
   initializeState() {
@@ -170,7 +171,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
   }
 
   renderLayers() {
-    const { showLocations } = this.props;
+    const { showLocationAreas } = this.props;
     const { selectors } = this.state;
 
     const flows = selectors.getSortedNonSelfFlows(this.props);
@@ -178,7 +179,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
 
     const layers: Layer[] = [];
 
-    if (showLocations) {
+    if (showLocationAreas) {
       layers.push(this.getLocationAreasLayer(LAYER_ID__LOCATION_AREAS));
     }
     layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS, flows, true));
