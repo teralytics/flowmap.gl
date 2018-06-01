@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@mapbox/geo-viewport": "^0.2.2",
-    "@storybook/react": "^3.4.1",
+    "@storybook/react": "^3.4.6",
     "@types/d3-array": "^1.2.1",
     "@types/d3-collection": "^1.0.6",
     "@types/d3-color": "^1.0.5",
