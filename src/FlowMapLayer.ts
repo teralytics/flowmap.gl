@@ -106,6 +106,10 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     fp64: false,
   };
 
+  constructor(props: Props) {
+    super(props);
+  }
+
   initializeState() {
     const { getLocationTotalIn, getLocationTotalOut } = this.props;
     const selectors = new Selectors({
