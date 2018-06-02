@@ -85,3 +85,7 @@ and a more complex [interactive example](./examples/InteractiveExample.tsx).
     MapboxAccessToken=... npm start
     open http://localhost:6006 to open storybook
 
+## Acknowledgements
+
+Many thanks to [Philippe Voinov](https://github.com/tehwalris) 
+for his help with the first version of the FlowLinesLayer. 
