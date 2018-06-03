@@ -16,7 +16,7 @@
  */
 
 import * as geoViewport from '@mapbox/geo-viewport';
-import DeckGL, { Layer } from 'deck.gl';
+import DeckGL from 'deck.gl';
 import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
@@ -70,16 +70,16 @@ export interface State {
 
 export interface Props {
   flows: Flow[];
+  initialViewport: Viewport;
   locations: FeatureCollection<GeometryObject, LocationProperties>;
   diff?: boolean;
   fp64?: boolean;
   showTotals: boolean;
+  showLocationAreas: boolean;
+  mapboxAccessToken: string;
+  width: number;
+  height: number;
 }
-
-const MAPBOX_TOKEN = process.env.STORYBOOK_MapboxAccessToken;
-const WIDTH = window.innerWidth;
-const HEIGHT = window.innerHeight;
-const BOUNDING_BOX = [5.9559111595, 45.8179931641, 10.4920501709, 47.808380127];
 
 const ESC_KEY = 27;
 
@@ -129,33 +129,19 @@ function getNextSelectedLocationIds(
   return _.isEmpty(nextSelectedIds) ? undefined : nextSelectedIds;
 }
 
-class FlowMap extends React.Component<Props, State> {
+export default class InteractiveExample extends React.Component<Props, State> {
   // tslint:disable-next-line:typedef
   private highlightDebounced = _.debounce(this.highlight, 100);
 
   constructor(props: Props) {
     super(props);
-
-    const { center: [longitude, latitude], zoom } = geoViewport.viewport(
-      BOUNDING_BOX,
-      [WIDTH, HEIGHT],
-      undefined,
-      undefined,
-      512,
-    );
-
+    const { initialViewport } = props;
     this.state = {
-      viewport: {
-        longitude,
-        latitude,
-        zoom,
-        bearing: 0,
-        pitch: 0,
-      },
+      viewport: initialViewport,
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
   }
 
@@ -164,18 +150,18 @@ class FlowMap extends React.Component<Props, State> {
   }
 
   render() {
-    const { diff } = this.props;
+    const { width, height, mapboxAccessToken, diff } = this.props;
     const { viewport } = this.state;
     const flowMapLayer = this.getFlowMapLayer();
     return (
       <MapGL
         {...viewport}
-        width={WIDTH}
-        height={HEIGHT}
+        width={width}
+        height={height}
         onViewportChange={this.handleChangeViewport}
-        mapboxApiAccessToken={MAPBOX_TOKEN}
+        mapboxApiAccessToken={mapboxAccessToken}
       >
-        <DeckGL {...viewport} width={WIDTH} height={HEIGHT} layers={[flowMapLayer]} />
+        <DeckGL {...viewport} width={width} height={height} layers={[flowMapLayer]} />
         <LegendBox top={10} left={10}>
           {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
           {diff && <hr />}
@@ -186,7 +172,7 @@ class FlowMap extends React.Component<Props, State> {
   }
 
   private getFlowMapLayer() {
-    const { locations, flows, fp64, diff, showTotals } = this.props;
+    const { locations, flows, fp64, diff, showTotals, showLocationAreas } = this.props;
     const { highlight, selectedLocationIds } = this.state;
     return new FlowMapLayer({
       colors: diff ? diffColors : colors,
@@ -198,7 +184,7 @@ class FlowMap extends React.Component<Props, State> {
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
       getFlowMagnitude: f => f.count,
-      showLocations: true,
+      showLocationAreas,
       varyFlowColorByMagnitude: true,
       showTotals,
       onHover: this.handleFlowMapHover,
@@ -281,5 +267,3 @@ class FlowMap extends React.Component<Props, State> {
     }
   };
 }
-
-export default FlowMap;
