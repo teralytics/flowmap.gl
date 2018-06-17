@@ -22,7 +22,7 @@ import InteractiveExample, { Flow, LocationProperties } from './InteractiveExamp
 import StaticExample from './StaticExample';
 import { getViewportForFeature } from './utils';
 
-const mapboxAccessToken = process.env.STORYBOOK_MapboxAccessToken || '';
+const mapboxAccessToken = process.env.MapboxAccessToken || '';
 
 // tslint:disable:no-var-requires
 const flows16: Flow[] = require('./data/flows-2016.json');
