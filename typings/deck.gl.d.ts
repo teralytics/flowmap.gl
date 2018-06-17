@@ -161,6 +161,7 @@ declare module 'deck.gl' {
     effects?: Effect[];
     gl?: {};
     debug?: boolean;
+    style?: any;
     pickingRadius?: number;
     viewport?: Viewport;
     onWebGLInitialized?: () => void;
