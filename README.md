@@ -4,7 +4,7 @@ Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl).
 
 Check out [live examples](https://teralytics.github.io/flowmap.gl/index.html). 
 
-<img src="./doc/ch.png" width="500" />
+<img src="./doc/swiss-cantons-migration.png" width="500" />
 
 ## Usage
 
