@@ -1,5 +1,5 @@
 {
-  "name": "@tera/flowmap.gl",
+  "name": "flowmap.gl",
   "description": "Flow map drawing layer for deck.gl",
   "author": "Teralytics AG",
   "license": "Apache-2.0",
@@ -12,12 +12,9 @@
     "overlay",
     "layer"
   ],
-  "publishConfig": {
-    "registry": "https://api.bintray.com/npm/teralytics/internal-npm/"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/teralytics/flow-map.gl.git"
+    "url": "https://github.com/teralytics/flowmap.gl.git"
   },
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
