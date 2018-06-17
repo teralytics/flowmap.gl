@@ -8,6 +8,10 @@ Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl).
 
 Here's a usage example:
   
+    import DeckGL from 'deck.gl';
+    import MapGL from 'react-map-gl';
+    import FlowMapLayer from 'flowmap.gl';
+
     const colors = {
       flows: {
         max: '#137CBD',
