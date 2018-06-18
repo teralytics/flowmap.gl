@@ -69,7 +69,7 @@ const StaticExample: React.SFC<Props> = ({ width, height, locations, flows, view
 
   return (
     <MapGL {...viewport} width={width} height={height} mapboxApiAccessToken={mapboxAccessToken}>
-      <DeckGL {...viewport} width={width} height={height} layers={[flowMapLayer]} />
+      <DeckGL {...viewport} width={width} height={height} style={{ mixBlendMode: 'darken' }} layers={[flowMapLayer]} />
     </MapGL>
   );
 };

@@ -2,12 +2,18 @@
 
 Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl).
 
-<img src="./doc/ch.png" width="500" />
+Check out [live examples](https://teralytics.github.io/flowmap.gl/index.html). 
+
+<img src="./doc/swiss-cantons-migration.png" width="500" />
 
 ## Usage
 
 Here's a usage example:
   
+    import DeckGL from 'deck.gl';
+    import MapGL from 'react-map-gl';
+    import FlowMapLayer from 'flowmap.gl';
+
     const colors = {
       flows: {
         max: '#137CBD',
@@ -81,8 +87,15 @@ and a more complex [interactive example](./examples/InteractiveExample.tsx).
 
 ## Developing
 
+Create an `.env` file in the project root 
+containing one line: 
+
+    MapboxAccessToken=<your-mapbox-access-token>
+
+Then, run:
+
     npm install
-    MapboxAccessToken=... npm start
+    npm start
     open http://localhost:6006 to open storybook
 
 ## Acknowledgements

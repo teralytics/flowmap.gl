@@ -15,10 +15,16 @@
  *
  */
 
+const Dotenv = require('dotenv-webpack');
+
 module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
   },
+
+  plugins: [
+    new Dotenv()
+  ],
 
   module: {
     rules: [

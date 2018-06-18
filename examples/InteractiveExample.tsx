@@ -161,7 +161,13 @@ export default class InteractiveExample extends React.Component<Props, State> {
         onViewportChange={this.handleChangeViewport}
         mapboxApiAccessToken={mapboxAccessToken}
       >
-        <DeckGL {...viewport} width={width} height={height} layers={[flowMapLayer]} />
+        <DeckGL
+          {...viewport}
+          width={width}
+          height={height}
+          layers={[flowMapLayer]}
+          style={{ mixBlendMode: 'darken' }}
+        />
         <LegendBox top={10} left={10}>
           {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
           {diff && <hr />}
