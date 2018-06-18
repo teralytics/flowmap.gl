@@ -48,7 +48,7 @@ export interface Context {
   shaderCache: ShaderCache;
 }
 
-const { enable64bitSupport, fp64ify } = experimental;
+const { fp64ify } = experimental;
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
 const DEFAULT_BORDER_COLOR: RGBA = [0.85, 0.85, 0.85, 0.95];
@@ -65,7 +65,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
   };
 
   getShaders(): Shaders {
-    return enable64bitSupport(this.props)
+    return this.is64bitEnabled()
       ? {
           vs: VertexShader64,
           fs: FragmentShader,
@@ -86,7 +86,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
 
     const { attributeManager } = this.state;
 
-    if (enable64bitSupport(this.props)) {
+    if (this.is64bitEnabled()) {
       attributeManager.addInstanced({
         instanceSourceTargetPositions64xyLow: {
           size: 4,
