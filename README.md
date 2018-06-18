@@ -25,30 +25,34 @@ Here's a usage example:
       },
     };
 
-    const flowMapLayer = new FlowMapLayer({
-      id: 'flow-map-layer',
-      colors,
-      locations: [...],   // array of GeoJSON features of location areas
-      flows: [...],       // array of Flow objects
-      getLocationId: l => l.id,
-      getLocationCentroid: l => l.properties.centroid,
-      getFlowOriginId: f => f.origin,
-      getFlowDestId: f => f.dest,
-      getFlowMagnitude: f => f.magnitude,
-      showTotals: true,
-      showLocationAreas: true,
-      locationCircleSize: 3,
-      showLocationAreas: true,
-      getFlowMagnitude: f => f.count,
-      varyFlowColorByMagnitude: true,
-      showTotals: true,
-    });
-  
-    return (
-      <MapGL {...viewport} width={width} height={height} mapboxApiAccessToken={mapboxAccessToken}>
-        <DeckGL {...viewport} width={width} height={height} layers={[flowMapLayer]} />
-      </MapGL>
-    );
+    class MyFlowMap extends Component {
+      render() {
+        const flowMapLayer = new FlowMapLayer({
+          id: 'flow-map-layer',
+          colors,
+          locations: [...],   // array of GeoJSON features of location areas
+          flows: [...],       // array of Flow objects
+          getLocationId: l => l.id,
+          getLocationCentroid: l => l.properties.centroid,
+          getFlowOriginId: f => f.origin,
+          getFlowDestId: f => f.dest,
+          getFlowMagnitude: f => f.magnitude,
+          showTotals: true,
+          showLocationAreas: true,
+          locationCircleSize: 3,
+          showLocationAreas: true,
+          getFlowMagnitude: f => f.count,
+          varyFlowColorByMagnitude: true,
+          showTotals: true,
+        });
+      
+        return (
+          <MapGL {...viewport} width={width} height={height} mapboxApiAccessToken={mapboxAccessToken}>
+            <DeckGL {...viewport} width={width} height={height} layers={[flowMapLayer]} />
+          </MapGL>
+        );
+      }    
+    }    
 
 The full list of supported props:
   
