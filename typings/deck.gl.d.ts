@@ -132,6 +132,7 @@ declare module 'deck.gl' {
     calculateInstanceColors(attribute: Attribute): void;
     getPickingInfo(params: PickParams): {};
     draw(drawParams: DrawParams): void;
+    is64bitEnabled(): boolean;
   }
 
   export class Effect {}
@@ -294,7 +295,6 @@ declare module 'deck.gl' {
   }
 
   interface Experimental {
-    enable64bitSupport: (props: LayerProps) => boolean;
     fp64ify: (a: number) => [number, number];
   }
 
