@@ -1,6 +1,6 @@
 # flowmap.gl
 
-Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl). The layer is rendered in WebGL and can handle large numbers of flows with good rendering performance.
+[Flow map](https://en.wikipedia.org/wiki/Flow_map) drawing layer for [deck.gl](http://uber.github.io/deck.gl). Can be used for visualizing movement of people (e.g. migration) or objects between geographic locations. The layer is rendered in WebGL and can handle large numbers of flows with good rendering performance.
 
 Check out the [live examples](https://teralytics.github.io/flowmap.gl/index.html). 
 
