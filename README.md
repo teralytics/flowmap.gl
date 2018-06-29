@@ -2,8 +2,11 @@
 
 Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl). The layer is rendered in WebGL and can handle large numbers of flows with good rendering performance.
 
-Check out [live examples](https://teralytics.github.io/flowmap.gl/index.html). 
+Check out the [live examples](https://teralytics.github.io/flowmap.gl/index.html). 
 
+<img src="./doc/swiss-cantons-migration.png" width="500" />
+
+## Features
 
 Given an array of locations and an array of flows between these locations the layer will do the following:
 
@@ -13,7 +16,6 @@ Given an array of locations and an array of flows between these locations the la
 - The flow lines are sorted so that the larger flows are drawn above
 
 
-<img src="./doc/swiss-cantons-migration.png" width="500" />
 
 
 ## Usage
