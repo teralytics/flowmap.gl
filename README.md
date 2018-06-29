@@ -19,12 +19,12 @@ Given an array of locations and an array of flows between these locations the la
 Both the incoming and outgoing totals for the locations are represented. 
 A darker outline means that there are more incoming flows, a lighter outline means that there are more outgoing flows. 
 
-For instance, below we compare between evening and morning commuting behaviors in a large city:
+For instance, below we compare between the evening and the morning commuting behaviors of a large city:
 
 <img src="./doc/morning-evening-peaks.gif" width="480" />
 
 ### Difference mode
-The layer can be used to show [difference between two moments in time](https://teralytics.github.io/flowmap.gl/?selectedKind=Interactive&selectedStory=diff&full=0&addons=1&stories=1&panelRight=0&addonPanel=storybook%2Factions%2Factions-panel).
+The layer can be used to show the [difference between two moments in time](https://teralytics.github.io/flowmap.gl/?selectedKind=Interactive&selectedStory=diff&full=0&addons=1&stories=1&panelRight=0&addonPanel=storybook%2Factions%2Factions-panel).
 
 
 
