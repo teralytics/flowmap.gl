@@ -1,6 +1,6 @@
 # flowmap.gl
 
-Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl).
+Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl). The layer is rendered in WebGL and can handle large numbers of flows with good rendering performance.
 
 Check out [live examples](https://teralytics.github.io/flowmap.gl/index.html). 
 
