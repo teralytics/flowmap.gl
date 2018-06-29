@@ -11,13 +11,16 @@ Check out the [live examples](https://teralytics.github.io/flowmap.gl/index.html
 Given an array of locations and an array of flows between these locations the layer will do the following:
 
 - Represent the flows as lines of varying thickness depending on the flow magnitudes
+- The flow lines are sorted so that the larger flows are drawn above
 - GeoJSON geometries of the location areas are rendered as polygons
 - Total incoming and outgoing flows for the locations are calculated and represented as circle of varying sizes 
-- The flow lines are sorted so that the larger flows are drawn above
 
 The totals for the locations are represented so that it is possible to see the difference between the incoming and the outgoing totals. A darker outline means there are more incoming flows, a lighter outline means more outgoing. For instance, below we compare evening and morning commuting behavior:
 
 <img src="./doc/morning-evening-peaks.gif" width="480" />
+
+- The layer can be used to show difference between two moments in time
+
 
 
 ## Usage
