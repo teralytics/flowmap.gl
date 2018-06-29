@@ -19,9 +19,7 @@ The totals for the locations are represented so that it is possible to see the d
 
 <img src="./doc/morning-evening-peaks.gif" width="480" />
 
-- The layer can be used to show difference between two moments in time:
-
-<img src="./doc/swiss-cantons-migration-diff.png" width="500" />
+- The layer can be used to show [difference between two moments in time](https://teralytics.github.io/flowmap.gl/?selectedKind=Interactive&selectedStory=diff&full=0&addons=1&stories=1&panelRight=0&addonPanel=storybook%2Factions%2Factions-panel)
 
 
 ## Usage
