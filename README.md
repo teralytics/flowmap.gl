@@ -4,7 +4,17 @@ Flow map drawing layer for [deck.gl](http://uber.github.io/deck.gl).
 
 Check out [live examples](https://teralytics.github.io/flowmap.gl/index.html). 
 
+
+Given an array of locations and an array of flows between these locations the layer will do the following:
+
+- Represent the flows as lines of varying thickness depending on the flow magnitudes
+- GeoJSON geometries of the location areas are rendered as polygons
+- Total incoming and outgoing flows for the locations are calculated and represented as circle of varying sizes 
+- The flow lines are sorted so that the larger flows are drawn above
+
+
 <img src="./doc/swiss-cantons-migration.png" width="500" />
+
 
 ## Usage
 
