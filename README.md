@@ -19,8 +19,9 @@ The totals for the locations are represented so that it is possible to see the d
 
 <img src="./doc/morning-evening-peaks.gif" width="480" />
 
-- The layer can be used to show difference between two moments in time
+- The layer can be used to show difference between two moments in time:
 
+<img src="./doc/swiss-cantons-migration-diff.png" width="500" />
 
 
 ## Usage
