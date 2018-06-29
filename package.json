@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@mapbox/geo-viewport": "^0.2.2",
+    "@storybook/addon-options": "^3.4.8",
     "@storybook/react": "^3.4.6",
     "@types/d3-array": "^1.2.1",
     "@types/d3-collection": "^1.0.6",

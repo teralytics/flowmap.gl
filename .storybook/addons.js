@@ -15,18 +15,4 @@
  *
  */
 
-require('mapbox-gl/dist/mapbox-gl.css');
-
-import { configure } from '@storybook/react';
-import { setOptions } from '@storybook/addon-options';
-
-setOptions({
-  name: 'flowmap.gl',
-  url: 'https://github.com/teralytics/flowmap.gl',
-});
-function loadStories() {
-  require('../examples/index');
-}
-
-configure(loadStories, module);
-
+import '@storybook/addon-options/register';
