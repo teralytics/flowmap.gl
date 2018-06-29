@@ -15,8 +15,7 @@ Given an array of locations and an array of flows between these locations the la
 - Total incoming and outgoing flows for the locations are calculated and represented as circle of varying sizes 
 - The flow lines are sorted so that the larger flows are drawn above
 
-The totals for the locations are represented so that it is possible to see both the incoming and the outgoing totals.
-Darker outline means more incoming, lighter outline means more outgoing, e.g. here evening vs morning commuting behavior:
+The totals for the locations are represented so that it is possible to see the difference between the incoming and the outgoing totals. A darker outline means there are more incoming flows, a lighter outline means more outgoing. For instance, below we compare evening and morning commuting behavior:
 
 <img src="./doc/morning-evening-peaks.gif" width="480" />
 
