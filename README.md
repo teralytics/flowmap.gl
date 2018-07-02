@@ -128,3 +128,13 @@ Then, run:
 
 Many thanks to [Philippe Voinov](https://github.com/tehwalris) 
 for his help with the first version of the FlowLinesLayer. 
+
+
+## License
+flowmap.gl
+Copyright 2018 Teralytics
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+Portions of this software were developed at Teralytics (http://www.teralytics.net)
