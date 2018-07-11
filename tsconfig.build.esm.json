@@ -1,5 +1,9 @@
 {
-  "extends": "./tsconfig.build.json",
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*",
+    "typings/**/*"
+  ],
   "compilerOptions": {
     "target": "es5",
     "module": "es2015",

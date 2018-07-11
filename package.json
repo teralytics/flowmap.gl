@@ -3,7 +3,7 @@
   "description": "Flow map drawing layer for deck.gl",
   "author": "Teralytics AG",
   "license": "Apache-2.0",
-  "version": "3.3.0",
+  "version": "3.4.0-alpha.1",
   "keywords": [
     "flows",
     "flow map",
@@ -16,19 +16,19 @@
     "type": "git",
     "url": "https://github.com/teralytics/flowmap.gl.git"
   },
-  "main": "dist/index.js",
+  "main": "dist-umd/bundle.js",
   "module": "dist-esm/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist-umd/index.d.ts",
   "files": [
-    "dist",
+    "dist-umd",
     "dist-esm"
   ],
   "scripts": {
     "start": "start-storybook -p 6006",
     "storybook:build": "build-storybook",
     "storybook:deploy": "npm run storybook:build && gh-pages -d storybook-static",
-    "build:es5": "rm -rf dist && tsc --project tsconfig.build.json",
     "build:esm": "rm -rf dist-esm && tsc --project tsconfig.build.esm.json",
+    "build:umd": "rm -rf dist-umd && rollup -c rollup.config.js",
     "build": "npm-run-all build:*",
     "typecheck": "tsc --noEmit",
     "lint": "tslint '{src,test,stories}/**/*.{ts,tsx}'",
@@ -41,7 +41,6 @@
     "d3-color": "^1.0.3",
     "d3-interpolate": "^1.1.6",
     "d3-scale": "^2.0.0",
-    "lodash": "^4.17.5",
     "reselect": "^3.0.1"
   },
   "devDependencies": {
@@ -77,6 +76,9 @@
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
     "react-map-gl": "^3.2.5",
+    "rollup": "^0.62.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-uglify": "^4.0.0",
     "style-loader": "^0.20.3",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.10.0",

@@ -4,7 +4,6 @@ import * as d3Array from 'd3-array';
 import * as d3Collection from 'd3-collection';
 import * as d3Color from 'd3-color';
 import * as d3Scale from 'd3-scale';
-import * as _ from 'lodash';
 import { createSelector } from 'reselect';
 import {
   colorAsArray,
@@ -30,6 +29,8 @@ import {
   NumberScale,
   RGBA,
 } from './types';
+
+const includes = <K>(arr: K[] | undefined, needle: K) => (arr !== undefined ? arr.indexOf(needle) >= 0 : false);
 
 export interface InputGetters {
   getLocationId: LocationAccessor<string>;
@@ -70,7 +71,7 @@ class Selectors {
     d3Collection
       .nest<Location, Location | undefined>()
       .key(this.inputGetters.getLocationId)
-      .rollup(_.head)
+      .rollup(([location]) => location)
       .object(locations),
   );
 
@@ -82,8 +83,7 @@ class Selectors {
       if (selectedLocationIds) {
         return flows.filter(
           flow =>
-            _.includes(selectedLocationIds, getFlowOriginId(flow)) ||
-            _.includes(selectedLocationIds, getFlowDestId(flow)),
+            includes(selectedLocationIds, getFlowOriginId(flow)) || includes(selectedLocationIds, getFlowDestId(flow)),
         );
       }
 
@@ -96,9 +96,11 @@ class Selectors {
     return flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow));
   });
 
-  getSortedNonSelfFlows: PropsSelector<Flow[]> = createSelector([this.getNonSelfFlows], flows =>
-    _.orderBy(flows, [(f: Flow) => Math.abs(this.inputGetters.getFlowMagnitude(f)), 'desc']),
-  );
+  getSortedNonSelfFlows: PropsSelector<Flow[]> = createSelector([this.getNonSelfFlows], flows => {
+    const { getFlowMagnitude } = this.inputGetters;
+    const getAbsMagnitude = (f: Flow) => Math.abs(getFlowMagnitude(f));
+    return flows.slice().sort((a: Flow, b: Flow) => d3Array.ascending(getAbsMagnitude(a), getAbsMagnitude(b)));
+  });
 
   getActiveFlows: PropsSelector<Flow[]> = createSelector(
     [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId, getSelectedLocationIds],
@@ -122,8 +124,7 @@ class Selectors {
       if (selectedLocationIds) {
         return flows.filter(
           flow =>
-            _.includes(selectedLocationIds, getFlowOriginId(flow)) ||
-            _.includes(selectedLocationIds, getFlowDestId(flow)),
+            includes(selectedLocationIds, getFlowOriginId(flow)) || includes(selectedLocationIds, getFlowDestId(flow)),
         );
       }
 
@@ -219,18 +220,20 @@ class Selectors {
     },
   );
 
-  getLocationCircles: PropsSelector<LocationCircle[]> = createSelector([getLocationFeatures], locations =>
-    _.flatMap(locations, location => [
-      {
+  getLocationCircles: PropsSelector<LocationCircle[]> = createSelector([getLocationFeatures], locations => {
+    const circles = [];
+    for (const location of locations) {
+      circles.push({
         location,
         type: LocationCircleType.OUTER,
-      },
-      {
+      });
+      circles.push({
         location,
         type: LocationCircleType.INNER,
-      },
-    ]),
-  );
+      });
+    }
+    return circles;
+  });
 
   getLocationTotalInGetter = (props: Props) => {
     const { getLocationTotalIn, getLocationId } = this.inputGetters;
@@ -298,7 +301,7 @@ class Selectors {
         const isActive =
           (!highlightedLocationId && !highlightedFlow && !selectedLocationIds) ||
           highlightedLocationId === getLocationId(location) ||
-          _.includes(selectedLocationIds, getLocationId(location)) ||
+          includes(selectedLocationIds, getLocationId(location)) ||
           (highlightedFlow &&
             (getLocationId(location) === getFlowOriginId(highlightedFlow) ||
               getLocationId(location) === getFlowDestId(highlightedFlow)));
@@ -345,9 +348,9 @@ class Selectors {
           const destId = getFlowDestId(flow);
           return (
             originId === highlightedLocationId ||
-            _.includes(selectedLocationIds, originId) ||
+            includes(selectedLocationIds, originId) ||
             destId === highlightedLocationId ||
-            _.includes(selectedLocationIds, destId)
+            includes(selectedLocationIds, destId)
           );
         };
 
@@ -372,7 +375,7 @@ class Selectors {
       return (location: Location) => {
         const locationId = this.inputGetters.getLocationId(location);
         const { normal, selected, highlighted, connected } = colors.locationAreas;
-        if (_.includes(selectedLocationIds, locationId)) {
+        if (includes(selectedLocationIds, locationId)) {
           return colorAsArray(selected);
         }
 
