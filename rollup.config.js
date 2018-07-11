@@ -18,14 +18,23 @@
 import resolve from 'rollup-plugin-node-resolve';
 import { uglify } from 'rollup-plugin-uglify';
 
-const pkg = require('./package.json')
-
 export default {
   input: './dist-esm/index.js',
   output: [
-    { file: './dist-umd/bundle.js', name: 'flowmap.gl', format: 'umd', sourcemap: true },
+    {
+      file: './dist-umd/bundle.js',
+      name: 'flowmap.gl',
+      format: 'umd',
+      sourcemap: true,
+      globals: {
+        'deck.gl': 'DeckGL',
+        'luma.gl': 'LumaGL',
+        'react': 'React',
+      },
+      exports: 'named'
+    },
   ],
-  external: [ 'deck.gl', 'luma.gl', 'react', 'react-dom' ],
+  external: [ 'deck.gl', 'luma.gl', 'react' ],
   plugins: [
     resolve({
       browser: true,

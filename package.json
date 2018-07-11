@@ -89,7 +89,6 @@
   },
   "peerDependencies": {
     "react": "0.14.x - 16.x",
-    "react-dom": "0.14.x - 16.x",
     "deck.gl": ">= 5.3.1",
     "luma.gl": ">= 5.3.0"
   },
