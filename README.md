@@ -58,14 +58,11 @@ Here's a usage example:
           getLocationCentroid: l => l.properties.centroid,
           getFlowOriginId: f => f.origin,
           getFlowDestId: f => f.dest,
-          getFlowMagnitude: f => f.magnitude,
+          getFlowMagnitude: f => f.count,
           showTotals: true,
           showLocationAreas: true,
           locationCircleSize: 3,
-          showLocationAreas: true,
-          getFlowMagnitude: f => f.count,
           varyFlowColorByMagnitude: true,
-          showTotals: true,
         });
       
         return (
