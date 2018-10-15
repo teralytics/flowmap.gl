@@ -32,9 +32,9 @@ declare module 'react-map-gl' {
   export type EasingFunction = (t: number) => number;
 
   export interface Viewport {
-    latitude: number;
-    longitude: number;
-    zoom: number;
+    latitude?: number;
+    longitude?: number;
+    zoom?: number;
     bearing?: number;
     pitch?: number;
     transitionDuration?: number;
@@ -56,8 +56,8 @@ declare module 'react-map-gl' {
   export interface StaticMapProps extends Viewport {
     mapboxApiAccessToken?: string;
     mapStyle?: string | {};
-    width: number;
-    height: number;
+    width?: number;
+    height?: number;
     altitude?: number;
     preserveDrawingBuffer?: boolean;
     attributionControl?: boolean;

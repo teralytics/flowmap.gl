@@ -132,7 +132,7 @@ declare module 'deck.gl' {
     calculateInstanceColors(attribute: Attribute): void;
     getPickingInfo(params: PickParams): {};
     draw(drawParams: DrawParams): void;
-    is64bitEnabled(): boolean;
+    use64bitProjection(): boolean;
   }
 
   export class Effect {}
