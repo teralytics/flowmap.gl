@@ -15,12 +15,11 @@
  *
  */
 
-import * as geoViewport from '@mapbox/geo-viewport';
-import DeckGL from 'deck.gl';
+import DeckGL, { ViewStateChangeInfo } from 'deck.gl';
 import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
-import MapGL, { Viewport } from 'react-map-gl';
+import { StaticMap, Viewport } from 'react-map-gl';
 import FlowMapLayer, {
   Colors,
   DiffColors,
@@ -63,7 +62,7 @@ export interface FlowHighlight {
 export type Highlight = LocationHighlight | FlowHighlight;
 
 export interface State {
-  viewport: Viewport;
+  viewState: Viewport;
   highlight?: Highlight;
   selectedLocationIds?: string[];
 }
@@ -77,11 +76,9 @@ export interface Props {
   showTotals: boolean;
   showLocationAreas: boolean;
   mapboxAccessToken: string;
-  width: number;
-  height: number;
 }
 
-const ESC_KEY = 27;
+const ESC_KEY = 'Escape';
 
 const colors: Colors = {
   flows: {
@@ -130,16 +127,9 @@ function getNextSelectedLocationIds(
 }
 
 export default class InteractiveExample extends React.Component<Props, State> {
+  readonly state: State = { viewState: this.props.initialViewport };
   // tslint:disable-next-line:typedef
   private highlightDebounced = _.debounce(this.highlight, 100);
-
-  constructor(props: Props) {
-    super(props);
-    const { initialViewport } = props;
-    this.state = {
-      viewport: initialViewport,
-    };
-  }
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
@@ -150,30 +140,26 @@ export default class InteractiveExample extends React.Component<Props, State> {
   }
 
   render() {
-    const { width, height, mapboxAccessToken, diff } = this.props;
-    const { viewport } = this.state;
+    const { mapboxAccessToken, diff } = this.props;
     const flowMapLayer = this.getFlowMapLayer();
     return (
-      <MapGL
-        {...viewport}
-        width={width}
-        height={height}
-        onViewportChange={this.handleChangeViewport}
-        mapboxApiAccessToken={mapboxAccessToken}
-      >
-        <DeckGL
-          {...viewport}
-          width={width}
-          height={height}
-          layers={[flowMapLayer]}
-          style={{ mixBlendMode: 'darken' }}
-        />
-        <LegendBox top={10} left={10}>
-          {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
-          {diff && <hr />}
-          <LocationTotalsLegend colors={flowMapLayer.props.colors} />
-        </LegendBox>
-      </MapGL>
+      <DeckGL
+        style={{ mixBlendMode: 'multiply' }}
+        layers={[flowMapLayer]}
+        viewState={this.state.viewState}
+        controller={true}
+        onViewStateChange={this.handleViewStateChange}
+        children={({ width, height, viewState }) => (
+          <>
+            <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
+            <LegendBox top={10} left={10}>
+              {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
+              {diff && <hr />}
+              <LocationTotalsLegend colors={flowMapLayer.props.colors} />
+            </LegendBox>
+          </>
+        )}
+      />
     );
   }
 
@@ -259,16 +245,10 @@ export default class InteractiveExample extends React.Component<Props, State> {
     }
   };
 
-  private handleChangeViewport = (viewport: Viewport) =>
-    this.setState({
-      viewport: {
-        ...this.state.viewport,
-        ...viewport,
-      },
-    });
+  private handleViewStateChange = ({ viewState }: ViewStateChangeInfo) => this.setState({ viewState });
 
   private handleKeyDown = (evt: Event) => {
-    if (evt instanceof KeyboardEvent && evt.keyCode === ESC_KEY) {
+    if (evt instanceof KeyboardEvent && evt.key === ESC_KEY) {
       this.setState({ selectedLocationIds: undefined });
     }
   };

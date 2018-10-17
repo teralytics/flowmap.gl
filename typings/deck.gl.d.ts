@@ -1,33 +1,11 @@
-/*
- * Copyright 2018 Teralytics
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 // tslint:disable:max-classes-per-file
+// tslint:disable:no-any
+
 declare module 'deck.gl' {
-  import { mat4 } from '@mapbox/gl-matrix';
   import { Feature, FeatureCollection, GeometryObject } from 'geojson';
   import * as React from 'react';
-
-  export const COORDINATE_SYSTEM: {
-    LNGLAT: number;
-    LNGLAT_OFFSETS: number;
-    METER_OFFSETS: number;
-    METERS: number;
-    IDENTITY: number;
-  };
+  import { MapControlEvent, Viewport as ViewState } from 'react-map-gl';
+  import { WebMercatorViewport } from 'viewport-mercator-project';
 
   export interface PickingInfo<T> {
     layer: Layer;
@@ -40,28 +18,22 @@ declare module 'deck.gl' {
 
   export type PickingHandler<T> = (info: T) => void;
 
-  export interface UpdateTriggers {
-    [key: string]: {};
-  }
-
   export interface LayerProps {
     id: string;
     visible?: boolean;
     opacity?: number;
     pickable?: boolean;
     fp64?: boolean;
-    updateTriggers?: UpdateTriggers;
+    updateTriggers?: { [key: string]: {} };
     coordinateSystem?: number;
   }
 
   export class AttributeManager {
-    // tslint:disable-next-line:no-any
     addInstanced(attributes: any): void;
   }
 
   export interface LayerState {
     attributeManager: AttributeManager;
-    // tslint:disable-next-line:no-any
     model: any;
   }
 
@@ -82,14 +54,13 @@ declare module 'deck.gl' {
     changeFlags: ChangeFlags;
   }
 
-  // tslint:disable-next-line:no-any
-  export type ShaderCache = any; // TODO: figure out type
+  export type ShaderCache = any;
 
   export interface Shaders {
     vs: string;
     fs: string;
     modules: Array<{}>;
-    shaderCache: ShaderCache;
+    shaderCache: any;
   }
 
   export interface Attribute {
@@ -105,14 +76,12 @@ declare module 'deck.gl' {
   }
 
   export interface PickParams {
-    // tslint:disable-next-line:no-any
     info: any;
     mode: PickingMode;
     sourceLayer: Layer;
   }
 
   export interface DrawParams {
-    // tslint:disable-next-line:no-any
     uniforms: any;
   }
 
@@ -128,47 +97,44 @@ declare module 'deck.gl' {
     updateState(params: UpdateStateParams<TProps, TContext>): void;
     setState(state: Partial<TState>): void;
     getShaders(): Shaders;
-    calculateInstanceLocations(attribute: Attribute): void;
     calculateInstanceColors(attribute: Attribute): void;
     getPickingInfo(params: PickParams): {};
     draw(drawParams: DrawParams): void;
-    is64bitEnabled(): boolean;
+    use64bitProjection(): boolean;
   }
 
-  export class Effect {}
-
-  export class Viewport {
+  export interface DeckGLRenderProps {
+    x: number;
+    y: number;
     width: number;
     height: number;
-    scale: number;
-    viewMatrix: mat4;
-    projectionMatrix: mat4;
-    distanceScales: {};
-
-    constructor(props: {
-      width?: number;
-      height?: number;
-      viewMatrix?: mat4;
-      projectionMatrix?: mat4;
-      distanceScales?: {};
-    });
+    viewState: ViewState;
+    viewport: WebMercatorViewport;
   }
 
-  export interface DeckGLProps {
-    id?: string;
-    width: number;
-    height: number;
+  export interface ViewStateChangeInfo {
+    viewState: ViewState;
+  }
+
+  export interface InteractiveState {
+    isDragging: boolean;
+  }
+
+  export interface DeckGLProps extends Partial<ViewState> {
+    width?: number;
+    height?: number;
     layers: Layer[];
-    effects?: Effect[];
-    gl?: {};
-    debug?: boolean;
-    style?: any;
+    viewState?: ViewState;
+    initialViewState?: ViewState;
+    id?: string;
+    style?: {};
     pickingRadius?: number;
-    viewport?: Viewport;
-    onWebGLInitialized?: () => void;
-    onAfterRender?: () => void;
-    onLayerClick?: () => void;
-    onLayerHover?: () => void;
+    useDevicePixels?: boolean;
+    controller?: boolean | any;
+    getCursor?: (state: InteractiveState) => string;
+    onViewStateChange?: (info: ViewStateChangeInfo) => void;
+    onLayerHover?: PickingHandler<PickingInfo<any>>;
+    children?: (props: DeckGLRenderProps) => JSX.Element | React.ReactNode;
   }
 
   class DeckGL extends React.Component<DeckGLProps> {}
@@ -177,24 +143,32 @@ declare module 'deck.gl' {
 
   export { DeckGL };
 
+  export type Color = [number, number, number] | [number, number, number, number];
+
   export interface PointDataSimple {
     position: [number, number, number];
     normal: [number, number, number];
-    color: [number, number, number];
+    color: Color;
   }
 
-  // tslint:disable-next-line:no-any
   export type PointData = PointDataSimple | any;
 
   export interface PointCloudLayerProps<T extends PointData> extends LayerProps {
     data: T[];
     radiusPixels?: number;
-    pickable?: boolean;
+    lightSettings?: {
+      lightsPosition: number[];
+      ambientRatio: number;
+      diffuseRatio: number;
+      specularRatio: number;
+      lightsStrength: number[];
+      numberOfLights: number;
+    };
     onClick?: PickingHandler<PickingInfo<T>>;
     onHover?: PickingHandler<PickingInfo<T>>;
     getPosition?: (x: T) => [number, number, number];
-    getNormal?: (x: T) => [number, number, number];
-    getColor?: (x: T) => [number, number, number];
+    getNormal?: ((x: T) => [number, number, number]) | [number, number, number];
+    getColor?: ((x: T) => Color) | Color;
   }
 
   export class PointCloudLayer<T extends PointData> extends Layer<PointCloudLayerProps<T>> {
@@ -203,11 +177,10 @@ declare module 'deck.gl' {
 
   export type GeoJsonData<T extends GeometryObject> = Feature<T> | FeatureCollection<T>;
 
-  // tslint:disable-next-line:no-any
   export interface GeoJsonLayerProps<T extends GeometryObject> extends LayerProps {
     data: GeoJsonData<T>;
-    stroked?: boolean;
     filled?: boolean;
+    stroked?: boolean;
     extruded?: boolean;
     wireframe?: boolean;
     lineWidthScale?: number;
@@ -220,16 +193,11 @@ declare module 'deck.gl' {
     pointRadiusMaxPixels?: number;
     onClick?: PickingHandler<PickingInfo<Feature<T>>>;
     onHover?: PickingHandler<PickingInfo<Feature<T>>>;
-    // tslint:disable-next-line:no-any
-    getLineColor?: (feature: any) => [number, number, number, number];
-    // tslint:disable-next-line:no-any
-    getFillColor?: (feature: any) => [number, number, number, number];
-    // tslint:disable-next-line:no-any
-    getRadius?: (feature: any) => number;
-    // tslint:disable-next-line:no-any
-    getLineWidth?: (feature: any) => number;
-    // tslint:disable-next-line:no-any
-    getElevation?: (feature: any) => number;
+    getLineColor?: ((feature: any) => Color) | Color;
+    getFillColor?: ((feature: any) => Color) | Color;
+    getRadius?: ((feature: any) => number) | number;
+    getLineWidth?: ((feature: any) => number) | number;
+    getElevation?: ((feature: any) => number) | number;
   }
 
   export class GeoJsonLayer<T extends GeometryObject> extends Layer<GeoJsonLayerProps<T>> {
@@ -239,20 +207,19 @@ declare module 'deck.gl' {
   export interface LineDataSimple {
     sourcePosition: [number, number, number];
     targetPosition: [number, number, number];
-    color: [number, number, number];
+    color: Color;
   }
 
-  // tslint:disable-next-line:no-any
   export type LineData = LineDataSimple | any;
 
   export interface LineLayerProps<T extends LineData> extends LayerProps {
     data: T[];
-    strokeWidth?: number;
     onClick?: PickingHandler<PickingInfo<T>>;
     onHover?: PickingHandler<PickingInfo<T>>;
     getSourcePosition?: (x: T) => [number, number, number];
     getTargetPosition?: (x: T) => [number, number, number];
-    getColor?: (x: T) => [number, number, number];
+    getColor?: ((x: T) => Color) | Color;
+    getStrokeWidth?: ((x: T) => number) | number;
   }
 
   export class LineLayer<T extends LineData> extends Layer<LineLayerProps<T>> {
@@ -265,7 +232,6 @@ declare module 'deck.gl' {
     color?: [number, number, number];
   }
 
-  // tslint:disable-next-line:no-any
   export type ScatterplotData = ScatterplotDataSimple | any;
 
   export interface ScatterplotLayerProps<T extends ScatterplotData> extends LayerProps {
@@ -278,12 +244,44 @@ declare module 'deck.gl' {
     onClick?: PickingHandler<PickingInfo<T>>;
     onHover?: PickingHandler<PickingInfo<T>>;
     getPosition?: (d: T) => [number, number];
-    getRadius?: (d: T) => number;
-    getColor?: (d: T) => [number, number, number, number];
+    getRadius?: ((d: T) => number) | number;
+    getColor?: ((x: T) => Color) | Color;
   }
 
   export class ScatterplotLayer<T extends ScatterplotData> extends Layer<ScatterplotLayerProps<T>> {
     constructor(props: ScatterplotLayerProps<T>);
+  }
+
+  export interface TextDataSimple {
+    text: string;
+    position: [number, number, number];
+    size: number;
+    color: Color;
+    angle: number;
+    textAnchor?: string;
+    alignmentBaseline?: string;
+    pixelOffset?: [number, number];
+  }
+
+  export type TextData = TextDataSimple | any;
+
+  export interface TextLayerProps<T extends TextData> extends LayerProps {
+    data: T[];
+    sizeScale?: ((x: T) => number) | number;
+    fontFamily?: string;
+    characterSet?: string;
+    getText?: ((x: T) => string) | string;
+    getPosition?: (x: T) => [number, number, number];
+    getColor?: ((x: T) => Color) | Color;
+    getSize?: ((x: T) => number) | number;
+    getAngle?: ((x: T) => number) | number;
+    getTextAnchor?: string;
+    getAlignmentBaseline?: string;
+    getPixelOffset?: [0, 0];
+  }
+
+  export class TextLayer<T extends TextData> extends Layer<TextLayerProps<T>> {
+    constructor(props: TextLayerProps<T>);
   }
 
   export class CompositeLayer<
@@ -294,9 +292,19 @@ declare module 'deck.gl' {
     renderLayers(): Layer[];
   }
 
-  interface Experimental {
-    fp64ify: (a: number) => [number, number];
+  export interface ControllerOptions {
+    type: any;
+    [key: string]: any;
   }
 
-  export const experimental: Experimental;
+  export class Controller {
+    events: string[];
+    constructor(viewState: any, options: ControllerOptions);
+    toggleEvents(events: string[], enabled: boolean): void;
+    handleEvent(event: MapControlEvent): void;
+  }
+
+  export class MapController extends Controller {
+    constructor(options: ControllerOptions);
+  }
 }

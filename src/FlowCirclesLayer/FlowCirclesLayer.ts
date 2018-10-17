@@ -29,7 +29,7 @@ class FlowCirclesLayer extends ScatterplotLayer<FlowCirclesData> {
     const shaders = super.getShaders();
     return {
       ...shaders,
-      vs: this.is64bitEnabled() ? VertexShader64 : VertexShader,
+      vs: this.use64bitProjection() ? VertexShader64 : VertexShader,
     };
   }
 }

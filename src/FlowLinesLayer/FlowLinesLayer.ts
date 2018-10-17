@@ -15,8 +15,9 @@
  *
  */
 
-import { Attribute, DrawParams, experimental, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
-import { Geometry, GL, Model } from 'luma.gl';
+import { Attribute, DrawParams, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
+import { fp64, Geometry, Model } from 'luma.gl';
+import { TRIANGLES, UNSIGNED_BYTE } from 'luma.gl/constants';
 import { RGBA } from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
@@ -48,7 +49,7 @@ export interface Context {
   shaderCache: ShaderCache;
 }
 
-const { fp64ify } = experimental;
+const { fp64ify } = fp64;
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
 const DEFAULT_BORDER_COLOR: RGBA = [0.85, 0.85, 0.85, 0.95];
@@ -65,7 +66,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
   };
 
   getShaders(): Shaders {
-    return this.is64bitEnabled()
+    return this.use64bitProjection()
       ? {
           vs: VertexShader64,
           fs: FragmentShader,
@@ -86,7 +87,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
 
     const { attributeManager } = this.state;
 
-    if (this.is64bitEnabled()) {
+    if (this.use64bitProjection()) {
       attributeManager.addInstanced({
         instanceSourceTargetPositions64xyLow: {
           size: 4,
@@ -119,7 +120,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       instanceColors: {
         accessor: 'getColor',
         size: 4,
-        type: GL.UNSIGNED_BYTE,
+        type: UNSIGNED_BYTE,
         update: this.calculateInstanceColors,
       },
     });
@@ -217,7 +218,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       id: this.props.id,
       ...this.getShaders(),
       geometry: new Geometry({
-        drawType: GL.TRIANGLES,
+        drawType: TRIANGLES,
         attributes: {
           positions: new Float32Array(positions),
           normals: new Float32Array(pixelOffsets),
@@ -236,7 +237,6 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       const sourcePosition = getSourcePosition!(object);
       value[i + 0] = sourcePosition[0];
       value[i + 1] = sourcePosition[1];
-      value[i + 2] = isNaN(sourcePosition[2]) ? 0 : sourcePosition[2];
       i += size;
     }
   }
@@ -249,7 +249,6 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       const targetPosition = getTargetPosition!(object);
       value[i + 0] = targetPosition[0];
       value[i + 1] = targetPosition[1];
-      value[i + 2] = isNaN(targetPosition[2]) ? 0 : targetPosition[2];
       i += size;
     }
   }

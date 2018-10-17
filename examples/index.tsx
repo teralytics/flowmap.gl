@@ -31,8 +31,6 @@ const locationsData: FeatureCollection<GeometryObject, LocationProperties> = req
 
 storiesOf('Static', module).add('simple', () => (
   <StaticExample
-    width={window.innerWidth}
-    height={window.innerHeight}
     flows={flows16}
     locations={locationsData}
     viewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
@@ -43,8 +41,6 @@ storiesOf('Static', module).add('simple', () => (
 storiesOf('Interactive', module)
   .add('interactive', () => (
     <InteractiveExample
-      width={window.innerWidth}
-      height={window.innerHeight}
       fp64={false}
       showTotals={true}
       showLocationAreas={true}
@@ -56,8 +52,6 @@ storiesOf('Interactive', module)
   ))
   .add('no location areas', () => (
     <InteractiveExample
-      width={window.innerWidth}
-      height={window.innerHeight}
       fp64={false}
       showTotals={true}
       showLocationAreas={false}
@@ -69,8 +63,6 @@ storiesOf('Interactive', module)
   ))
   .add('no totals', () => (
     <InteractiveExample
-      width={window.innerWidth}
-      height={window.innerHeight}
       fp64={false}
       showTotals={false}
       showLocationAreas={true}
@@ -82,8 +74,6 @@ storiesOf('Interactive', module)
   ))
   .add('diff', () => (
     <InteractiveExample
-      width={window.innerWidth}
-      height={window.innerHeight}
       fp64={false}
       showTotals={true}
       showLocationAreas={true}

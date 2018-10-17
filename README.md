@@ -31,82 +31,89 @@ The layer can be used to show the [difference between two moments in time](https
 ## Usage
 
 Here's a usage example:
+```jsx harmony
+import * as React from 'react';
+import DeckGL from 'deck.gl';
+import { StaticMap } from 'react-map-gl';
+import FlowMapLayer from 'flowmap.gl';
+
+const colors = {
+  flows: {
+    max: '#137CBD',
+  },
+  locationAreas: {
+    outline: 'rgba(92,112,128,0.5)',
+    normal: 'rgba(187,187,187,0.5)',
+    selected: 'rgba(217,130,43,0.5)',
+  },
+};
+
+class MyFlowMap extends React.Component {
+  state = { viewState: this.props.initialViewState };
   
-    import DeckGL from 'deck.gl';
-    import MapGL from 'react-map-gl';
-    import FlowMapLayer from 'flowmap.gl';
-
-    const colors = {
-      flows: {
-        max: '#137CBD',
-      },
-      locationAreas: {
-        outline: 'rgba(92,112,128,0.5)',
-        normal: 'rgba(187,187,187,0.5)',
-        selected: 'rgba(217,130,43,0.5)',
-      },
-    };
-
-    class MyFlowMap extends Component {
-      render() {
-        const flowMapLayer = new FlowMapLayer({
-          id: 'flow-map-layer',
-          colors,
-          locations: [...],   // array of GeoJSON features of location areas
-          flows: [...],       // array of Flow objects
-          getLocationId: l => l.id,
-          getLocationCentroid: l => l.properties.centroid,
-          getFlowOriginId: f => f.origin,
-          getFlowDestId: f => f.dest,
-          getFlowMagnitude: f => f.magnitude,
-          showTotals: true,
-          showLocationAreas: true,
-          locationCircleSize: 3,
-          showLocationAreas: true,
-          getFlowMagnitude: f => f.count,
-          varyFlowColorByMagnitude: true,
-          showTotals: true,
-        });
-      
-        return (
-          <MapGL {...viewport} width={width} height={height} mapboxApiAccessToken={mapboxAccessToken}>
-            <DeckGL {...viewport} width={width} height={height} layers={[flowMapLayer]} />
-          </MapGL>
-        );
-      }    
-    }    
+  render() {
+    const flowMapLayer = new FlowMapLayer({
+      id: 'flow-map-layer',
+      colors,
+      locations: [...],   // array of GeoJSON features of location areas
+      flows: [...],       // array of Flow objects
+      getLocationId: l => l.id,
+      getLocationCentroid: l => l.properties.centroid,
+      getFlowOriginId: f => f.origin,
+      getFlowDestId: f => f.dest,
+      getFlowMagnitude: f => f.magnitude,
+      showTotals: true,
+      showLocationAreas: true,
+      locationCircleSize: 3,
+      varyFlowColorByMagnitude: true,
+    });
+    
+    return (
+      <DeckGL 
+        layers={[flowMapLayer]}
+        initialViewState={this.state.viewState}
+        controller={true}
+        onViewStateChange={({ viewState }) => this.setState({ viewState })}
+        children={({ width, height, viewState }) => (
+          <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
+        )}
+      />
+    );
+  }  
+}
+```
 
 The full list of supported props:
-  
-    interface Props {
-      id: string;
-      colors: Colors | DiffColors;
-      locations: Locations;
-      flows: Flow[];
-      fp64?: boolean;
-      onClick?: PickingHandler<FlowLayerPickingInfo>;
-      onHover?: PickingHandler<FlowLayerPickingInfo>;
-      getLocationId?: LocationAccessor<string>;
-      getLocationCentroid?: LocationAccessor<[number, number]>;
-      getLocationTotalIn?: LocationAccessor<number>;
-      getLocationTotalOut?: LocationAccessor<number>;
-      getFlowOriginId?: FlowAccessor<string>;
-      getFlowDestId?: FlowAccessor<string>;
-      getFlowMagnitude?: FlowAccessor<number>;
-      showTotals?: boolean;
-      locationCircleSize?: number;
-      showLocationAreas?: boolean;
-      varyFlowColorByMagnitude?: boolean;
-      selectedLocationIds?: string[];
-      highlightedLocationId?: string;
-      highlightedFlow?: Flow;
-      visible?: boolean;
-      opacity?: number;
-      pickable?: boolean;
-      fp64?: boolean;
-      updateTriggers?: UpdateTriggers;
-    }
-
+```typescript
+interface Props {
+  id: string;
+  colors: Colors | DiffColors;
+  locations: Locations;
+  flows: Flow[];
+  fp64?: boolean;
+  onClick?: PickingHandler<FlowLayerPickingInfo>;
+  onHover?: PickingHandler<FlowLayerPickingInfo>;
+  getLocationId?: LocationAccessor<string>;
+  getLocationCentroid?: LocationAccessor<[number, number]>;
+  getLocationTotalIn?: LocationAccessor<number>;
+  getLocationTotalOut?: LocationAccessor<number>;
+  getFlowOriginId?: FlowAccessor<string>;
+  getFlowDestId?: FlowAccessor<string>;
+  getFlowMagnitude?: FlowAccessor<number>;
+  showTotals?: boolean;
+  locationCircleSize?: number;
+  showLocationAreas?: boolean;
+  varyFlowColorByMagnitude?: boolean;
+  selectedLocationIds?: string[];
+  highlightedLocationId?: string;
+  highlightedFlow?: Flow;
+  visible?: boolean;
+  opacity?: number;
+  pickable?: boolean;
+  fp64?: boolean;
+  updateTriggers?: UpdateTriggers;
+}
+```
 
 Here's the code for the [complete static example](./examples/StaticExample.tsx)
 and a more complex [interactive example](./examples/InteractiveExample.tsx).
