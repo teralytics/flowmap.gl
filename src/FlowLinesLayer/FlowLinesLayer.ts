@@ -237,7 +237,6 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       const sourcePosition = getSourcePosition!(object);
       value[i + 0] = sourcePosition[0];
       value[i + 1] = sourcePosition[1];
-      value[i + 2] = 0;
       i += size;
     }
   }
@@ -250,7 +249,6 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       const targetPosition = getTargetPosition!(object);
       value[i + 0] = targetPosition[0];
       value[i + 1] = targetPosition[1];
-      value[i + 2] = 0;
       i += size;
     }
   }
