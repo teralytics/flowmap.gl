@@ -2,7 +2,7 @@
 
 [Flow map](https://en.wikipedia.org/wiki/Flow_map) drawing layer for [deck.gl](http://uber.github.io/deck.gl). Can be used for visualizing movement of people (e.g. migration) or objects between geographic locations. The layer is rendered in WebGL and can handle large numbers of flows with a good rendering performance.
 
-Check out the [live examples](https://teralytics.github.io/flowmap.gl/index.html). 
+Check out the [example app](http://ilyabo.github.io/flowmap.gl-example) and [storybook](https://teralytics.github.io/flowmap.gl/index.html). 
 
 <img src="./doc/swiss-cantons-migration.png" width="500" />
 
@@ -115,7 +115,7 @@ interface Props {
 }
 ```
 
-Here's the code for the [complete static example](./examples/StaticExample.tsx)
+Here's the [code for the example app](https://github.com/ilyabo/flowmap.gl-example)
 and a more complex [interactive example](./examples/InteractiveExample.tsx).
 
 ## Developing
