@@ -15,14 +15,14 @@
  *
  */
 
-import React, { ReactNode } from 'react';
+import * as React from 'react';
 
 export interface LegendBoxProps {
   top?: number;
   left?: number;
   right?: number;
   bottom?: number;
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const styles = {
@@ -37,20 +37,18 @@ const styles = {
   },
 };
 
-const LegendBox: React.SFC<LegendBoxProps> = ({ top, left, right, bottom, children }) => {
-  return (
-    <div
-      style={{
-        ...styles.outer,
-        top,
-        left,
-        right,
-        bottom,
-      }}
-    >
-      {children}
-    </div>
-  );
-};
+const LegendBox: React.SFC<LegendBoxProps> = ({ top, left, right, bottom, children }) => (
+  <div
+    style={{
+      ...styles.outer,
+      top,
+      left,
+      right,
+      bottom,
+    }}
+  >
+    {children}
+  </div>
+);
 
 export default LegendBox;

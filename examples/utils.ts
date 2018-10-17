@@ -15,9 +15,9 @@
  *
  */
 
-import * as geoViewport from '@mapbox/geo-viewport';
+import { BoundingBox, viewport } from '@mapbox/geo-viewport';
 import { geoBounds } from 'd3-geo';
-import { Feature, FeatureCollection, GeometryObject } from 'geojson';
+import { FeatureCollection, GeometryObject } from 'geojson';
 import { Viewport } from 'react-map-gl';
 import { LocationProperties } from '../src';
 
@@ -32,11 +32,13 @@ export const getViewportForFeature = (
   },
 ): Viewport => {
   const { pad = 0, tileSize = 512, minZoom = 0, maxZoom = 100 } = opts || {};
-  // tslint:disable-next-line:no-any
-  const [[x1, y1], [x2, y2]] = geoBounds(featureCollection as any);
-  const bounds = [x1 - pad * (x2 - x1), y1 - pad * (y2 - y1), x2 + pad * (x2 - x1), y2 + pad * (y2 - y1)];
+  const [[x1, y1], [x2, y2]] = geoBounds(featureCollection);
+  const bounds: BoundingBox = [x1 - pad * (x2 - x1), y1 - pad * (y2 - y1), x2 + pad * (x2 - x1), y2 + pad * (y2 - y1)];
 
-  const { center: [longitude, latitude], zoom } = geoViewport.viewport(bounds, size, undefined, undefined, tileSize);
+  const {
+    center: [longitude, latitude],
+    zoom,
+  } = viewport(bounds, size, undefined, undefined, tileSize);
 
   return {
     longitude,
