@@ -16,3 +16,4 @@
  */
 
 declare module 'luma.gl';
+declare module 'luma.gl/constants';

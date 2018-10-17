@@ -15,8 +15,8 @@
  *
  */
 
-import { Attribute, DrawParams, experimental, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
-import { Geometry, Model } from 'luma.gl';
+import { Attribute, DrawParams, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
+import { fp64, Geometry, Model } from 'luma.gl';
 import { TRIANGLES, UNSIGNED_BYTE } from 'luma.gl/constants';
 import { RGBA } from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
@@ -49,7 +49,7 @@ export interface Context {
   shaderCache: ShaderCache;
 }
 
-const { fp64ify } = experimental;
+const { fp64ify } = fp64;
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
 const DEFAULT_BORDER_COLOR: RGBA = [0.85, 0.85, 0.85, 0.95];
@@ -237,7 +237,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       const sourcePosition = getSourcePosition!(object);
       value[i + 0] = sourcePosition[0];
       value[i + 1] = sourcePosition[1];
-      value[i + 2] = isNaN(sourcePosition[2]) ? 0 : sourcePosition[2];
+      value[i + 2] = 0;
       i += size;
     }
   }
@@ -250,7 +250,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
       const targetPosition = getTargetPosition!(object);
       value[i + 0] = targetPosition[0];
       value[i + 1] = targetPosition[1];
-      value[i + 2] = isNaN(targetPosition[2]) ? 0 : targetPosition[2];
+      value[i + 2] = 0;
       i += size;
     }
   }
