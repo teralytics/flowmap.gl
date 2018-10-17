@@ -71,7 +71,7 @@ class MyFlowMap extends React.Component {
     return (
       <DeckGL 
         layers={[flowMapLayer]}
-        viewState={this.state.viewState}
+        initialViewState={this.state.viewState}
         controller={true}
         onViewStateChange={({ viewState }) => this.setState({ viewState })}
         children={({ width, height, viewState }) => (
