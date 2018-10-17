@@ -3,7 +3,7 @@
   "description": "Flow map drawing layer for deck.gl",
   "author": "Teralytics AG",
   "license": "Apache-2.0",
-  "version": "3.3.0",
+  "version": "4.0.0",
   "keywords": [
     "flows",
     "flow map",
