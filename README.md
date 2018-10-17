@@ -61,7 +61,7 @@ class MyFlowMap extends React.Component {
       getLocationCentroid: l => l.properties.centroid,
       getFlowOriginId: f => f.origin,
       getFlowDestId: f => f.dest,
-      getFlowMagnitude: f => f.magnitude,
+      getFlowMagnitude: f => f.count,
       showTotals: true,
       showLocationAreas: true,
       locationCircleSize: 3,
