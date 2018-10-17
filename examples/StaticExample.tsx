@@ -68,7 +68,8 @@ const StaticExample: React.SFC<Props> = ({ locations, flows, viewport, mapboxAcc
   return (
     <DeckGL
       style={{ mixBlendMode: 'multiply' }}
-      viewState={viewport}
+      controller={true}
+      initialViewState={viewport}
       layers={[flowMapLayer]}
       children={({ width, height, viewState }) => (
         <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
