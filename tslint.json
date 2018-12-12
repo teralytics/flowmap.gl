@@ -29,7 +29,6 @@
       true,
       "allow-declarations"
     ],
-    "jsx-no-lambda": false,
-    "blueprint-html-components": false
+    "jsx-no-lambda": false
   }
 }
