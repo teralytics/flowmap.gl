@@ -20,7 +20,7 @@ import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
 import InteractiveExample, { Flow, LocationProperties } from './InteractiveExample';
 import StaticExample from './StaticExample';
-import { getViewportForFeature } from './utils';
+import { getViewStateForFeature } from './utils';
 
 const mapboxAccessToken = process.env.MapboxAccessToken || '';
 
@@ -33,7 +33,7 @@ storiesOf('Static', module).add('simple', () => (
   <StaticExample
     flows={flows16}
     locations={locationsData}
-    viewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+    initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
     mapboxAccessToken={mapboxAccessToken}
   />
 ));
@@ -46,7 +46,7 @@ storiesOf('Interactive', module)
       showLocationAreas={true}
       locations={locationsData}
       flows={flows16}
-      initialViewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
       mapboxAccessToken={mapboxAccessToken}
     />
   ))
@@ -57,7 +57,7 @@ storiesOf('Interactive', module)
       showLocationAreas={false}
       locations={locationsData}
       flows={flows16}
-      initialViewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
       mapboxAccessToken={mapboxAccessToken}
     />
   ))
@@ -68,7 +68,7 @@ storiesOf('Interactive', module)
       showLocationAreas={true}
       locations={locationsData}
       flows={flows16}
-      initialViewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
       mapboxAccessToken={mapboxAccessToken}
     />
   ))
@@ -80,7 +80,7 @@ storiesOf('Interactive', module)
       locations={locationsData}
       flows={flowsDiff1516}
       diff={true}
-      initialViewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
       mapboxAccessToken={mapboxAccessToken}
     />
   ));

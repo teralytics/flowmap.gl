@@ -15,23 +15,13 @@
  *
  */
 
-import {
-  CompositeLayer,
-  GeoJsonLayer,
-  Layer,
-  LayerProps,
-  LayerState,
-  PickingHandler,
-  PickParams,
-  UpdateStateParams,
-} from 'deck.gl';
-import { GeometryObject } from 'geojson';
+import { CompositeLayer, GeoJsonLayer } from 'deck.gl';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import Selectors from './Selectors';
 import {
   Colors,
-  Data,
+  DeckGLLayer,
   DiffColors,
   Flow,
   FlowAccessor,
@@ -40,15 +30,16 @@ import {
   LocationCircleAccessor,
   LocationCircleType,
   Locations,
+  PickingHandler,
   PickingType,
 } from './types';
 
-export interface Props extends LayerProps {
+export interface Props {
   id: string;
+  fp64?: boolean;
   colors: Colors | DiffColors;
   locations: Locations;
   flows: Flow[];
-  fp64?: boolean;
   onClick?: PickingHandler<FlowLayerPickingInfo>;
   onHover?: PickingHandler<FlowLayerPickingInfo>;
   getLocationId?: LocationAccessor<string>;
@@ -67,7 +58,7 @@ export interface Props extends LayerProps {
   highlightedFlow?: Flow;
 }
 
-export interface State extends LayerState {
+export interface State {
   selectors: Selectors;
 }
 
@@ -76,7 +67,7 @@ const LAYER_ID__LOCATION_AREAS = 'location-areas';
 const LAYER_ID__FLOWS = 'flows';
 const LAYER_ID__FLOWS_ACTIVE = 'flows-highlighted';
 
-function getPickType({ id }: Layer<Data>): PickingType | undefined {
+function getPickType({ id }: DeckGLLayer): PickingType | undefined {
   switch (id) {
     case LAYER_ID__FLOWS:
     // fall through
@@ -91,7 +82,7 @@ function getPickType({ id }: Layer<Data>): PickingType | undefined {
   }
 }
 
-export default class FlowMapLayer extends CompositeLayer<Props, State> {
+export default class FlowMapLayer extends CompositeLayer {
   static layerName: string = 'FlowMapLayer';
   static defaultProps: Partial<Props> = {
     getLocationId: l => l.id || l.properties.id,
@@ -124,7 +115,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     this.setState({ selectors });
   }
 
-  updateState(params: UpdateStateParams<Props, {}>) {
+  updateState(params: any) {
     super.updateState(params);
 
     const { props, changeFlags } = params;
@@ -141,7 +132,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     }
   }
 
-  getPickingInfo(params: PickParams): FlowLayerPickingInfo {
+  getPickingInfo(params: any): FlowLayerPickingInfo {
     const type = getPickType(params.sourceLayer);
     if (!type) {
       return params.info;
@@ -181,7 +172,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     const flows = selectors.getSortedNonSelfFlows(this.props);
     const activeFlows = selectors.getActiveFlows(this.props);
 
-    const layers: Layer[] = [];
+    const layers: DeckGLLayer[] = [];
 
     if (showLocationAreas) {
       layers.push(this.getLocationAreasLayer(LAYER_ID__LOCATION_AREAS));
@@ -193,7 +184,7 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
     return layers;
   }
 
-  private getLocationAreasLayer(id: string): GeoJsonLayer<GeometryObject> {
+  private getLocationAreasLayer(id: string): DeckGLLayer {
     const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow, fp64 } = this.props;
     const { selectors } = this.state;
     const getLineColor = selectors.getLocationAreaLineColorGetter(this.props);
