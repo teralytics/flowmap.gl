@@ -1,5 +1,5 @@
 {
-  "defaultSeverity": "error",
+  "defaultSeverity": "warning",
   "extends": [
     "tslint:recommended",
     "tslint-react",
@@ -19,17 +19,11 @@
       true,
       "never-prefix"
     ],
-    "no-any": true,
+    "no-console": [true, "log"],
     "object-literal-sort-keys": false,
-    "member-access": false,
-    "no-console": [
+    "member-access": [
       true,
-      "log"
-    ],
-    "typedef": [
-      true,
-      "parameter",
-      "member-variable-declaration"
+      "no-public"
     ],
     "no-namespace": [
       true,

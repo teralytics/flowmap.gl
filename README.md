@@ -107,11 +107,6 @@ interface Props {
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
-  visible?: boolean;
-  opacity?: number;
-  pickable?: boolean;
-  fp64?: boolean;
-  updateTriggers?: UpdateTriggers;
 }
 ```
 

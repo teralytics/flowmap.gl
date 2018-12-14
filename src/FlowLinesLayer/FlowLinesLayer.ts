@@ -15,7 +15,7 @@
  *
  */
 
-import { Attribute, DrawParams, Layer, LayerProps, LayerState, ShaderCache, Shaders } from 'deck.gl';
+import { Layer } from 'deck.gl';
 import { fp64, Geometry, Model } from 'luma.gl';
 import { TRIANGLES, UNSIGNED_BYTE } from 'luma.gl/constants';
 import { RGBA } from '../types';
@@ -30,10 +30,14 @@ export interface FlowLineData {
   thickness: number;
 }
 
-// tslint:disable-next-line:no-any
 export type Data = FlowLineData | any;
 
-export interface Props extends LayerProps {
+export interface Props {
+  id: string;
+  opacity?: number;
+  pickable?: boolean;
+  updateTriggers?: { [key: string]: {} };
+  fp64?: boolean;
   data: Data[];
   drawBorder: boolean;
   borderColor?: RGBA;
@@ -44,18 +48,13 @@ export interface Props extends LayerProps {
   getEndpointOffsets?: (d: Data) => [number, number];
 }
 
-export interface Context {
-  gl: WebGLRenderingContext;
-  shaderCache: ShaderCache;
-}
-
 const { fp64ify } = fp64;
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
 const DEFAULT_BORDER_COLOR: RGBA = [0.85, 0.85, 0.85, 0.95];
 const DEFAULT_ENDPOINT_OFFSETS = [0, 0];
 
-class FlowLinesLayer extends Layer<Props, LayerState, Context> {
+class FlowLinesLayer extends Layer {
   static layerName: string = 'FlowLinesLayer';
   static defaultProps: Partial<Props> = {
     getSourcePosition: d => d.sourcePosition,
@@ -65,7 +64,11 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     drawBorder: false,
   };
 
-  getShaders(): Shaders {
+  constructor(props: Props) {
+    super(props);
+  }
+
+  getShaders() {
     return this.use64bitProjection()
       ? {
           vs: VertexShader64,
@@ -126,7 +129,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     });
   }
 
-  draw({ uniforms }: DrawParams) {
+  draw({ uniforms }: any) {
     const { gl } = this.context;
     const { borderColor } = this.props;
     gl.lineWidth(1);
@@ -229,7 +232,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     });
   }
 
-  calculateInstanceSourcePositions(attribute: Attribute) {
+  calculateInstanceSourcePositions(attribute: any) {
     const { data, getSourcePosition } = this.props;
     const { value, size } = attribute;
     let i = 0;
@@ -241,7 +244,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     }
   }
 
-  calculateInstanceTargetPositions(attribute: Attribute) {
+  calculateInstanceTargetPositions(attribute: any) {
     const { data, getTargetPosition } = this.props;
     const { value, size } = attribute;
     let i = 0;
@@ -253,7 +256,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     }
   }
 
-  calculateInstanceSourceTargetPositions64xyLow(attribute: Attribute) {
+  calculateInstanceSourceTargetPositions64xyLow(attribute: any) {
     const { data, getSourcePosition, getTargetPosition } = this.props;
     const { value, size } = attribute;
     let i = 0;
@@ -268,7 +271,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     }
   }
 
-  calculateInstanceColors(attribute: Attribute) {
+  calculateInstanceColors(attribute: any) {
     const { data, getColor } = this.props;
     const { value, size } = attribute;
     let i = 0;
@@ -282,7 +285,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     }
   }
 
-  calculateInstanceThickness(attribute: Attribute) {
+  calculateInstanceThickness(attribute: any) {
     const { data, getThickness } = this.props;
     const { value, size } = attribute;
     let i = 0;
@@ -292,7 +295,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
     }
   }
 
-  calculateInstanceEndpointOffsets(attribute: Attribute) {
+  calculateInstanceEndpointOffsets(attribute: any) {
     const { data, getEndpointOffsets } = this.props;
     const { value, size } = attribute;
     let i = 0;

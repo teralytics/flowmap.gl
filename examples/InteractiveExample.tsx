@@ -15,11 +15,11 @@
  *
  */
 
-import DeckGL, { ViewStateChangeInfo } from 'deck.gl';
+import DeckGL from 'deck.gl';
 import { FeatureCollection, GeometryObject } from 'geojson';
 import * as _ from 'lodash';
 import * as React from 'react';
-import { StaticMap, Viewport } from 'react-map-gl';
+import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 import FlowMapLayer, {
   Colors,
   DiffColors,
@@ -62,14 +62,14 @@ export interface FlowHighlight {
 export type Highlight = LocationHighlight | FlowHighlight;
 
 export interface State {
-  viewState: Viewport;
+  viewState: ViewState;
   highlight?: Highlight;
   selectedLocationIds?: string[];
 }
 
 export interface Props {
   flows: Flow[];
-  initialViewport: Viewport;
+  initialViewState: ViewState;
   locations: FeatureCollection<GeometryObject, LocationProperties>;
   diff?: boolean;
   fp64?: boolean;
@@ -127,8 +127,7 @@ function getNextSelectedLocationIds(
 }
 
 export default class InteractiveExample extends React.Component<Props, State> {
-  readonly state: State = { viewState: this.props.initialViewport };
-  // tslint:disable-next-line:typedef
+  readonly state: State = { viewState: this.props.initialViewState };
   private highlightDebounced = _.debounce(this.highlight, 100);
 
   componentDidMount() {
@@ -149,7 +148,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
         viewState={this.state.viewState}
         controller={true}
         onViewStateChange={this.handleViewStateChange}
-        children={({ width, height, viewState }) => (
+        children={({ width, height, viewState }: any) => (
           <>
             <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
             <LegendBox top={10} left={10}>
