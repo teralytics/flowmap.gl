@@ -18,7 +18,6 @@
 import { ScatterplotLayer } from 'deck.gl';
 import { RGBA } from '../types';
 import VertexShader from './FlowCirclesLayerVertex.glsl';
-import VertexShader64 from './FlowCirclesLayerVertex64.glsl';
 
 export type FlowCirclesData = any;
 
@@ -26,7 +25,6 @@ export interface Props {
   id: string;
   opacity?: number;
   pickable?: boolean;
-  fp64?: boolean;
   updateTriggers?: { [key: string]: {} };
   getColor?: (d: FlowCirclesData) => RGBA;
   getPosition: (d: FlowCirclesData) => [number, number];
@@ -45,7 +43,7 @@ class FlowCirclesLayer extends ScatterplotLayer {
     const shaders = super.getShaders();
     return {
       ...shaders,
-      vs: this.use64bitProjection() ? VertexShader64 : VertexShader,
+      vs: VertexShader,
     };
   }
 }

@@ -16,12 +16,11 @@
  */
 
 import { Layer } from 'deck.gl';
-import { fp64, Geometry, Model } from 'luma.gl';
+import { Geometry, Model } from 'luma.gl';
 import { TRIANGLES, UNSIGNED_BYTE } from 'luma.gl/constants';
 import { RGBA } from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
-import VertexShader64 from './FlowLinesLayerVertex64.glsl';
 
 export interface FlowLineData {
   sourcePosition: [number, number];
@@ -37,7 +36,6 @@ export interface Props {
   opacity?: number;
   pickable?: boolean;
   updateTriggers?: { [key: string]: {} };
-  fp64?: boolean;
   data: Data[];
   drawBorder: boolean;
   borderColor?: RGBA;
@@ -47,8 +45,6 @@ export interface Props {
   getThickness?: (d: Data) => number;
   getEndpointOffsets?: (d: Data) => [number, number];
 }
-
-const { fp64ify } = fp64;
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
 const DEFAULT_BORDER_COLOR: RGBA = [0.85, 0.85, 0.85, 0.95];
@@ -69,19 +65,13 @@ class FlowLinesLayer extends Layer {
   }
 
   getShaders() {
-    return this.use64bitProjection()
-      ? {
-          vs: VertexShader64,
-          fs: FragmentShader,
-          modules: ['project64', 'picking'],
-          shaderCache: this.context.shaderCache,
-        }
-      : {
-          vs: VertexShader,
-          fs: FragmentShader,
-          modules: ['picking'],
-          shaderCache: this.context.shaderCache,
-        };
+    const projectModule = this.use64bitProjection() ? 'project64' : 'project32';
+    return {
+      vs: VertexShader,
+      fs: FragmentShader,
+      modules: [projectModule, 'picking'],
+      shaderCache: this.context.shaderCache,
+    };
   }
 
   initializeState() {
@@ -90,15 +80,6 @@ class FlowLinesLayer extends Layer {
 
     const { attributeManager } = this.state;
 
-    if (this.use64bitProjection()) {
-      attributeManager.addInstanced({
-        instanceSourceTargetPositions64xyLow: {
-          size: 4,
-          accessor: ['getSourcePosition', 'getTargetPosition'],
-          update: this.calculateInstanceSourceTargetPositions64xyLow,
-        },
-      });
-    }
     attributeManager.addInstanced({
       instanceSourcePositions: {
         accessor: 'getSourcePosition',
@@ -252,21 +233,6 @@ class FlowLinesLayer extends Layer {
       const targetPosition = getTargetPosition!(object);
       value[i + 0] = targetPosition[0];
       value[i + 1] = targetPosition[1];
-      i += size;
-    }
-  }
-
-  calculateInstanceSourceTargetPositions64xyLow(attribute: any) {
-    const { data, getSourcePosition, getTargetPosition } = this.props;
-    const { value, size } = attribute;
-    let i = 0;
-    for (const object of data) {
-      const sourcePosition = getSourcePosition!(object);
-      const targetPosition = getTargetPosition!(object);
-      value[i + 0] = fp64ify(sourcePosition[0])[1];
-      value[i + 1] = fp64ify(sourcePosition[1])[1];
-      value[i + 2] = fp64ify(targetPosition[0])[1];
-      value[i + 3] = fp64ify(targetPosition[1])[1];
       i += size;
     }
   }
