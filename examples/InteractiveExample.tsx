@@ -72,7 +72,6 @@ export interface Props {
   initialViewState: ViewState;
   locations: FeatureCollection<GeometryObject, LocationProperties>;
   diff?: boolean;
-  fp64?: boolean;
   showTotals: boolean;
   showLocationAreas: boolean;
   mapboxAccessToken: string;
@@ -163,7 +162,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
   }
 
   private getFlowMapLayer() {
-    const { locations, flows, fp64, diff, showTotals, showLocationAreas } = this.props;
+    const { locations, flows, diff, showTotals, showLocationAreas } = this.props;
     const { highlight, selectedLocationIds } = this.state;
     return new FlowMapLayer({
       colors: diff ? diffColors : colors,
@@ -180,7 +179,6 @@ export default class InteractiveExample extends React.Component<Props, State> {
       showTotals,
       onHover: this.handleFlowMapHover,
       onClick: this.handleFlowMapClick,
-      fp64,
     });
   }
 

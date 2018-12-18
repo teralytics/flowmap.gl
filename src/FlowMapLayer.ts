@@ -37,7 +37,6 @@ import {
 
 export interface Props {
   id: string;
-  fp64?: boolean;
   colors: Colors | DiffColors;
   locations: Locations;
   flows: Flow[];
@@ -95,7 +94,6 @@ export default class FlowMapLayer extends CompositeLayer {
     locationCircleSize: 3,
     showLocationAreas: true,
     varyFlowColorByMagnitude: false,
-    fp64: false,
   };
 
   constructor(props: Props) {
@@ -200,7 +198,7 @@ export default class FlowMapLayer extends CompositeLayer {
   }
 
   private getLocationAreasLayer(id: string): DeckGLLayer {
-    const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow, fp64 } = this.props;
+    const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow } = this.props;
     const { selectors } = this.state;
     const getLineColor = selectors.getLocationAreaLineColorGetter(this.props);
     const getFillColor = selectors.getLocationAreaFillColorGetter(this.props);
@@ -211,7 +209,6 @@ export default class FlowMapLayer extends CompositeLayer {
       getLineColor,
       lineJointRounded: true,
       data: locations,
-      fp64,
       stroked: true,
       filled: true,
       pickable: true,
@@ -233,7 +230,6 @@ export default class FlowMapLayer extends CompositeLayer {
       highlightedLocationId,
       highlightedFlow,
       showTotals,
-      fp64,
       locationCircleSize,
     } = this.props;
     const { selectors } = this.state;
@@ -286,7 +282,6 @@ export default class FlowMapLayer extends CompositeLayer {
           showTotals,
         },
       },
-      fp64,
     });
   }
 
@@ -296,7 +291,6 @@ export default class FlowMapLayer extends CompositeLayer {
       highlightedFlow,
       selectedLocationIds,
       getLocationCentroid,
-      fp64,
       flows,
       showTotals,
     } = this.props;
@@ -317,7 +311,6 @@ export default class FlowMapLayer extends CompositeLayer {
       data: circles,
       opacity: 1,
       pickable: true,
-      fp64,
       updateTriggers: {
         getRadius: { selectedLocationIds, flows },
         getColor: { highlightedLocationId, highlightedFlow, selectedLocationIds, flows },

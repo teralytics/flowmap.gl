@@ -90,7 +90,6 @@ interface Props {
   colors: Colors | DiffColors;
   locations: Locations;
   flows: Flow[];
-  fp64?: boolean;
   onClick?: PickingHandler<FlowLayerPickingInfo>;
   onHover?: PickingHandler<FlowLayerPickingInfo>;
   getLocationId?: LocationAccessor<string>;

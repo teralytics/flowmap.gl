@@ -41,7 +41,6 @@ storiesOf('Static', module).add('simple', () => (
 storiesOf('Interactive', module)
   .add('interactive', () => (
     <InteractiveExample
-      fp64={false}
       showTotals={true}
       showLocationAreas={true}
       locations={locationsData}
@@ -52,7 +51,6 @@ storiesOf('Interactive', module)
   ))
   .add('no location areas', () => (
     <InteractiveExample
-      fp64={false}
       showTotals={true}
       showLocationAreas={false}
       locations={locationsData}
@@ -63,7 +61,6 @@ storiesOf('Interactive', module)
   ))
   .add('no totals', () => (
     <InteractiveExample
-      fp64={false}
       showTotals={false}
       showLocationAreas={true}
       locations={locationsData}
@@ -74,7 +71,6 @@ storiesOf('Interactive', module)
   ))
   .add('diff', () => (
     <InteractiveExample
-      fp64={false}
       showTotals={true}
       showLocationAreas={true}
       locations={locationsData}
