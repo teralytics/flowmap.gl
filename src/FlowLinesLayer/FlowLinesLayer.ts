@@ -149,7 +149,7 @@ class FlowLinesLayer extends Layer {
         ],
       );
 
-      const t = this.props.borderThickness;
+      const t = this.props.borderThickness || 1;
       // perpendicular_offset_in_pixels, direction_of_travel_offset_in_pixels, fill_border_color_mix
       // prettier-ignore
       pixelOffsets = pixelOffsets.concat([
