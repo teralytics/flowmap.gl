@@ -26,6 +26,7 @@ import {
   UpdateStateParams,
 } from 'deck.gl';
 import { GeometryObject } from 'geojson';
+import { colorAsArray } from './colorUtils';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import Selectors from './Selectors';
@@ -41,6 +42,7 @@ import {
   LocationCircleType,
   Locations,
   PickingType,
+  RGBA,
 } from './types';
 
 export interface Props extends LayerProps {
@@ -65,6 +67,8 @@ export interface Props extends LayerProps {
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
+  borderColor?: string;
+  borderThickness?: number;
 }
 
 export interface State extends LayerState {
@@ -281,6 +285,8 @@ export default class FlowMapLayer extends CompositeLayer<Props, State> {
         },
       },
       fp64,
+      borderColor: this.props.borderColor ? colorAsArray(this.props.borderColor) : undefined,
+      borderThickness: this.props.borderThickness,
     });
   }
 

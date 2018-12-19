@@ -50,9 +50,11 @@ export interface Props {
   viewport: Viewport;
   flows: Flow[];
   locations: FeatureCollection<GeometryObject, LocationProperties>;
+  borderThickness?: number;
+  borderColor?: string;
 }
 
-const StaticExample: React.SFC<Props> = ({ locations, flows, viewport, mapboxAccessToken }) => {
+const StaticExample: React.SFC<Props> = ({ locations, flows, viewport, mapboxAccessToken, borderThickness, borderColor }) => {
   const flowMapLayer = new FlowMapLayer({
     id: 'flow-map-layer',
     colors,
@@ -63,6 +65,8 @@ const StaticExample: React.SFC<Props> = ({ locations, flows, viewport, mapboxAcc
     getFlowMagnitude: f => f.count,
     varyFlowColorByMagnitude: true,
     showTotals: true,
+    borderThickness: borderThickness,
+    borderColor: borderColor,
   });
 
   return (

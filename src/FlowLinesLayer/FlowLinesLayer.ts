@@ -37,6 +37,7 @@ export interface Props extends LayerProps {
   data: Data[];
   drawBorder: boolean;
   borderColor?: RGBA;
+  borderThickness?: number;
   getSourcePosition?: (d: Data) => [number, number];
   getTargetPosition?: (d: Data) => [number, number];
   getColor?: (d: Data) => RGBA;
@@ -162,7 +163,7 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
         ],
       );
 
-      const t = 1; // Border thickness
+      const t = this.props.borderThickness || 1; // Border thickness
       // perpendicular_offset_in_pixels, direction_of_travel_offset_in_pixels, fill_border_color_mix
       // prettier-ignore
       pixelOffsets = pixelOffsets.concat([

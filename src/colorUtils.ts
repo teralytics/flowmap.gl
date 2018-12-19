@@ -32,7 +32,11 @@ export function opacityFloatToInteger(opacity: number): number {
 }
 
 export function colorAsArray(color: string): RGBA {
-  const rgbColor = d3Color.rgb(color);
+  const col = d3Color.color(color);
+  if (!col) {
+    throw new Error('invalid color: ' + color);
+  }
+  const rgbColor = col.rgb();
   return [rgbColor.r, rgbColor.g, rgbColor.b, opacityFloatToInteger(rgbColor.opacity)];
 }
 

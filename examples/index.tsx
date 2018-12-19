@@ -36,6 +36,15 @@ storiesOf('Static', module).add('simple', () => (
     viewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
     mapboxAccessToken={mapboxAccessToken}
   />
+)).add('customize', () => (
+  <StaticExample
+    flows={flows16}
+    locations={locationsData}
+    viewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+    mapboxAccessToken={mapboxAccessToken}
+    borderThickness={2}
+    borderColor='purple'
+  />
 ));
 
 storiesOf('Interactive', module)
