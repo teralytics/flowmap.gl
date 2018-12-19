@@ -36,6 +36,16 @@ export function colorAsArray(color: string): RGBA {
   return [Math.floor(rgbColor.r), Math.floor(rgbColor.g), Math.floor(rgbColor.b), opacityFloatToInteger(col.opacity)];
 }
 
+export function colorAndOpacityAsArray(color: string, opacity: number): RGBA {
+  let col = d3Color.color(color);
+  if (!col) {
+    console.warn('Invalid color: ', col);
+    col = d3Color.color('black')!;
+  }
+  const rgbColor = col.rgb();
+  return [Math.floor(rgbColor.r), Math.floor(rgbColor.g), Math.floor(rgbColor.b), opacityFloatToInteger(opacity)];
+}
+
 export function getDefaultDimmedColor(opacity?: number): RGBA {
   return [0, 0, 0, opacityFloatToInteger(opacity || DEFAULT_DIMMED_OPACITY)];
 }

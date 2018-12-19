@@ -88,6 +88,8 @@ const colors: Colors = {
     normal: 'rgba(187,187,187,0.5)',
     selected: 'rgba(217,130,43,0.5)',
   },
+  dimmedOpacity: 0.05,
+  dimmedColor: '#137CBD',
 };
 
 const diffColors: DiffColors = {
