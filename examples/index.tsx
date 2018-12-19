@@ -36,7 +36,7 @@ storiesOf('Static', module).add('simple', () => (
     initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
     mapboxAccessToken={mapboxAccessToken}
   />
-)).add('customize', () => (
+)).add('custom borders', () => (
   <StaticExample
     flows={flows16}
     locations={locationsData}
