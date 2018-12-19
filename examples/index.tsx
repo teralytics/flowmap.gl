@@ -40,7 +40,7 @@ storiesOf('Static', module).add('simple', () => (
   <StaticExample
     flows={flows16}
     locations={locationsData}
-    viewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+    initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
     mapboxAccessToken={mapboxAccessToken}
     borderThickness={2}
     borderColor='hsla(187, 50%, 50%, 0.5)'

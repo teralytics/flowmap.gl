@@ -117,7 +117,7 @@ class FlowLinesLayer extends Layer {
     gl.lineWidth(1);
     this.state.model.render({
       ...uniforms,
-      borderColor: borderColor.map(x => (x * 1) / 255),
+      borderColor: borderColor.map((x: number) => x / 255),
       thicknessUnit: 16,
       gap: 0.75,
     });
