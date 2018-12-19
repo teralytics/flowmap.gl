@@ -17,7 +17,7 @@
 
 import * as React from 'react';
 import { getLocationCircleColors } from '../colorUtils';
-import { Colors, DiffColors, isDiffColors } from '../types';
+import { DiffColors } from '../types';
 import Disc from './Disc';
 
 export interface Props {

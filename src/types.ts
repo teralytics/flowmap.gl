@@ -15,7 +15,6 @@
  *
  */
 
-import { PickingInfo } from 'deck.gl';
 import { Feature, FeatureCollection, GeometryObject } from 'geojson';
 
 export interface FlowColors {
@@ -63,10 +62,8 @@ export function isDiffColors(colors: DiffColors | Colors): colors is DiffColors 
 
 export type RGBA = [number, number, number, number];
 
-// tslint:disable-next-line:no-any
 export type Flow = any;
 
-// tslint:disable-next-line:no-any
 export type LocationProperties = any;
 
 export type Location = Feature<GeometryObject, LocationProperties>;
@@ -90,6 +87,19 @@ export const enum PickingType {
   FLOW = 'flow',
   LOCATION_AREA = 'location-area',
 }
+
+export type DeckGLLayer = any;
+
+export interface PickingInfo<T> {
+  layer: DeckGLLayer;
+  index: number;
+  object: T;
+  x: number;
+  y: number;
+  lngLat: [number, number];
+}
+
+export type PickingHandler<T> = (info: T) => void;
 
 export interface LocationPickingInfo extends PickingInfo<Data> {
   type: PickingType.LOCATION;

@@ -18,7 +18,7 @@
 import DeckGL from 'deck.gl';
 import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
-import { StaticMap, Viewport } from 'react-map-gl';
+import { StaticMap, ViewState } from 'react-map-gl';
 import FlowMapLayer, { Colors, Location } from '../src';
 
 export interface Flow {
@@ -47,14 +47,14 @@ const colors: Colors = {
 
 export interface Props {
   mapboxAccessToken: string;
-  viewport: Viewport;
+  initialViewState: ViewState;
   flows: Flow[];
   locations: FeatureCollection<GeometryObject, LocationProperties>;
   borderThickness?: number;
   borderColor?: string;
 }
 
-const StaticExample: React.SFC<Props> = ({ locations, flows, viewport, mapboxAccessToken, borderThickness, borderColor }) => {
+const StaticExample: React.SFC<Props> = ({ locations, flows, initialViewState, mapboxAccessToken, borderThickness, borderColor }) => {
   const flowMapLayer = new FlowMapLayer({
     id: 'flow-map-layer',
     colors,
@@ -73,9 +73,9 @@ const StaticExample: React.SFC<Props> = ({ locations, flows, viewport, mapboxAcc
     <DeckGL
       style={{ mixBlendMode: 'multiply' }}
       controller={true}
-      initialViewState={viewport}
+      initialViewState={initialViewState}
       layers={[flowMapLayer]}
-      children={({ width, height, viewState }) => (
+      children={({ width, height, viewState }: any) => (
         <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
       )}
     />

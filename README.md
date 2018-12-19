@@ -90,13 +90,13 @@ interface Props {
   colors: Colors | DiffColors;
   locations: Locations;
   flows: Flow[];
-  fp64?: boolean;
   onClick?: PickingHandler<FlowLayerPickingInfo>;
   onHover?: PickingHandler<FlowLayerPickingInfo>;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
   getLocationTotalIn?: LocationAccessor<number>;
   getLocationTotalOut?: LocationAccessor<number>;
+  getLocationTotalWithin?: LocationAccessor<number>;
   getFlowOriginId?: FlowAccessor<string>;
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
@@ -107,11 +107,6 @@ interface Props {
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
-  visible?: boolean;
-  opacity?: number;
-  pickable?: boolean;
-  fp64?: boolean;
-  updateTriggers?: UpdateTriggers;
 }
 ```
 
