@@ -59,6 +59,8 @@ class FlowLinesLayer extends Layer {
     getColor: d => d.color,
     getThickness: d => d.thickness,
     drawBorder: false,
+    borderThickness: 1,
+    borderColor: DEFAULT_BORDER_COLOR,
   };
 
   constructor(props: Props) {
@@ -113,7 +115,7 @@ class FlowLinesLayer extends Layer {
 
   draw({ uniforms }: any) {
     const { gl } = this.context;
-    const borderColor = this.props.borderColor || DEFAULT_BORDER_COLOR;
+    const borderColor = this.props.borderColor;
     gl.lineWidth(1);
     this.state.model.render({
       ...uniforms,
@@ -147,7 +149,7 @@ class FlowLinesLayer extends Layer {
         ],
       );
 
-      const t = this.props.borderThickness || 1; // Border thickness
+      const t = this.props.borderThickness;
       // perpendicular_offset_in_pixels, direction_of_travel_offset_in_pixels, fill_border_color_mix
       // prettier-ignore
       pixelOffsets = pixelOffsets.concat([

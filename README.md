@@ -107,6 +107,8 @@ interface Props {
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
+  borderThickness: number;
+  borderColor: Color;
 }
 ```
 
