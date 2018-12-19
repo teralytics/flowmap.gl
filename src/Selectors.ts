@@ -35,6 +35,7 @@ export interface InputGetters {
   getLocationId: LocationAccessor<string>;
   getLocationTotalIn?: LocationAccessor<number>;
   getLocationTotalOut?: LocationAccessor<number>;
+  getLocationTotalWithin?: LocationAccessor<number>;
   getFlowOriginId: FlowAccessor<string>;
   getFlowDestId: FlowAccessor<string>;
   getFlowMagnitude: FlowAccessor<number>;
@@ -47,6 +48,9 @@ export interface LocationTotals {
     [key: string]: number;
   };
   outgoing: {
+    [key: string]: number;
+  };
+  within: {
     [key: string]: number;
   };
 }
@@ -66,12 +70,14 @@ const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagni
 class Selectors {
   constructor(private inputGetters: InputGetters) {}
 
-  getLocationsById: PropsSelector<LocationsById> = createSelector([getLocationFeatures], locations =>
-    d3Collection
-      .nest<Location, Location | undefined>()
-      .key(this.inputGetters.getLocationId)
-      .rollup(_.head)
-      .object(locations),
+  getLocationsById: PropsSelector<LocationsById> = createSelector(
+    [getLocationFeatures],
+    locations =>
+      d3Collection
+        .nest<Location, Location | undefined>()
+        .key(this.inputGetters.getLocationId)
+        .rollup(_.head)
+        .object(locations),
   );
 
   private getFilteredFlows: PropsSelector<Flow[]> = createSelector(
@@ -91,13 +97,17 @@ class Selectors {
     },
   );
 
-  private getNonSelfFlows: PropsSelector<Flow[]> = createSelector([this.getFilteredFlows], flows => {
-    const { getFlowOriginId, getFlowDestId } = this.inputGetters;
-    return flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow));
-  });
+  private getNonSelfFlows: PropsSelector<Flow[]> = createSelector(
+    [this.getFilteredFlows],
+    flows => {
+      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+      return flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow));
+    },
+  );
 
-  getSortedNonSelfFlows: PropsSelector<Flow[]> = createSelector([this.getNonSelfFlows], flows =>
-    _.orderBy(flows, [(f: Flow) => Math.abs(this.inputGetters.getFlowMagnitude(f)), 'desc']),
+  getSortedNonSelfFlows: PropsSelector<Flow[]> = createSelector(
+    [this.getNonSelfFlows],
+    flows => _.orderBy(flows, [(f: Flow) => Math.abs(this.inputGetters.getFlowMagnitude(f)), 'desc']),
   );
 
   getActiveFlows: PropsSelector<Flow[]> = createSelector(
@@ -210,26 +220,32 @@ class Selectors {
           const originId = getFlowOriginId(curr);
           const destId = getFlowDestId(curr);
           const magnitude = getFlowMagnitude(curr);
-          acc.outgoing[originId] = (acc.outgoing[originId] || 0) + magnitude;
-          acc.incoming[destId] = (acc.incoming[destId] || 0) + magnitude;
+          if (originId === destId) {
+            acc.within[originId] = (acc.within[originId] || 0) + magnitude;
+          } else {
+            acc.outgoing[originId] = (acc.outgoing[originId] || 0) + magnitude;
+            acc.incoming[destId] = (acc.incoming[destId] || 0) + magnitude;
+          }
           return acc;
         },
-        { incoming: {}, outgoing: {} },
+        { incoming: {}, outgoing: {}, within: {} },
       );
     },
   );
 
-  getLocationCircles: PropsSelector<LocationCircle[]> = createSelector([getLocationFeatures], locations =>
-    _.flatMap(locations, location => [
-      {
-        location,
-        type: LocationCircleType.OUTER,
-      },
-      {
-        location,
-        type: LocationCircleType.INNER,
-      },
-    ]),
+  getLocationCircles: PropsSelector<LocationCircle[]> = createSelector(
+    [getLocationFeatures],
+    locations =>
+      _.flatMap(locations, location => [
+        {
+          location,
+          type: LocationCircleType.OUTER,
+        },
+        {
+          location,
+          type: LocationCircleType.INNER,
+        },
+      ]),
   );
 
   getLocationTotalInGetter = (props: Props) => {
@@ -252,32 +268,61 @@ class Selectors {
     return (location: Location) => outgoing[getLocationId(location)] || 0;
   };
 
+  getLocationTotalWithinGetter = (props: Props) => {
+    const { getLocationTotalWithin, getLocationId } = this.inputGetters;
+    if (getLocationTotalWithin) {
+      return getLocationTotalWithin;
+    }
+
+    const { within } = this.getLocationTotals(props);
+    return (location: Location) => within[getLocationId(location)] || 0;
+  };
+
   private getLocationMaxAbsTotal: PropsSelector<number> = createSelector(
-    [getLocationFeatures, this.getLocationTotalInGetter, this.getLocationTotalOutGetter],
-    (locations, getLocationTotalIn, getLocationTotalOut) => {
+    [
+      getLocationFeatures,
+      this.getLocationTotalInGetter,
+      this.getLocationTotalOutGetter,
+      this.getLocationTotalWithinGetter,
+    ],
+    (locations, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
       const max = d3Array.max(locations, (location: Location) =>
-        Math.max(Math.abs(getLocationTotalIn(location)), Math.abs(getLocationTotalOut(location))),
+        Math.max(
+          Math.abs(getLocationTotalIn(location) + getLocationTotalWithin(location)),
+          Math.abs(getLocationTotalOut(location) + getLocationTotalWithin(location)),
+        ),
       );
       return max || 0;
     },
   );
 
-  private getSizeScale: PropsSelector<NumberScale> = createSelector([this.getLocationMaxAbsTotal], maxTotal => {
-    const scale = d3Scale
-      .scalePow()
-      .exponent(1 / 2)
-      .domain([0, maxTotal])
-      .range([0, 15]);
+  private getSizeScale: PropsSelector<NumberScale> = createSelector(
+    [this.getLocationMaxAbsTotal],
+    maxTotal => {
+      const scale = d3Scale
+        .scalePow()
+        .exponent(1 / 2)
+        .domain([0, maxTotal])
+        .range([0, 15]);
 
-    return (v: number) => scale(Math.abs(v));
-  });
+      return (v: number) => scale(Math.abs(v));
+    },
+  );
 
   getLocationCircleRadiusGetter: PropsSelector<(locCircle: LocationCircle) => number> = createSelector(
-    [this.getSizeScale, this.getLocationTotalInGetter, this.getLocationTotalOutGetter],
-    (sizeScale, getLocationTotalIn, getLocationTotalOut) => {
+    [
+      this.getSizeScale,
+      this.getLocationTotalInGetter,
+      this.getLocationTotalOutGetter,
+      this.getLocationTotalWithinGetter,
+    ],
+    (sizeScale, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
       return ({ location, type }: LocationCircle) => {
         const getSide = type === LocationCircleType.INNER ? Math.min : Math.max;
-        return sizeScale(getSide(getLocationTotalIn(location), getLocationTotalOut(location)));
+        const totalIn = getLocationTotalIn(location);
+        const totalOut = getLocationTotalOut(location);
+        const totalWithin = getLocationTotalWithin(location);
+        return sizeScale(getSide(totalIn + totalWithin, totalOut + totalWithin));
       };
     },
   );
@@ -290,8 +335,17 @@ class Selectors {
       getSelectedLocationIds,
       this.getLocationTotalInGetter,
       this.getLocationTotalOutGetter,
+      this.getLocationTotalWithinGetter,
     ],
-    (colors, highlightedFlow, highlightedLocationId, selectedLocationIds, getLocationTotalIn, getLocationTotalOut) => {
+    (
+      colors,
+      highlightedFlow,
+      highlightedLocationId,
+      selectedLocationIds,
+      getLocationTotalIn,
+      getLocationTotalOut,
+      getLocationTotalWithin,
+    ) => {
       const { getLocationId, getFlowOriginId, getFlowDestId } = this.inputGetters;
 
       return ({ location, type }: Flow) => {
@@ -303,8 +357,9 @@ class Selectors {
             (getLocationId(location) === getFlowOriginId(highlightedFlow) ||
               getLocationId(location) === getFlowDestId(highlightedFlow)));
 
-        const totalIn = getLocationTotalIn(location);
-        const totalOut = getLocationTotalOut(location);
+        const totalWithin = getLocationTotalWithin(location);
+        const totalIn = getLocationTotalIn(location) + totalWithin;
+        const totalOut = getLocationTotalOut(location) + totalWithin;
         const isIncoming = type === LocationCircleType.OUTER && Math.abs(totalIn) > Math.abs(totalOut);
 
         const isPositive = (isIncoming === true && totalIn >= 0) || totalOut >= 0;
@@ -326,9 +381,12 @@ class Selectors {
     },
   );
 
-  getLocationAreaLineColorGetter: PropsSelector<() => RGBA> = createSelector([getColors], colors => {
-    return () => colorAsArray(colors.locationAreas.outline);
-  });
+  getLocationAreaLineColorGetter: PropsSelector<() => RGBA> = createSelector(
+    [getColors],
+    colors => {
+      return () => colorAsArray(colors.locationAreas.outline);
+    },
+  );
 
   private isLocationConnectedGetter: PropsSelector<(id: string) => boolean> = createSelector(
     [this.getFilteredFlows, getHighlightedLocationId, getHighlightedFlow, getSelectedLocationIds],

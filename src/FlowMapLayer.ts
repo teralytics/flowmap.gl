@@ -164,6 +164,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const { selectors } = this.state;
     const getLocationTotalIn = selectors.getLocationTotalInGetter(this.props);
     const getLocationTotalOut = selectors.getLocationTotalOutGetter(this.props);
+    const getLocationTotalWithin = selectors.getLocationTotalWithinGetter(this.props);
 
     return {
       ...info,
@@ -173,6 +174,7 @@ export default class FlowMapLayer extends CompositeLayer {
           ...object.properties,
           totalIn: getLocationTotalIn(object),
           totalOut: getLocationTotalOut(object),
+          totalWithin: getLocationTotalWithin(object),
         },
       },
     };

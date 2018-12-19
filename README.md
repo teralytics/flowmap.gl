@@ -96,6 +96,7 @@ interface Props {
   getLocationCentroid?: LocationAccessor<[number, number]>;
   getLocationTotalIn?: LocationAccessor<number>;
   getLocationTotalOut?: LocationAccessor<number>;
+  getLocationTotalWithin?: LocationAccessor<number>;
   getFlowOriginId?: FlowAccessor<string>;
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
