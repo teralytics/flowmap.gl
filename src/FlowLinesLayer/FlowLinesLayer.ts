@@ -53,7 +53,7 @@ export interface Context {
 const { fp64ify } = fp64;
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
-const DEFAULT_BORDER_COLOR: RGBA = [0.85, 0.85, 0.85, 0.95];
+const DEFAULT_BORDER_COLOR: RGBA = [216, 216, 216, 242];
 const DEFAULT_ENDPOINT_OFFSETS = [0, 0];
 
 class FlowLinesLayer extends Layer<Props, LayerState, Context> {
@@ -129,11 +129,11 @@ class FlowLinesLayer extends Layer<Props, LayerState, Context> {
 
   draw({ uniforms }: DrawParams) {
     const { gl } = this.context;
-    const { borderColor } = this.props;
+    const borderColor = this.props.borderColor || DEFAULT_BORDER_COLOR;
     gl.lineWidth(1);
     this.state.model.render({
       ...uniforms,
-      borderColor: borderColor || DEFAULT_BORDER_COLOR,
+      borderColor: borderColor.map(x => (x * 1) / 255),
       thicknessUnit: 16,
       gap: 0.75,
     });

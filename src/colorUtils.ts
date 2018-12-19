@@ -22,13 +22,8 @@ import { Colors, ColorScale, DiffColors, isDiffColors, RGBA } from './types';
 
 export const DEFAULT_DIMMED_OPACITY = 0.05;
 
-const opacityFloatToIntegerScale = d3Scale
-  .scaleLinear()
-  .domain([0, 1])
-  .range([0, 255]);
-
 export function opacityFloatToInteger(opacity: number): number {
-  return Math.round(opacityFloatToIntegerScale(opacity));
+  return Math.round(opacity * 255);
 }
 
 export function colorAsArray(color: string): RGBA {
@@ -37,7 +32,7 @@ export function colorAsArray(color: string): RGBA {
     throw new Error('invalid color: ' + color);
   }
   const rgbColor = col.rgb();
-  return [rgbColor.r, rgbColor.g, rgbColor.b, opacityFloatToInteger(rgbColor.opacity)];
+  return [Math.floor(rgbColor.r), Math.floor(rgbColor.g), Math.floor(rgbColor.b), opacityFloatToInteger(col.opacity)];
 }
 
 export function getDefaultDimmedColor(opacity?: number): RGBA {

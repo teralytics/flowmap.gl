@@ -43,7 +43,7 @@ storiesOf('Static', module).add('simple', () => (
     viewport={getViewportForFeature(locationsData, [window.innerWidth, window.innerHeight])}
     mapboxAccessToken={mapboxAccessToken}
     borderThickness={2}
-    borderColor='purple'
+    borderColor='hsla(187, 50%, 50%, 0.5)'
   />
 ));
 
