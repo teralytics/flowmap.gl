@@ -115,7 +115,7 @@ class FlowLinesLayer extends Layer {
 
   draw({ uniforms }: any) {
     const { gl } = this.context;
-    const borderColor = this.props.borderColor;
+    const borderColor = this.props.borderColor || DEFAULT_BORDER_COLOR;
     gl.lineWidth(1);
     this.state.model.render({
       ...uniforms,
