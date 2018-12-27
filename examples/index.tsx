@@ -16,67 +16,91 @@
  */
 
 import { storiesOf } from '@storybook/react';
-import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
-import InteractiveExample, { Flow, LocationProperties } from './InteractiveExample';
+import InteractiveExample from './InteractiveExample';
 import StaticExample from './StaticExample';
 import { getViewStateForFeature } from './utils';
+import withFetch, { compose } from './withFetch';
 
 const mapboxAccessToken = process.env.MapboxAccessToken || '';
 
-// tslint:disable:no-var-requires
-const flows16: Flow[] = require('./data/flows-2016.json');
-const flowsDiff1516: Flow[] = require('./data/flows-diff-2015-2016.json');
-const locationsData: FeatureCollection<GeometryObject, LocationProperties> = require('./data/locations.json');
-
-storiesOf('Static', module).add('simple', () => (
-  <StaticExample
-    flows={flows16}
-    locations={locationsData}
-    initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-    mapboxAccessToken={mapboxAccessToken}
-  />
-));
-
-storiesOf('Interactive', module)
-  .add('interactive', () => (
-    <InteractiveExample
-      showTotals={true}
-      showLocationAreas={true}
-      locations={locationsData}
-      flows={flows16}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-    />
-  ))
-  .add('no location areas', () => (
-    <InteractiveExample
-      showTotals={true}
-      showLocationAreas={false}
-      locations={locationsData}
-      flows={flows16}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-    />
-  ))
-  .add('no totals', () => (
-    <InteractiveExample
-      showTotals={false}
-      showLocationAreas={true}
-      locations={locationsData}
-      flows={flows16}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-    />
-  ))
-  .add('diff', () => (
-    <InteractiveExample
-      showTotals={true}
-      showLocationAreas={true}
-      locations={locationsData}
-      flows={flowsDiff1516}
-      diff={true}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-    />
-  ));
+storiesOf('FlowMapLayer', module)
+  .add(
+    'non-interactive',
+    compose(
+      withFetch('locations', '/data/locations.json', response => response.json()),
+      withFetch('flows', '/data/flows-2016.json', response => response.json()),
+    )(({ locations, flows }: any) => (
+      <StaticExample
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'interactive',
+    compose(
+      withFetch('locations', '/data/locations.json', response => response.json()),
+      withFetch('flows', '/data/flows-2016.json', response => response.json()),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={true}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'no location areas',
+    compose(
+      withFetch('locations', '/data/locations.json', response => response.json()),
+      withFetch('flows', '/data/flows-2016.json', response => response.json()),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={true}
+        showLocationAreas={false}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'no totals',
+    compose(
+      withFetch('locations', '/data/locations.json', response => response.json()),
+      withFetch('flows', '/data/flows-2016.json', response => response.json()),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={false}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'diff',
+    compose(
+      withFetch('locations', '/data/locations.json', response => response.json()),
+      withFetch('flows', '/data/flows-diff-2015-2016.json', response => response.json()),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={true}
+        showLocationAreas={true}
+        flows={flows}
+        diff={true}
+        locations={locations}
+        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  );
