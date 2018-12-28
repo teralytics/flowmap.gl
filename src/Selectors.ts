@@ -121,8 +121,8 @@ class Selectors {
   );
 
   getActiveFlows: PropsSelector<Flow[]> = createSelector(
-    [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId, getSelectedLocationIds],
-    (flows, highlightedFlow, highlightedLocationId, selectedLocationIds) => {
+    [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId],
+    (flows, highlightedFlow, highlightedLocationId) => {
       const { getFlowOriginId, getFlowDestId } = this.inputGetters;
 
       if (highlightedFlow) {
@@ -136,14 +136,6 @@ class Selectors {
       if (highlightedLocationId) {
         return flows.filter(
           flow => getFlowOriginId(flow) === highlightedLocationId || getFlowDestId(flow) === highlightedLocationId,
-        );
-      }
-
-      if (selectedLocationIds) {
-        return flows.filter(
-          flow =>
-            _.includes(selectedLocationIds, getFlowOriginId(flow)) ||
-            _.includes(selectedLocationIds, getFlowDestId(flow)),
         );
       }
 

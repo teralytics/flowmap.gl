@@ -185,7 +185,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const { showLocationAreas, locations } = this.props;
     const { selectors } = this.state;
 
-    const flows = selectors.getSortedNonSelfFlows(this.props);
+    const allFlows = selectors.getSortedNonSelfFlows(this.props);
     const activeFlows = selectors.getActiveFlows(this.props);
 
     const layers: DeckGLLayer[] = [];
@@ -193,7 +193,9 @@ export default class FlowMapLayer extends CompositeLayer {
     if (showLocationAreas && isFeatureCollection(locations)) {
       layers.push(this.getLocationAreasLayer(LAYER_ID__LOCATION_AREAS));
     }
-    layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS, flows, true));
+    if (activeFlows !== allFlows) {
+      layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS, allFlows, true));
+    }
     layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS_ACTIVE, activeFlows, false));
     layers.push(this.getNodesLayer(LAYER_ID__LOCATIONS));
 
