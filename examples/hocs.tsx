@@ -65,7 +65,7 @@ const withFetch = (mode: 'csv' | 'json', propName: string, url: string) => (Comp
 export const withFetchCsv = _.partial(withFetch, 'csv');
 export const withFetchJson = _.partial(withFetch, 'json');
 
-function withStats<P>(Comp: React.ComponentType<P>) {
+export function withStats<P>(Comp: React.ComponentType<P>) {
   return (props: P) => {
     class WithStats extends React.Component {
       private stats: Stats = new Stats();
@@ -102,5 +102,3 @@ function withStats<P>(Comp: React.ComponentType<P>) {
     return <WithStats />;
   };
 }
-
-export default withStats;

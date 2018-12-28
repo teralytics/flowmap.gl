@@ -21,8 +21,7 @@ import { StaticMap } from 'react-map-gl';
 import FlowMapLayer, { LocationTotalsLegend } from '../src';
 import { colors } from './colors';
 import { fitLocationsInView } from './fitInView';
-import { pipe, withFetchCsv } from './hocs';
-import withStats from './hocs';
+import {pipe, withFetchCsv, withStats} from './hocs';
 import { mapboxAccessToken } from './index';
 import LegendBox from './LegendBox';
 
