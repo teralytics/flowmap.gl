@@ -85,11 +85,11 @@ function getPickType({ id }: DeckGLLayer): PickingType | undefined {
 export default class FlowMapLayer extends CompositeLayer {
   static layerName: string = 'FlowMapLayer';
   static defaultProps = {
-    getLocationId: (l: Location) => l.id || l.properties.id,
-    getLocationCentroid: (l: Location) => l.properties.centroid,
-    getFlowOriginId: (f: Flow) => f.origin,
-    getFlowDestId: (f: Flow) => f.dest,
-    getFlowMagnitude: (f: Flow) => f.magnitude,
+    getLocationId: { type: 'accessor', value: (l: Location) => l.id || l.properties.id },
+    getLocationCentroid: { type: 'accessor', value: (l: Location) => l.properties.centroid },
+    getFlowOriginId: { type: 'accessor', value: (f: Flow) => f.origin },
+    getFlowDestId: { type: 'accessor', value: (f: Flow) => f.dest },
+    getFlowMagnitude: { type: 'accessor', value: (f: Flow) => f.magnitude },
     showTotals: true,
     locationCircleSize: 3,
     showLocationAreas: true,
