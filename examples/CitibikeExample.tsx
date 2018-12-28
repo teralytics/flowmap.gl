@@ -72,12 +72,7 @@ export default pipe(
           }),
         ]}
         children={({ width, height, viewState }: any) => (
-          <>
-            <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
-            <LegendBox bottom={35} left={10}>
-              <LocationTotalsLegend colors={colors} />
-            </LegendBox>
-          </>
+          <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
         )}
       />
       <LegendBox bottom={35} right={10}>
@@ -89,6 +84,9 @@ export default pipe(
         >
           Data source
         </a>
+      </LegendBox>
+      <LegendBox bottom={35} left={10}>
+        <LocationTotalsLegend colors={colors} />
       </LegendBox>
     </>
   );

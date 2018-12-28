@@ -113,23 +113,23 @@ export default class InteractiveExample extends React.Component<Props, State> {
     const { mapboxAccessToken, diff } = this.props;
     const flowMapLayer = this.getFlowMapLayer();
     return (
-      <DeckGL
-        style={{ mixBlendMode: 'multiply' }}
-        layers={[flowMapLayer]}
-        viewState={this.state.viewState}
-        controller={true}
-        onViewStateChange={this.handleViewStateChange}
-        children={({ width, height, viewState }: any) => (
-          <>
+      <>
+        <DeckGL
+          style={{ mixBlendMode: 'multiply' }}
+          layers={[flowMapLayer]}
+          viewState={this.state.viewState}
+          controller={true}
+          onViewStateChange={this.handleViewStateChange}
+          children={({ width, height, viewState }: any) => (
             <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
-            <LegendBox bottom={35} left={10}>
-              {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
-              {diff && <hr />}
-              <LocationTotalsLegend colors={flowMapLayer.props.colors} />
-            </LegendBox>
-          </>
-        )}
-      />
+          )}
+        />
+        <LegendBox bottom={35} left={10}>
+          {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
+          {diff && <hr />}
+          <LocationTotalsLegend colors={flowMapLayer.props.colors} />
+        </LegendBox>
+      </>
     );
   }
 
