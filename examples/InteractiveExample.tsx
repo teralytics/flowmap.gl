@@ -122,7 +122,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
         children={({ width, height, viewState }: any) => (
           <>
             <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
-            <LegendBox top={10} left={10}>
+            <LegendBox bottom={35} left={10}>
               {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
               {diff && <hr />}
               <LocationTotalsLegend colors={flowMapLayer.props.colors} />
