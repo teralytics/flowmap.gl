@@ -42,7 +42,6 @@ storiesOf('FlowMapLayer', module)
       />
     )),
   )
-  .add('NYC citibike', () => <CitibikeExample />)
   .add(
     'interactive',
     pipe(
@@ -111,4 +110,5 @@ storiesOf('FlowMapLayer', module)
         mapboxAccessToken={mapboxAccessToken}
       />
     )),
-  );
+  )
+  .add('perf test (NYC citibike)', () => <CitibikeExample />);
