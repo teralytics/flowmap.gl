@@ -18,32 +18,23 @@
 import { Layer } from 'deck.gl';
 import { Geometry, Model } from 'luma.gl';
 import { TRIANGLES, UNSIGNED_BYTE } from 'luma.gl/constants';
-import { RGBA } from '../types';
+import { Flow, RGBA } from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
-
-export interface FlowLineData {
-  sourcePosition: [number, number];
-  targetPosition: [number, number];
-  color: RGBA;
-  thickness: number;
-}
-
-export type Data = FlowLineData | any;
 
 export interface Props {
   id: string;
   opacity?: number;
   pickable?: boolean;
   updateTriggers?: { [key: string]: {} };
-  data: Data[];
+  data: Flow[];
   drawBorder: boolean;
   borderColor?: RGBA;
-  getSourcePosition?: (d: Data) => [number, number];
-  getTargetPosition?: (d: Data) => [number, number];
-  getColor?: (d: Data) => RGBA;
-  getThickness?: (d: Data) => number;
-  getEndpointOffsets?: (d: Data) => [number, number];
+  getSourcePosition?: (d: Flow) => [number, number];
+  getTargetPosition?: (d: Flow) => [number, number];
+  getColor?: (d: Flow) => RGBA;
+  getThickness?: (d: Flow) => number;
+  getEndpointOffsets?: (d: Flow) => [number, number];
 }
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
@@ -52,12 +43,12 @@ const DEFAULT_ENDPOINT_OFFSETS = [0, 0];
 
 class FlowLinesLayer extends Layer {
   static layerName: string = 'FlowLinesLayer';
-  static defaultProps: Partial<Props> = {
-    getSourcePosition: d => d.sourcePosition,
-    getTargetPosition: d => d.targetPosition,
-    getColor: d => d.color,
-    getThickness: d => d.thickness,
-    drawBorder: false,
+  static defaultProps = {
+    getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
+    getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
+    getColor: { type: 'accessor', value: (d: Flow) => d.color },
+    getThickness: { type: 'accessor', value: (d: Flow) => d.thickness },
+    drawBorder: true,
   };
 
   constructor(props: Props) {

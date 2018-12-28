@@ -18,9 +18,9 @@
 require('mapbox-gl/dist/mapbox-gl.css');
 
 import { configure } from '@storybook/react';
-import { setOptions } from '@storybook/addon-options';
+import { withOptions } from '@storybook/addon-options';
 
-setOptions({
+withOptions({
   name: 'flowmap.gl',
   url: 'https://github.com/teralytics/flowmap.gl',
 });
