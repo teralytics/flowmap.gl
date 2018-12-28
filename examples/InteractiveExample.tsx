@@ -30,6 +30,7 @@ import FlowMapLayer, {
   PickingType,
 } from '../src';
 import LegendBox from './LegendBox';
+import {colors, diffColors} from "./colors";
 
 export interface Flow {
   origin: string;
@@ -78,35 +79,6 @@ export interface Props {
 }
 
 const ESC_KEY = 'Escape';
-
-const colors: Colors = {
-  flows: {
-    max: '#137CBD',
-  },
-  locationAreas: {
-    outline: 'rgba(92,112,128,0.5)',
-    normal: 'rgba(187,187,187,0.5)',
-    selected: 'rgba(217,130,43,0.5)',
-  },
-};
-
-const diffColors: DiffColors = {
-  positive: {
-    flows: {
-      max: '#e28740',
-    },
-  },
-  negative: {
-    flows: {
-      max: '#0275b8',
-    },
-  },
-  locationAreas: {
-    outline: 'rgba(92,112,128,0.5)',
-    normal: 'rgba(187,187,187,0.5)',
-    selected: 'rgba(217,130,43,0.5)',
-  },
-};
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 

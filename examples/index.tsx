@@ -17,40 +17,43 @@
 
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
+import FlowMapLayer from '../src';
+import CitibikeExample from './CitibikeExample';
+import { fitFeaturesInView } from './fitInView';
 import InteractiveExample from './InteractiveExample';
 import StaticExample from './StaticExample';
-import { getViewStateForFeature } from './utils';
-import withFetch, { compose } from './withFetch';
+import { compose, withFetchJson } from './withFetch';
 
-const mapboxAccessToken = process.env.MapboxAccessToken || '';
+export const mapboxAccessToken = process.env.MapboxAccessToken || '';
 
 storiesOf('FlowMapLayer', module)
   .add(
     'non-interactive',
     compose(
-      withFetch('locations', '/data/locations.json', response => response.json()),
-      withFetch('flows', '/data/flows-2016.json', response => response.json()),
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <StaticExample
         flows={flows}
         locations={locations}
-        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />
     )),
   )
+  .add('NYC citibike', () => <CitibikeExample />)
   .add(
     'interactive',
     compose(
-      withFetch('locations', '/data/locations.json', response => response.json()),
-      withFetch('flows', '/data/flows-2016.json', response => response.json()),
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
         locations={locations}
-        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />
     )),
@@ -58,15 +61,15 @@ storiesOf('FlowMapLayer', module)
   .add(
     'no location areas',
     compose(
-      withFetch('locations', '/data/locations.json', response => response.json()),
-      withFetch('flows', '/data/flows-2016.json', response => response.json()),
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
         showTotals={true}
         showLocationAreas={false}
         flows={flows}
         locations={locations}
-        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />
     )),
@@ -74,15 +77,15 @@ storiesOf('FlowMapLayer', module)
   .add(
     'no totals',
     compose(
-      withFetch('locations', '/data/locations.json', response => response.json()),
-      withFetch('flows', '/data/flows-2016.json', response => response.json()),
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
         showTotals={false}
         showLocationAreas={true}
         flows={flows}
         locations={locations}
-        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />
     )),
@@ -90,8 +93,8 @@ storiesOf('FlowMapLayer', module)
   .add(
     'diff',
     compose(
-      withFetch('locations', '/data/locations.json', response => response.json()),
-      withFetch('flows', '/data/flows-diff-2015-2016.json', response => response.json()),
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-diff-2015-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
         showTotals={true}
@@ -99,7 +102,7 @@ storiesOf('FlowMapLayer', module)
         flows={flows}
         diff={true}
         locations={locations}
-        initialViewState={getViewStateForFeature(locations, [window.innerWidth, window.innerHeight])}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />
     )),

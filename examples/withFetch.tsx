@@ -15,16 +15,17 @@
  *
  */
 
+import * as d3dsv from 'd3-dsv';
+import * as _ from 'lodash';
 import * as React from 'react';
 
 export const compose = (a: Function, b: Function): Function => (d: any) => a(b(d));
 
-const Message = ({ children }: { children: string }) => <div style={{ padding: '1em' }}>{ children }</div>;
+const Message = ({ children }: { children: string }) => <div style={{ padding: '1em' }}>{children}</div>;
 
-const withFetch = (propName: string, url: string, parseResponse: (response: Response) => any) => (
-  Comp: React.ComponentType<any>,
-
-) => (props: any) => {
+const withFetch = (mode: 'csv' | 'json', propName: string, url: string) => (Comp: React.ComponentType<any>) => (
+  props: any,
+) => {
   class Fetcher extends React.Component {
     state = {
       error: null,
@@ -32,33 +33,35 @@ const withFetch = (propName: string, url: string, parseResponse: (response: Resp
     };
     componentDidMount() {
       fetch(url)
-        .then(parseResponse)
-        .catch((reason) => {
+        .then(response => {
+          switch (mode) {
+            case 'json':
+              return response.json();
+            case 'csv':
+              return response.text();
+          }
+        })
+        .catch(reason => {
           console.log(reason);
           this.setState({ error: true });
         })
-        .then(data => this.setState({ data }));
+        .then(data => this.setState({ data: mode === 'csv' ? d3dsv.csvParse(data) : data }));
     }
     render() {
       const { data, error } = this.state;
       if (error) {
-        return (
-          <Message>
-            Request failed
-          </Message>
-        )
+        return <Message>Oops… Data fetching failed.</Message>;
       }
       if (!data) {
-        return (
-          <Message>
-            Fetching data…
-          </Message>
-        );
+        return <Message>Fetching data…</Message>;
       }
       return <Comp {...{ ...props, [propName]: this.state.data }} />;
     }
   }
   return <Fetcher />;
 };
+
+export const withFetchCsv = _.partial(withFetch, 'csv');
+export const withFetchJson = _.partial(withFetch, 'json');
 
 export default withFetch;

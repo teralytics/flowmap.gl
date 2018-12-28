@@ -26,6 +26,7 @@ import {
   Flow,
   FlowAccessor,
   FlowLayerPickingInfo,
+  isFeatureCollection,
   Location,
   LocationAccessor,
   LocationCircleAccessor,
@@ -181,7 +182,7 @@ export default class FlowMapLayer extends CompositeLayer {
   }
 
   renderLayers() {
-    const { showLocationAreas } = this.props;
+    const { showLocationAreas, locations } = this.props;
     const { selectors } = this.state;
 
     const flows = selectors.getSortedNonSelfFlows(this.props);
@@ -189,7 +190,7 @@ export default class FlowMapLayer extends CompositeLayer {
 
     const layers: DeckGLLayer[] = [];
 
-    if (showLocationAreas) {
+    if (showLocationAreas && isFeatureCollection(locations)) {
       layers.push(this.getLocationAreasLayer(LAYER_ID__LOCATION_AREAS));
     }
     layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS, flows, true));
@@ -238,12 +239,12 @@ export default class FlowMapLayer extends CompositeLayer {
 
     const endpointOffsets: [number, number] = [(locationCircleSize || 0) + 1, (locationCircleSize || 0) + 1];
     const getLocationRadius = selectors.getLocationCircleRadiusGetter(this.props);
-    const locationsById = selectors.getLocationsById(this.props);
+    const getLocationById = selectors.getLocationByIdGetter(this.props);
     const flowThicknessScale = selectors.getFlowThicknessScale(this.props);
     const getSourcePosition: FlowAccessor<[number, number]> = flow =>
-      getLocationCentroid(locationsById[getFlowOriginId(flow)]);
+      getLocationCentroid(getLocationById(getFlowOriginId(flow)));
     const getTargetPosition: FlowAccessor<[number, number]> = flow =>
-      getLocationCentroid(locationsById[getFlowDestId(flow)]);
+      getLocationCentroid(getLocationById(getFlowDestId(flow)));
     const getThickness: FlowAccessor<number> = flow => flowThicknessScale(getFlowMagnitude(flow));
     const getEndpointOffsets: FlowAccessor<[number, number]> = flow => {
       if (!showTotals) {
@@ -252,11 +253,11 @@ export default class FlowMapLayer extends CompositeLayer {
 
       return [
         getLocationRadius({
-          location: locationsById[getFlowOriginId(flow)],
+          location: getLocationById(getFlowOriginId(flow)),
           type: LocationCircleType.INNER,
         }),
         getLocationRadius({
-          location: locationsById[getFlowDestId(flow)],
+          location: getLocationById(getFlowDestId(flow)),
           type: LocationCircleType.OUTER,
         }),
       ];
