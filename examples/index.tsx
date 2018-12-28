@@ -22,14 +22,14 @@ import CitibikeExample from './CitibikeExample';
 import { fitFeaturesInView } from './fitInView';
 import InteractiveExample from './InteractiveExample';
 import StaticExample from './StaticExample';
-import { compose, withFetchJson } from './withFetch';
+import { pipe, withFetchJson } from './hocs';
 
 export const mapboxAccessToken = process.env.MapboxAccessToken || '';
 
 storiesOf('FlowMapLayer', module)
   .add(
     'non-interactive',
-    compose(
+    pipe(
       withFetchJson('locations', '/data/locations.json'),
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
@@ -44,7 +44,7 @@ storiesOf('FlowMapLayer', module)
   .add('NYC citibike', () => <CitibikeExample />)
   .add(
     'interactive',
-    compose(
+    pipe(
       withFetchJson('locations', '/data/locations.json'),
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
@@ -60,7 +60,7 @@ storiesOf('FlowMapLayer', module)
   )
   .add(
     'no location areas',
-    compose(
+    pipe(
       withFetchJson('locations', '/data/locations.json'),
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
@@ -76,7 +76,7 @@ storiesOf('FlowMapLayer', module)
   )
   .add(
     'no totals',
-    compose(
+    pipe(
       withFetchJson('locations', '/data/locations.json'),
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
@@ -92,7 +92,7 @@ storiesOf('FlowMapLayer', module)
   )
   .add(
     'diff',
-    compose(
+    pipe(
       withFetchJson('locations', '/data/locations.json'),
       withFetchJson('flows', '/data/flows-diff-2015-2016.json'),
     )(({ locations, flows }: any) => (

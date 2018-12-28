@@ -21,9 +21,10 @@ import { StaticMap } from 'react-map-gl';
 import FlowMapLayer, { LocationTotalsLegend } from '../src';
 import { colors } from './colors';
 import { fitLocationsInView } from './fitInView';
+import { pipe, withFetchCsv } from './hocs';
+import withStats from './hocs';
 import { mapboxAccessToken } from './index';
 import LegendBox from './LegendBox';
-import { compose, withFetchCsv } from './withFetch';
 
 const GOOGLE_SHEET_KEY = `1IQ0txD09cJ8wsQRSux5AoZfG6eIM-cx6RvVfszZ_ScE`;
 
@@ -40,7 +41,8 @@ interface Flow {
   count: string;
 }
 
-export default compose(
+export default pipe(
+  withStats,
   withFetchCsv(
     'locations',
     `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_KEY}/gviz/tq?tqx=out:csv&sheet=stations`,
@@ -79,14 +81,14 @@ export default compose(
           </>
         )}
       />
-      <LegendBox top={10} left={10}>
+      <LegendBox bottom={35} right={10}>
         {`Showing ${flows.length} flows. `}
         <a
           href={`https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_KEY}/edit?usp=sharing`}
           target="_blank"
           rel="noopener"
         >
-          Data source.
+          Data source
         </a>
       </LegendBox>
     </>

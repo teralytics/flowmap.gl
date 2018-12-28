@@ -18,8 +18,9 @@
 import * as d3dsv from 'd3-dsv';
 import * as _ from 'lodash';
 import * as React from 'react';
+import Stats from 'stats.js';
 
-export const compose = (a: Function, b: Function): Function => (d: any) => a(b(d));
+export const pipe = (...args: Function[]): Function => (d: any) => args.reduce((m, f) => f(m), d);
 
 const Message = ({ children }: { children: string }) => <div style={{ padding: '1em' }}>{children}</div>;
 
@@ -64,4 +65,42 @@ const withFetch = (mode: 'csv' | 'json', propName: string, url: string) => (Comp
 export const withFetchCsv = _.partial(withFetch, 'csv');
 export const withFetchJson = _.partial(withFetch, 'json');
 
-export default withFetch;
+function withStats<P>(Comp: React.ComponentType<P>) {
+  return (props: P) => {
+    class WithStats extends React.Component {
+      private stats: Stats = new Stats();
+      private statsContainer = React.createRef<HTMLDivElement>();
+      private animateRef: number = 0;
+
+      componentDidMount() {
+        if (this.statsContainer.current) {
+          this.stats.showPanel(0);
+          this.statsContainer.current.appendChild(this.stats.dom);
+        }
+        const calcFPS = () => {
+          this.stats.begin();
+          this.stats.end();
+          this.animateRef = window.requestAnimationFrame(calcFPS);
+        };
+        this.animateRef = window.requestAnimationFrame(calcFPS);
+      }
+
+      componentWillUnmount() {
+        window.cancelAnimationFrame(this.animateRef);
+      }
+
+      render() {
+        return (
+          <>
+            <Comp {...props} />
+            <div ref={this.statsContainer} />
+          </>
+        );
+      }
+    }
+
+    return <WithStats />;
+  };
+}
+
+export default withStats;
