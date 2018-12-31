@@ -51,7 +51,7 @@ class FlowLinesLayer extends Layer {
     getThickness: { type: 'accessor', value: (d: Flow) => d.thickness },
     drawBorder: true,
     borderThickness: 1,
-    borderColor: [216, 216, 216, 242],
+    borderColor: [255, 255, 255, 255],
   };
 
   constructor(props: Props) {
