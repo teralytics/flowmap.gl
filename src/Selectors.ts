@@ -2,7 +2,6 @@
 
 import * as d3Array from 'd3-array';
 import * as d3Collection from 'd3-collection';
-import * as d3Color from 'd3-color';
 import * as d3Scale from 'd3-scale';
 import * as _ from 'lodash';
 import { createSelector } from 'reselect';
@@ -10,13 +9,11 @@ import {
   colorAndOpacityAsArray,
   colorAsArray,
   createFlowColorScale,
-  DEFAULT_DIMMED_OPACITY,
   getDefaultDimmedColor,
   getDefaultFlowMinColor,
   getDefaultLocationAreaConnectedColor,
   getDefaultLocationAreaHighlightedColor,
   getLocationCircleColors,
-  opacityFloatToInteger,
 } from './colorUtils';
 import { Props } from './FlowMapLayer';
 import {
