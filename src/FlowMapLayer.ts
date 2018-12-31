@@ -237,6 +237,8 @@ export default class FlowMapLayer extends CompositeLayer {
       highlightedFlow,
       showTotals,
       locationCircleSize,
+      borderColor,
+      borderThickness,
     } = this.props;
     const { selectors } = this.state;
 
@@ -288,8 +290,8 @@ export default class FlowMapLayer extends CompositeLayer {
           showTotals,
         },
       },
-      borderColor: this.props.borderColor ? colorAsArray(this.props.borderColor) : undefined,
-      borderThickness: this.props.borderThickness,
+      ...(borderColor && { borderColor: colorAsArray(borderColor) }),
+      ...(borderThickness && { borderThickness }),
     });
   }
 

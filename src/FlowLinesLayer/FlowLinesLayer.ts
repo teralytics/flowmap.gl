@@ -39,7 +39,6 @@ export interface Props {
 }
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
-const DEFAULT_BORDER_COLOR: RGBA = [216, 216, 216, 242];
 const DEFAULT_ENDPOINT_OFFSETS = [0, 0];
 
 class FlowLinesLayer extends Layer {
@@ -47,11 +46,11 @@ class FlowLinesLayer extends Layer {
   static defaultProps = {
     getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
-    getColor: { type: 'accessor', value: (d: Flow) => d.color },
+    getColor: { type: 'accessor', value: (d: Flow) => DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: (d: Flow) => d.thickness },
     drawBorder: true,
     borderThickness: 1,
-    borderColor: DEFAULT_BORDER_COLOR,
+    borderColor: [216, 216, 216, 242],
   };
 
   constructor(props: Props) {
@@ -106,7 +105,7 @@ class FlowLinesLayer extends Layer {
 
   draw({ uniforms }: any) {
     const { gl } = this.context;
-    const borderColor = this.props.borderColor || DEFAULT_BORDER_COLOR;
+    const { borderColor } = this.props;
     gl.lineWidth(1);
     this.state.model.render({
       ...uniforms,
@@ -120,7 +119,7 @@ class FlowLinesLayer extends Layer {
     let positions: number[] = [];
     let pixelOffsets: number[] = [];
 
-    const { drawBorder } = this.props;
+    const { drawBorder, borderThickness } = this.props;
     if (drawBorder) {
       // source_target_mix, perpendicular_offset_in_thickness_units, direction_of_travel_offset_in_thickness_units
       // prettier-ignore
@@ -140,7 +139,7 @@ class FlowLinesLayer extends Layer {
         ],
       );
 
-      const t = this.props.borderThickness || 1;
+      const t = borderThickness;
       // perpendicular_offset_in_pixels, direction_of_travel_offset_in_pixels, fill_border_color_mix
       // prettier-ignore
       pixelOffsets = pixelOffsets.concat([
@@ -236,11 +235,11 @@ class FlowLinesLayer extends Layer {
     const { value, size } = attribute;
     let i = 0;
     for (const object of data) {
-      const color = getColor ? getColor(object) : DEFAULT_COLOR;
+      const color = getColor(object);
       value[i + 0] = color[0];
       value[i + 1] = color[1];
       value[i + 2] = color[2];
-      value[i + 3] = isNaN(color[3]) ? DEFAULT_COLOR[3] : color[3];
+      value[i + 3] = isNaN(color[3]) ? 255 : color[3];
       i += size;
     }
   }
