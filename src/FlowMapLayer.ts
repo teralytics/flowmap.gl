@@ -34,7 +34,6 @@ import {
   Locations,
   PickingHandler,
   PickingType,
-  RGBA,
 } from './types';
 
 export interface Props {
