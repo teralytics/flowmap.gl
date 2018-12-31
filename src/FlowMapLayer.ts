@@ -16,6 +16,7 @@
  */
 
 import { CompositeLayer, GeoJsonLayer } from 'deck.gl';
+import { colorAsArray } from './colorUtils';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import Selectors from './Selectors';
@@ -56,6 +57,7 @@ export interface Props {
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
+  borderThickness?: number;
 }
 
 export interface State {
@@ -231,8 +233,10 @@ export default class FlowMapLayer extends CompositeLayer {
       getLocationCentroid,
       highlightedLocationId,
       highlightedFlow,
+      colors,
       showTotals,
       locationCircleSize,
+      borderThickness,
     } = this.props;
     const { selectors } = this.state;
 
@@ -284,6 +288,8 @@ export default class FlowMapLayer extends CompositeLayer {
           showTotals,
         },
       },
+      ...(colors.borderColor && { borderColor: colorAsArray(colors.borderColor) }),
+      ...(borderThickness && { borderThickness }),
     });
   }
 

@@ -30,6 +30,7 @@ import FlowMapLayer, {
   PickingType,
 } from '../src';
 import LegendBox from './LegendBox';
+import * as d3Color from 'd3-color';
 
 export interface Flow {
   origin: string;
@@ -74,6 +75,8 @@ export interface Props {
   diff?: boolean;
   showTotals: boolean;
   showLocationAreas: boolean;
+  borderThickness?: number;
+  borderColor?: string;
   mapboxAccessToken: string;
 }
 
@@ -88,17 +91,33 @@ const colors: Colors = {
     normal: 'rgba(187,187,187,0.5)',
     selected: 'rgba(217,130,43,0.5)',
   },
+  dimmedOpacity: 0.75,
+  borderColor: 'rgba(216, 216, 216, 242)',
 };
+
+const desaturate = (color: string, amount: number) => {
+  const hcl = d3Color.hcl(color);
+  hcl.c -= amount;
+  return hcl.hex();
+};
+
+const getComplementary = (color: string) => {
+  const hcl = d3Color.hcl(color);
+  hcl.h = (hcl.h + 180) % 360;
+  return hcl.hex();
+};
+
+const baseDiffColor = desaturate('#a76a50', 10);
 
 const diffColors: DiffColors = {
   positive: {
     flows: {
-      max: '#e28740',
+      max: baseDiffColor,
     },
   },
   negative: {
     flows: {
-      max: '#0275b8',
+      max: getComplementary(baseDiffColor),
     },
   },
   locationAreas: {
@@ -106,6 +125,8 @@ const diffColors: DiffColors = {
     normal: 'rgba(187,187,187,0.5)',
     selected: 'rgba(217,130,43,0.5)',
   },
+  dimmedOpacity: 0.75,
+  borderColor: 'rgba(200, 200, 200, 255)',
 };
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
@@ -162,10 +183,13 @@ export default class InteractiveExample extends React.Component<Props, State> {
   }
 
   private getFlowMapLayer() {
-    const { locations, flows, diff, showTotals, showLocationAreas } = this.props;
+    const { locations, flows, diff, showTotals, showLocationAreas, borderThickness, borderColor } = this.props;
     const { highlight, selectedLocationIds } = this.state;
     return new FlowMapLayer({
-      colors: diff ? diffColors : colors,
+      colors: {
+        ...(diff ? diffColors : colors),
+        ...(borderColor && { borderColor }),
+      },
       getLocationId,
       selectedLocationIds,
       id: 'flow-map-layer',
@@ -177,6 +201,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
       showLocationAreas,
       varyFlowColorByMagnitude: true,
       showTotals,
+      borderThickness,
       onHover: this.handleFlowMapHover,
       onClick: this.handleFlowMapClick,
     });

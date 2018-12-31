@@ -43,6 +43,7 @@ const colors: Colors = {
     normal: 'rgba(187,187,187,0.5)',
     selected: 'rgba(217,130,43,0.5)',
   },
+  borderColor: 'rgba(216, 216, 216, 242)',
 };
 
 export interface Props {
@@ -50,12 +51,24 @@ export interface Props {
   initialViewState: ViewState;
   flows: Flow[];
   locations: FeatureCollection<GeometryObject, LocationProperties>;
+  borderThickness?: number;
+  borderColor?: string;
 }
 
-const StaticExample: React.SFC<Props> = ({ locations, flows, initialViewState, mapboxAccessToken }) => {
+const StaticExample: React.SFC<Props> = ({
+  locations,
+  flows,
+  initialViewState,
+  mapboxAccessToken,
+  borderThickness,
+  borderColor,
+}) => {
   const flowMapLayer = new FlowMapLayer({
     id: 'flow-map-layer',
-    colors,
+    colors: {
+      ...colors,
+      borderColor,
+    },
     locations,
     flows,
     getLocationId: (loc: Location) => loc.properties.abbr,
@@ -63,6 +76,7 @@ const StaticExample: React.SFC<Props> = ({ locations, flows, initialViewState, m
     getFlowMagnitude: f => f.count,
     varyFlowColorByMagnitude: true,
     showTotals: true,
+    borderThickness,
   });
 
   return (
