@@ -18,8 +18,8 @@
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
 import FlowMapLayer from '../src';
-import CitibikeExample from './CitibikeExample';
 import { fitFeaturesInView } from './fitInView';
+import GSheetsExample from './GSheetsExample';
 import { pipe, withFetchJson, withStats } from './hocs';
 import InteractiveExample from './InteractiveExample';
 import StaticExample from './StaticExample';
@@ -89,8 +89,10 @@ storiesOf('FlowMapLayer', module)
         flows={flows}
         locations={locations}
         initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
-        mapboxAccessToken={mapboxAccessToken}/>
-  )))
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
   .add(
     'custom borders',
     pipe(
@@ -128,4 +130,5 @@ storiesOf('FlowMapLayer', module)
       />
     )),
   )
-  .add('perf test (NYC citibike)', () => <CitibikeExample />);
+  .add('NYC citibike', () => <GSheetsExample sheetKey="1IQ0txD09cJ8wsQRSux5AoZfG6eIM-cx6RvVfszZ_ScE" />)
+  .add('Chicago taxis', () => <GSheetsExample sheetKey="1iQF8RZE3rGKc3uqfkiVA0bXPJtKB3lJW3XLhFiAokRA" />);
