@@ -21,7 +21,6 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 import FlowMapLayer, {
-  Colors,
   DiffColors,
   DiffColorsLegend,
   FlowLayerPickingInfo,
@@ -29,8 +28,8 @@ import FlowMapLayer, {
   LocationTotalsLegend,
   PickingType,
 } from '../src';
+import { colors, diffColors } from './colors';
 import LegendBox from './LegendBox';
-import {colors, diffColors} from "./colors";
 
 export interface Flow {
   origin: string;
@@ -74,6 +73,7 @@ export interface Props {
   locations: FeatureCollection<GeometryObject, LocationProperties>;
   diff?: boolean;
   showTotals: boolean;
+  showTotalsLegend?: boolean;
   showLocationAreas: boolean;
   mapboxAccessToken: string;
 }
@@ -110,7 +110,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
   }
 
   render() {
-    const { mapboxAccessToken, diff } = this.props;
+    const { mapboxAccessToken, diff, showTotalsLegend } = this.props;
     const flowMapLayer = this.getFlowMapLayer();
     return (
       <>
@@ -124,11 +124,14 @@ export default class InteractiveExample extends React.Component<Props, State> {
             <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
           )}
         />
-        <LegendBox bottom={35} left={10}>
-          {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
-          {diff && <hr />}
-          <LocationTotalsLegend colors={flowMapLayer.props.colors} />
-        </LegendBox>
+
+        {(diff || showTotalsLegend) && (
+          <LegendBox bottom={35} left={10}>
+            {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
+            {diff && showTotalsLegend && <hr />}
+            {showTotalsLegend && <LocationTotalsLegend colors={flowMapLayer.props.colors} />}
+          </LegendBox>
+        )}
       </>
     );
   }
