@@ -29,23 +29,25 @@ const flows16: Flow[] = require('./data/flows-2016.json');
 const flowsDiff1516: Flow[] = require('./data/flows-diff-2015-2016.json');
 const locationsData: FeatureCollection<GeometryObject, LocationProperties> = require('./data/locations.json');
 
-storiesOf('Static', module).add('simple', () => (
-  <StaticExample
-    flows={flows16}
-    locations={locationsData}
-    initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-    mapboxAccessToken={mapboxAccessToken}
-  />
-)).add('custom borders', () => (
-  <StaticExample
-    flows={flows16}
-    locations={locationsData}
-    initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-    mapboxAccessToken={mapboxAccessToken}
-    borderThickness={2}
-    borderColor='hsla(187, 50%, 50%, 0.5)'
-  />
-));
+storiesOf('Static', module)
+  .add('simple', () => (
+    <StaticExample
+      flows={flows16}
+      locations={locationsData}
+      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      mapboxAccessToken={mapboxAccessToken}
+    />
+  ))
+  .add('custom borders', () => (
+    <StaticExample
+      flows={flows16}
+      locations={locationsData}
+      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      mapboxAccessToken={mapboxAccessToken}
+      borderThickness={2}
+      borderColor="#64e9f9"
+    />
+  ));
 
 storiesOf('Interactive', module)
   .add('interactive', () => (

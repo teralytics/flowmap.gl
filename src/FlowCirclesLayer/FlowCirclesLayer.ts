@@ -28,7 +28,7 @@ export interface Props {
   updateTriggers?: { [key: string]: {} };
   getColor?: (d: FlowCirclesData) => RGBA;
   getPosition: (d: FlowCirclesData) => [number, number];
-  getRadius: (d: FlowCirclesData) => [number, number];
+  getRadius: (d: FlowCirclesData) => number;
   data: FlowCirclesData[];
 }
 
