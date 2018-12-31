@@ -30,6 +30,7 @@ export interface Props {
   data: Flow[];
   drawBorder: boolean;
   borderColor?: RGBA;
+  borderThickness?: number;
   getSourcePosition?: (d: Flow) => [number, number];
   getTargetPosition?: (d: Flow) => [number, number];
   getColor?: (d: Flow) => RGBA;
@@ -38,17 +39,19 @@ export interface Props {
 }
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
-const DEFAULT_BORDER_COLOR: RGBA = [0.85, 0.85, 0.85, 0.95];
 const DEFAULT_ENDPOINT_OFFSETS = [0, 0];
+const INNER_SIDE_BORDER_THICKNESS = 1;
 
 class FlowLinesLayer extends Layer {
   static layerName: string = 'FlowLinesLayer';
   static defaultProps = {
     getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
-    getColor: { type: 'accessor', value: (d: Flow) => d.color },
+    getColor: { type: 'accessor', value: (d: Flow) => DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: (d: Flow) => d.thickness },
     drawBorder: true,
+    borderThickness: 1,
+    borderColor: [255, 255, 255, 255],
   };
 
   constructor(props: Props) {
@@ -107,7 +110,7 @@ class FlowLinesLayer extends Layer {
     gl.lineWidth(1);
     this.state.model.render({
       ...uniforms,
-      borderColor: borderColor || DEFAULT_BORDER_COLOR,
+      borderColor: borderColor.map((x: number) => x / 255),
       thicknessUnit: 16,
       gap: 0.75,
     });
@@ -117,7 +120,7 @@ class FlowLinesLayer extends Layer {
     let positions: number[] = [];
     let pixelOffsets: number[] = [];
 
-    const { drawBorder } = this.props;
+    const { drawBorder, borderThickness } = this.props;
     if (drawBorder) {
       // source_target_mix, perpendicular_offset_in_thickness_units, direction_of_travel_offset_in_thickness_units
       // prettier-ignore
@@ -137,22 +140,23 @@ class FlowLinesLayer extends Layer {
         ],
       );
 
-      const t = 1; // Border thickness
+      const tout = borderThickness;
+      const tin = INNER_SIDE_BORDER_THICKNESS; // the border shouldn't cover the opposite arrow
       // perpendicular_offset_in_pixels, direction_of_travel_offset_in_pixels, fill_border_color_mix
       // prettier-ignore
       pixelOffsets = pixelOffsets.concat([
         // Border
-        -t, -t, 1,
-        t, -t, 1,
-        -t, t, 1,
+        -tin, -tout, 1,
+        tout, -tout, 1,
+        -tin, tout, 1,
 
-        t, -t, 1,
-        -t, 0, 1,
-        t, 0, 1,
+        tout, -tout, 1,
+        -tin, 0, 1,
+        tout, 0, 1,
 
-        -t, 3 * t, 1,
-        2 * t, -t, 1,
-        -t, -t, 1,
+        -tin, 3 * tout, 1,
+        2 * tout, -tout, 1,
+        -tin, -tout, 1,
 
       ]);
     }
@@ -233,11 +237,11 @@ class FlowLinesLayer extends Layer {
     const { value, size } = attribute;
     let i = 0;
     for (const object of data) {
-      const color = getColor ? getColor(object) : DEFAULT_COLOR;
+      const color = getColor(object);
       value[i + 0] = color[0];
       value[i + 1] = color[1];
       value[i + 2] = color[2];
-      value[i + 3] = isNaN(color[3]) ? DEFAULT_COLOR[3] : color[3];
+      value[i + 3] = isNaN(color[3]) ? 255 : color[3];
       i += size;
     }
   }

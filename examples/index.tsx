@@ -89,6 +89,23 @@ storiesOf('FlowMapLayer', module)
         flows={flows}
         locations={locations}
         initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}/>
+  )))
+  .add(
+    'custom borders',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={true}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
+        borderThickness={5}
+        borderColor="#64e9f9"
         mapboxAccessToken={mapboxAccessToken}
       />
     )),
