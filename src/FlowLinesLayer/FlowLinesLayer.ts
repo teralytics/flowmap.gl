@@ -40,6 +40,7 @@ export interface Props {
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
 const DEFAULT_ENDPOINT_OFFSETS = [0, 0];
+const INNER_SIDE_BORDER_THICKNESS = 1;
 
 class FlowLinesLayer extends Layer {
   static layerName: string = 'FlowLinesLayer';
@@ -139,22 +140,23 @@ class FlowLinesLayer extends Layer {
         ],
       );
 
-      const t = borderThickness;
+      const tout = borderThickness;
+      const tin = INNER_SIDE_BORDER_THICKNESS; // the border shouldn't cover the opposite arrow
       // perpendicular_offset_in_pixels, direction_of_travel_offset_in_pixels, fill_border_color_mix
       // prettier-ignore
       pixelOffsets = pixelOffsets.concat([
         // Border
-        -t, -t, 1,
-        t, -t, 1,
-        -t, t, 1,
+        -tin, -tout, 1,
+        tout, -tout, 1,
+        -tin, tout, 1,
 
-        t, -t, 1,
-        -t, 0, 1,
-        t, 0, 1,
+        tout, -tout, 1,
+        -tin, 0, 1,
+        tout, 0, 1,
 
-        -t, 3 * t, 1,
-        2 * t, -t, 1,
-        -t, -t, 1,
+        -tin, 3 * tout, 1,
+        2 * tout, -tout, 1,
+        -tin, -tout, 1,
 
       ]);
     }
