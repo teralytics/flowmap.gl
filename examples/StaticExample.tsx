@@ -43,6 +43,7 @@ const colors: Colors = {
     normal: 'rgba(187,187,187,0.5)',
     selected: 'rgba(217,130,43,0.5)',
   },
+  borderColor: 'rgba(216, 216, 216, 242)',
 };
 
 export interface Props {

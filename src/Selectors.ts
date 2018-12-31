@@ -6,18 +6,16 @@ import * as d3Scale from 'd3-scale';
 import * as _ from 'lodash';
 import { createSelector } from 'reselect';
 import {
-  colorAndOpacityAsArray,
   colorAsArray,
   createFlowColorScale,
-  getDefaultDimmedColor,
   getDefaultFlowMinColor,
   getDefaultLocationAreaConnectedColor,
   getDefaultLocationAreaHighlightedColor,
+  getDimmedColor,
   getLocationCircleColors,
 } from './colorUtils';
 import { Props } from './FlowMapLayer';
 import {
-  Colors,
   ColorScale,
   Flow,
   FlowAccessor,
@@ -65,14 +63,6 @@ const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
-
-const getDimmedColor = (color: any) => {
-  if (color.dimmedColor) {
-    return colorAndOpacityAsArray(color.dimmedColor, color.dimmedOpacity);
-  } else {
-    return getDefaultDimmedColor(color.dimmedOpacity);
-  }
-};
 
 class Selectors {
   constructor(private inputGetters: InputGetters) {}
@@ -207,10 +197,11 @@ class Selectors {
       const { getFlowMagnitude } = this.inputGetters;
 
       return (dimmed: boolean) => (flow: Flow) => {
+        const color = flowColorScale(getFlowMagnitude(flow));
         if (!dimmed) {
-          return colorAsArray(flowColorScale(getFlowMagnitude(flow)));
+          return colorAsArray(color);
         }
-        return getDimmedColor(colors);
+        return getDimmedColor(color, colors.dimmedOpacity);
       };
     },
   );
@@ -369,7 +360,7 @@ class Selectors {
         const isPositive = (isIncoming === true && totalIn >= 0) || totalOut >= 0;
         const circleColors = getLocationCircleColors(colors, isPositive);
         if (!isActive) {
-          return getDimmedColor(colors);
+          return getDimmedColor(circleColors.inner, colors.dimmedOpacity);
         }
 
         if (type === LocationCircleType.INNER) {

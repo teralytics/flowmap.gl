@@ -41,7 +41,6 @@ export interface Colors {
   locationCircles?: LocationCircleColors;
   locationAreas: LocationAreaColors;
   dimmedOpacity?: number;
-  dimmedColor?: string;
   borderColor?: string;
 }
 

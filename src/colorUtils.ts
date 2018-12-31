@@ -20,34 +20,37 @@ import { interpolateHcl } from 'd3-interpolate';
 import * as d3Scale from 'd3-scale';
 import { Colors, ColorScale, DiffColors, isDiffColors, RGBA } from './types';
 
-export const DEFAULT_DIMMED_OPACITY = 0.05;
+export const BLACK: RGBA = [0, 0, 0, 255];
+export const DEFAULT_DIMMED_OPACITY = 1.0;
 
 export function opacityFloatToInteger(opacity: number): number {
   return Math.round(opacity * 255);
 }
 
 export function colorAsArray(color: string): RGBA {
-  let col = d3Color.color(color);
+  const col = d3Color.color(color);
   if (!col) {
-    console.warn('Invalid color: ', col);
-    col = d3Color.color('black')!;
+    console.warn('Invalid color: ', color);
+    return BLACK;
   }
   const rgbColor = col.rgb();
   return [Math.floor(rgbColor.r), Math.floor(rgbColor.g), Math.floor(rgbColor.b), opacityFloatToInteger(col.opacity)];
 }
 
-export function colorAndOpacityAsArray(color: string, opacity: number): RGBA {
-  let col = d3Color.color(color);
+export function getDimmedColor(color: string, opacity?: number): RGBA {
+  const col = d3Color.hcl(color);
   if (!col) {
-    console.warn('Invalid color: ', col);
-    col = d3Color.color('black')!;
+    console.warn('Invalid color: ', color);
+    return BLACK;
   }
+  col.c = 0; // desaturate color
   const rgbColor = col.rgb();
-  return [Math.floor(rgbColor.r), Math.floor(rgbColor.g), Math.floor(rgbColor.b), opacityFloatToInteger(opacity)];
-}
-
-export function getDefaultDimmedColor(opacity?: number): RGBA {
-  return [0, 0, 0, opacityFloatToInteger(opacity || DEFAULT_DIMMED_OPACITY)];
+  return [
+    Math.floor(rgbColor.r),
+    Math.floor(rgbColor.g),
+    Math.floor(rgbColor.b),
+    opacityFloatToInteger(opacity !== undefined ? opacity : DEFAULT_DIMMED_OPACITY),
+  ];
 }
 
 export function createFlowColorScale(domain: [number, number], range: [string, string]): ColorScale {

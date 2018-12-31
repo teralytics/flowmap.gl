@@ -37,16 +37,6 @@ storiesOf('Static', module)
       initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
       mapboxAccessToken={mapboxAccessToken}
     />
-  ))
-  .add('custom borders', () => (
-    <StaticExample
-      flows={flows16}
-      locations={locationsData}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-      borderThickness={5}
-      borderColor="#64e9f9"
-    />
   ));
 
 storiesOf('Interactive', module)
@@ -78,6 +68,18 @@ storiesOf('Interactive', module)
       flows={flows16}
       initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
       mapboxAccessToken={mapboxAccessToken}
+    />
+  ))
+  .add('custom borders', () => (
+    <InteractiveExample
+      showTotals={true}
+      showLocationAreas={true}
+      locations={locationsData}
+      flows={flows16}
+      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
+      mapboxAccessToken={mapboxAccessToken}
+      borderThickness={5}
+      borderColor="#64e9f9"
     />
   ))
   .add('diff', () => (
