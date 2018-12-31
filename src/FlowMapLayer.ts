@@ -57,7 +57,6 @@ export interface Props {
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
-  borderColor?: string;
   borderThickness?: number;
 }
 
@@ -234,9 +233,9 @@ export default class FlowMapLayer extends CompositeLayer {
       getLocationCentroid,
       highlightedLocationId,
       highlightedFlow,
+      colors,
       showTotals,
       locationCircleSize,
-      borderColor,
       borderThickness,
     } = this.props;
     const { selectors } = this.state;
@@ -289,7 +288,7 @@ export default class FlowMapLayer extends CompositeLayer {
           showTotals,
         },
       },
-      ...(borderColor && { borderColor: colorAsArray(borderColor) }),
+      ...(colors.borderColor && { borderColor: colorAsArray(colors.borderColor) }),
       ...(borderThickness && { borderThickness }),
     });
   }

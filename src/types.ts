@@ -42,6 +42,7 @@ export interface Colors {
   locationAreas: LocationAreaColors;
   dimmedOpacity?: number;
   dimmedColor?: string;
+  borderColor?: string;
 }
 
 export interface DiffColors {
@@ -55,6 +56,7 @@ export interface DiffColors {
   };
   locationAreas: LocationAreaColors;
   dimmedOpacity?: number;
+  borderColor?: string;
 }
 
 export function isDiffColors(colors: DiffColors | Colors): colors is DiffColors {

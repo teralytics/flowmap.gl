@@ -108,6 +108,7 @@ const diffColors: DiffColors = {
     normal: 'rgba(187,187,187,0.5)',
     selected: 'rgba(217,130,43,0.5)',
   },
+  borderColor: '#ddd',
 };
 
 const getLocationId = (loc: Location) => loc.properties.abbr;

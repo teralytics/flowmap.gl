@@ -44,7 +44,7 @@ storiesOf('Static', module)
       locations={locationsData}
       initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
       mapboxAccessToken={mapboxAccessToken}
-      borderThickness={2}
+      borderThickness={5}
       borderColor="#64e9f9"
     />
   ));
