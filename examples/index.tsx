@@ -130,5 +130,6 @@ storiesOf('FlowMapLayer', module)
       />
     )),
   )
+  .add('London bicycles', () => <GSheetsExample sheetKey="1zNbTBLInPOBcCwCDdoSdnnUDdOfDyStFdhPC6nJmBl8" />)
   .add('NYC citibike', () => <GSheetsExample sheetKey="1IQ0txD09cJ8wsQRSux5AoZfG6eIM-cx6RvVfszZ_ScE" />)
-  .add('Chicago taxis', () => <GSheetsExample sheetKey="1iQF8RZE3rGKc3uqfkiVA0bXPJtKB3lJW3XLhFiAokRA" />);
+  .add('Chicago taxis', () => <GSheetsExample sheetKey="1fhX98NFv5gAkkjB2YFCm50-fplFpmWVAZby3dmm9cgQ" />);
