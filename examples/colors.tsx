@@ -28,7 +28,7 @@ export const colors: Colors = {
     selected: 'rgba(217,130,43,0.5)',
   },
   dimmedOpacity: 0.75,
-  borderColor: 'rgba(216, 216, 216, 242)',
+  borderColor: 'rgba(246, 246, 246, 242)',
 };
 
 const desaturate = (color: string, amount: number) => {
