@@ -35,6 +35,9 @@ const withFetch = (mode: 'csv' | 'json', propName: string, url: string) => (Comp
     componentDidMount() {
       fetch(url)
         .then(response => {
+          if (!response.ok) {
+            throw new Error(response.statusText);
+          }
           switch (mode) {
             case 'json':
               return response.json();
