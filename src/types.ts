@@ -68,9 +68,15 @@ export type Flow = any;
 
 export type LocationProperties = any;
 
-export type Location = Feature<GeometryObject, LocationProperties>;
+export type Location = Feature<GeometryObject, LocationProperties> | any;
 
-export type Locations = FeatureCollection<GeometryObject, LocationProperties>;
+export type Locations = FeatureCollection<GeometryObject, LocationProperties> | Location[];
+
+export function isFeatureCollection(
+  locations: Locations,
+): locations is FeatureCollection<GeometryObject, LocationProperties> {
+  return (locations as FeatureCollection<GeometryObject, LocationProperties>).type === 'FeatureCollection';
+}
 
 export const enum LocationCircleType {
   INNER = 'inner',

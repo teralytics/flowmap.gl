@@ -16,80 +16,120 @@
  */
 
 import { storiesOf } from '@storybook/react';
-import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
-import InteractiveExample, { Flow, LocationProperties } from './InteractiveExample';
+import FlowMapLayer from '../src';
+import { fitFeaturesInView } from './fitInView';
+import GSheetsExample from './GSheetsExample';
+import { pipe, withFetchJson, withStats } from './hocs';
+import InteractiveExample from './InteractiveExample';
 import StaticExample from './StaticExample';
-import { getViewStateForFeature } from './utils';
 
-const mapboxAccessToken = process.env.MapboxAccessToken || '';
+export const mapboxAccessToken = process.env.MapboxAccessToken || '';
 
-// tslint:disable:no-var-requires
-const flows16: Flow[] = require('./data/flows-2016.json');
-const flowsDiff1516: Flow[] = require('./data/flows-diff-2015-2016.json');
-const locationsData: FeatureCollection<GeometryObject, LocationProperties> = require('./data/locations.json');
-
-storiesOf('Static', module)
-  .add('simple', () => (
-    <StaticExample
-      flows={flows16}
-      locations={locationsData}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-    />
-  ));
-
-storiesOf('Interactive', module)
-  .add('interactive', () => (
-    <InteractiveExample
-      showTotals={true}
-      showLocationAreas={true}
-      locations={locationsData}
-      flows={flows16}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-    />
-  ))
-  .add('no location areas', () => (
-    <InteractiveExample
-      showTotals={true}
-      showLocationAreas={false}
-      locations={locationsData}
-      flows={flows16}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-    />
-  ))
-  .add('no totals', () => (
-    <InteractiveExample
-      showTotals={false}
-      showLocationAreas={true}
-      locations={locationsData}
-      flows={flows16}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-    />
-  ))
-  .add('custom borders', () => (
-    <InteractiveExample
-      showTotals={true}
-      showLocationAreas={true}
-      locations={locationsData}
-      flows={flows16}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-      borderThickness={5}
-      borderColor="#64e9f9"
-    />
-  ))
-  .add('diff', () => (
-    <InteractiveExample
-      showTotals={true}
-      showLocationAreas={true}
-      locations={locationsData}
-      flows={flowsDiff1516}
-      diff={true}
-      initialViewState={getViewStateForFeature(locationsData, [window.innerWidth, window.innerHeight])}
-      mapboxAccessToken={mapboxAccessToken}
-    />
-  ));
+storiesOf('FlowMapLayer', module)
+  .add(
+    'non-interactive',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <StaticExample
+        flows={flows}
+        locations={locations}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'interactive',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={true}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'no location areas',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={true}
+        showLocationAreas={false}
+        flows={flows}
+        locations={locations}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'no totals',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={false}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'custom borders',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={true}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
+        borderThickness={5}
+        borderColor="#64e9f9"
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'diff',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-diff-2015-2016.json'),
+    )(({ locations, flows }: any) => (
+      <InteractiveExample
+        showTotals={true}
+        showLocationAreas={true}
+        flows={flows}
+        diff={true}
+        locations={locations}
+        initialViewState={fitFeaturesInView(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add('London bicycle hire', () => <GSheetsExample sheetKey="1zNbTBLInPOBcCwCDdoSdnnUDdOfDyStFdhPC6nJmBl8" />)
+  .add('NYC citibike', () => <GSheetsExample sheetKey="1IQ0txD09cJ8wsQRSux5AoZfG6eIM-cx6RvVfszZ_ScE" />)
+  .add('Chicago taxis', () => <GSheetsExample sheetKey="1fhX98NFv5gAkkjB2YFCm50-fplFpmWVAZby3dmm9cgQ" />);
