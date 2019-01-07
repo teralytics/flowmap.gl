@@ -17,6 +17,7 @@
 
 import { ScatterplotLayer } from 'deck.gl';
 import { RGBA } from '../types';
+import FragmentShader from './FlowCirclesLayerFragment.glsl';
 import VertexShader from './FlowCirclesLayerVertex.glsl';
 
 export type FlowCirclesData = any;
@@ -44,6 +45,7 @@ class FlowCirclesLayer extends ScatterplotLayer {
     return {
       ...shaders,
       vs: VertexShader,
+      fs: FragmentShader,
     };
   }
 }
