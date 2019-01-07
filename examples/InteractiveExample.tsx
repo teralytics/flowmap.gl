@@ -21,7 +21,6 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 import FlowMapLayer, {
-  Colors,
   DiffColors,
   DiffColorsLegend,
   FlowLayerPickingInfo,
@@ -29,8 +28,8 @@ import FlowMapLayer, {
   LocationTotalsLegend,
   PickingType,
 } from '../src';
+import { colors, diffColors } from './colors';
 import LegendBox from './LegendBox';
-import * as d3Color from 'd3-color';
 
 export interface Flow {
   origin: string;
@@ -74,6 +73,7 @@ export interface Props {
   locations: FeatureCollection<GeometryObject, LocationProperties>;
   diff?: boolean;
   showTotals: boolean;
+  showTotalsLegend?: boolean;
   showLocationAreas: boolean;
   borderThickness?: number;
   borderColor?: string;
@@ -81,53 +81,6 @@ export interface Props {
 }
 
 const ESC_KEY = 'Escape';
-
-const colors: Colors = {
-  flows: {
-    max: '#137CBD',
-  },
-  locationAreas: {
-    outline: 'rgba(92,112,128,0.5)',
-    normal: 'rgba(187,187,187,0.5)',
-    selected: 'rgba(217,130,43,0.5)',
-  },
-  dimmedOpacity: 0.75,
-  borderColor: 'rgba(216, 216, 216, 242)',
-};
-
-const desaturate = (color: string, amount: number) => {
-  const hcl = d3Color.hcl(color);
-  hcl.c -= amount;
-  return hcl.hex();
-};
-
-const getComplementary = (color: string) => {
-  const hcl = d3Color.hcl(color);
-  hcl.h = (hcl.h + 180) % 360;
-  return hcl.hex();
-};
-
-const baseDiffColor = desaturate('#a76a50', 10);
-
-const diffColors: DiffColors = {
-  positive: {
-    flows: {
-      max: baseDiffColor,
-    },
-  },
-  negative: {
-    flows: {
-      max: getComplementary(baseDiffColor),
-    },
-  },
-  locationAreas: {
-    outline: 'rgba(92,112,128,0.5)',
-    normal: 'rgba(187,187,187,0.5)',
-    selected: 'rgba(217,130,43,0.5)',
-  },
-  dimmedOpacity: 0.75,
-  borderColor: 'rgba(200, 200, 200, 255)',
-};
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 
@@ -159,26 +112,29 @@ export default class InteractiveExample extends React.Component<Props, State> {
   }
 
   render() {
-    const { mapboxAccessToken, diff } = this.props;
+    const { mapboxAccessToken, diff, showTotalsLegend } = this.props;
     const flowMapLayer = this.getFlowMapLayer();
     return (
-      <DeckGL
-        style={{ mixBlendMode: 'multiply' }}
-        layers={[flowMapLayer]}
-        viewState={this.state.viewState}
-        controller={true}
-        onViewStateChange={this.handleViewStateChange}
-        children={({ width, height, viewState }: any) => (
-          <>
+      <>
+        <DeckGL
+          style={{ mixBlendMode: 'multiply' }}
+          layers={[flowMapLayer]}
+          viewState={this.state.viewState}
+          controller={true}
+          onViewStateChange={this.handleViewStateChange}
+          children={({ width, height, viewState }: any) => (
             <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
-            <LegendBox top={10} left={10}>
-              {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
-              {diff && <hr />}
-              <LocationTotalsLegend colors={flowMapLayer.props.colors} />
-            </LegendBox>
-          </>
+          )}
+        />
+
+        {(diff || showTotalsLegend) && (
+          <LegendBox bottom={35} left={10}>
+            {diff && <DiffColorsLegend colors={flowMapLayer.props.colors as DiffColors} />}
+            {diff && showTotalsLegend && <hr />}
+            {showTotalsLegend && <LocationTotalsLegend colors={flowMapLayer.props.colors} />}
+          </LegendBox>
         )}
-      />
+      </>
     );
   }
 

@@ -20,6 +20,7 @@ import {
   Flow,
   FlowAccessor,
   isDiffColors,
+  isFeatureCollection,
   Location,
   LocationAccessor,
   LocationCircle,
@@ -57,7 +58,8 @@ export interface LocationsById {
 }
 
 const getColors = (props: Props) => props.colors;
-const getLocationFeatures = (props: Props) => props.locations.features;
+const getLocationFeatures = (props: Props) =>
+  isFeatureCollection(props.locations) ? props.locations.features : props.locations;
 const getFlows = (props: Props) => props.flows;
 const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
@@ -67,14 +69,22 @@ const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagni
 class Selectors {
   constructor(private inputGetters: InputGetters) {}
 
-  getLocationsById: PropsSelector<LocationsById> = createSelector(
+  getLocationByIdGetter: PropsSelector<LocationsById> = createSelector(
     [getLocationFeatures],
-    locations =>
-      d3Collection
+    locations => {
+      const locationsById = d3Collection
         .nest<Location, Location | undefined>()
         .key(this.inputGetters.getLocationId)
         .rollup(_.head)
-        .object(locations),
+        .object(locations);
+      return (id: string) => {
+        const location = locationsById[id];
+        if (!location) {
+          console.warn(`No location found for id '${id}'`);
+        }
+        return location;
+      };
+    },
   );
 
   private getFilteredFlows: PropsSelector<Flow[]> = createSelector(
@@ -108,8 +118,8 @@ class Selectors {
   );
 
   getActiveFlows: PropsSelector<Flow[]> = createSelector(
-    [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId, getSelectedLocationIds],
-    (flows, highlightedFlow, highlightedLocationId, selectedLocationIds) => {
+    [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId],
+    (flows, highlightedFlow, highlightedLocationId) => {
       const { getFlowOriginId, getFlowDestId } = this.inputGetters;
 
       if (highlightedFlow) {
@@ -123,14 +133,6 @@ class Selectors {
       if (highlightedLocationId) {
         return flows.filter(
           flow => getFlowOriginId(flow) === highlightedLocationId || getFlowDestId(flow) === highlightedLocationId,
-        );
-      }
-
-      if (selectedLocationIds) {
-        return flows.filter(
-          flow =>
-            _.includes(selectedLocationIds, getFlowOriginId(flow)) ||
-            _.includes(selectedLocationIds, getFlowDestId(flow)),
         );
       }
 
