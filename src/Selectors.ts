@@ -141,11 +141,6 @@ class Selectors {
     },
   );
 
-  getHighlightedFlowsSet: PropsSelector<Set<string> | null> = createSelector(
-    [this.getHighlightedFlows],
-    highlightedFlows => (highlightedFlows ? new Set(highlightedFlows) : null),
-  );
-
   private getFlowMagnitudeExtent: PropsSelector<[number, number] | [undefined, undefined]> = createSelector(
     [this.getNonSelfFlows],
     flows => d3Array.extent(flows, this.inputGetters.getFlowMagnitude),
@@ -199,26 +194,37 @@ class Selectors {
     },
   );
 
-  getMakeFlowLinesColorGetter: PropsSelector<(dimmed: boolean) => (flow: Flow) => RGBA> = createSelector(
-    [getColors, this.getFlowColorScale, this.getHighlightedFlowsSet],
-    (colors, flowColorScale, highlightedFlowsSet) => {
+  getMakeFlowLinesColorGetter: PropsSelector<
+    (highlighted: boolean, dimmed: boolean) => ((flow: Flow) => RGBA) | RGBA
+  > = createSelector(
+    [getColors, this.getFlowColorScale],
+    (colors, flowColorScale) => {
       const { getFlowMagnitude } = this.inputGetters;
-
-      return (dimmed: boolean) => (flow: Flow) => {
-        const magnitude = getFlowMagnitude(flow);
-        if (highlightedFlowsSet && highlightedFlowsSet.has(flow)) {
+      return (highlighted: boolean, dimmed: boolean) => {
+        if (highlighted) {
           if (isDiffColors(colors)) {
-            const diffColors = magnitude >= 0 ? colors.positive : colors.negative;
-            return colorAsArray(diffColors.flows.highlighted || getDefaultFlowHighlightedColor(diffColors.flows.max));
+            const positiveColor = colorAsArray(
+              colors.positive.flows.highlighted || getDefaultFlowHighlightedColor(colors.positive.flows.max),
+            );
+            const negativeColor = colorAsArray(
+              colors.negative.flows.highlighted || getDefaultFlowHighlightedColor(colors.negative.flows.max),
+            );
+            return (flow: Flow) => {
+              const magnitude = getFlowMagnitude(flow);
+              return magnitude >= 0 ? positiveColor : negativeColor;
+            };
           } else {
             return colorAsArray(colors.flows.highlighted || getDefaultFlowHighlightedColor(colors.flows.max));
           }
         } else {
-          const color = flowColorScale(magnitude);
-          if (dimmed) {
-            return getDimmedColor(color, colors.dimmedOpacity);
-          }
-          return colorAsArray(color);
+          return (flow: Flow) => {
+            const magnitude = getFlowMagnitude(flow);
+            const color = flowColorScale(magnitude);
+            if (dimmed) {
+              return getDimmedColor(color, colors.dimmedOpacity);
+            }
+            return colorAsArray(color);
+          };
         }
       };
     },
