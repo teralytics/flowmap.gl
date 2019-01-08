@@ -15,8 +15,8 @@
  *
  */
 
-import { Colors, DiffColors } from '../src';
 import * as d3Color from 'd3-color';
+import { Colors, DiffColors } from '../src';
 
 export const colors: Colors = {
   flows: {
@@ -24,17 +24,8 @@ export const colors: Colors = {
   },
   locationAreas: {
     outline: 'rgba(92,112,128,0.5)',
-    normal: 'rgba(187,187,187,0.5)',
-    selected: 'rgba(217,130,43,0.5)',
+    normal: 'rgba(220,220,220,0.5)',
   },
-  dimmedOpacity: 0.75,
-  borderColor: 'rgba(246, 246, 246, 242)',
-};
-
-const desaturate = (color: string, amount: number) => {
-  const hcl = d3Color.hcl(color);
-  hcl.c -= amount;
-  return hcl.hex();
 };
 
 const getComplementary = (color: string) => {
@@ -43,24 +34,22 @@ const getComplementary = (color: string) => {
   return hcl.hex();
 };
 
-const baseDiffColor = desaturate('#a76a50', 10);
+const baseDiffColor = '#17a5be';
 
 export const diffColors: DiffColors = {
-  positive: {
+  negative: {
     flows: {
       max: baseDiffColor,
     },
   },
-  negative: {
+  positive: {
     flows: {
       max: getComplementary(baseDiffColor),
     },
   },
   locationAreas: {
     outline: 'rgba(92,112,128,0.5)',
-    normal: 'rgba(187,187,187,0.5)',
-    selected: 'rgba(217,130,43,0.5)',
+    normal: 'rgba(220,220,220,0.5)',
   },
-  dimmedOpacity: 0.75,
-  borderColor: 'rgba(200, 200, 200, 255)',
+  borderColor: 'rgb(230,233,237)',
 };

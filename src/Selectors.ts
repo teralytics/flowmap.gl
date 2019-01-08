@@ -8,9 +8,11 @@ import { createSelector } from 'reselect';
 import {
   colorAsArray,
   createFlowColorScale,
+  getDefaultFlowHighlightedColor,
   getDefaultFlowMinColor,
   getDefaultLocationAreaConnectedColor,
   getDefaultLocationAreaHighlightedColor,
+  getDefaultLocationAreaSelectedColor,
   getDimmedColor,
   getLocationCircleColors,
 } from './colorUtils';
@@ -117,17 +119,13 @@ class Selectors {
     flows => _.orderBy(flows, [(f: Flow) => Math.abs(this.inputGetters.getFlowMagnitude(f)), 'desc']),
   );
 
-  getActiveFlows: PropsSelector<Flow[]> = createSelector(
+  getHighlightedFlows: PropsSelector<Flow[] | null> = createSelector(
     [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId],
     (flows, highlightedFlow, highlightedLocationId) => {
       const { getFlowOriginId, getFlowDestId } = this.inputGetters;
 
       if (highlightedFlow) {
-        return flows.filter(
-          flow =>
-            getFlowOriginId(flow) === getFlowOriginId(highlightedFlow) &&
-            getFlowDestId(flow) === getFlowDestId(highlightedFlow),
-        );
+        return [highlightedFlow];
       }
 
       if (highlightedLocationId) {
@@ -136,8 +134,13 @@ class Selectors {
         );
       }
 
-      return flows;
+      return null;
     },
+  );
+
+  getHighlightedFlowsSet: PropsSelector<Set<string> | null> = createSelector(
+    [this.getHighlightedFlows],
+    highlightedFlows => (highlightedFlows ? new Set(highlightedFlows) : null),
   );
 
   private getFlowMagnitudeExtent: PropsSelector<[number, number] | [undefined, undefined]> = createSelector(
@@ -194,16 +197,26 @@ class Selectors {
   );
 
   getMakeFlowLinesColorGetter: PropsSelector<(dimmed: boolean) => (flow: Flow) => RGBA> = createSelector(
-    [getColors, this.getFlowColorScale],
-    (colors, flowColorScale) => {
+    [getColors, this.getFlowColorScale, this.getHighlightedFlowsSet],
+    (colors, flowColorScale, highlightedFlowsSet) => {
       const { getFlowMagnitude } = this.inputGetters;
 
       return (dimmed: boolean) => (flow: Flow) => {
-        const color = flowColorScale(getFlowMagnitude(flow));
-        if (!dimmed) {
+        const magnitude = getFlowMagnitude(flow);
+        if (highlightedFlowsSet && highlightedFlowsSet.has(flow)) {
+          if (isDiffColors(colors)) {
+            const diffColors = magnitude >= 0 ? colors.positive : colors.negative;
+            return colorAsArray(diffColors.flows.highlighted || getDefaultFlowHighlightedColor(diffColors.flows.max));
+          } else {
+            return colorAsArray(colors.flows.highlighted || getDefaultFlowHighlightedColor(colors.flows.max));
+          }
+        } else {
+          const color = flowColorScale(magnitude);
+          if (dimmed) {
+            return getDimmedColor(color, colors.dimmedOpacity);
+          }
           return colorAsArray(color);
         }
-        return getDimmedColor(color, colors.dimmedOpacity);
       };
     },
   );
@@ -327,32 +340,17 @@ class Selectors {
   getLocationCircleColorGetter: PropsSelector<(flow: Flow) => RGBA> = createSelector(
     [
       getColors,
-      getHighlightedFlow,
       getHighlightedLocationId,
-      getSelectedLocationIds,
       this.getLocationTotalInGetter,
       this.getLocationTotalOutGetter,
       this.getLocationTotalWithinGetter,
     ],
-    (
-      colors,
-      highlightedFlow,
-      highlightedLocationId,
-      selectedLocationIds,
-      getLocationTotalIn,
-      getLocationTotalOut,
-      getLocationTotalWithin,
-    ) => {
-      const { getLocationId, getFlowOriginId, getFlowDestId } = this.inputGetters;
+    (colors, highlightedLocationId, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
+      const { getLocationId } = this.inputGetters;
 
       return ({ location, type }: Flow) => {
-        const isActive =
-          (!highlightedLocationId && !highlightedFlow && !selectedLocationIds) ||
-          highlightedLocationId === getLocationId(location) ||
-          _.includes(selectedLocationIds, getLocationId(location)) ||
-          (highlightedFlow &&
-            (getLocationId(location) === getFlowOriginId(highlightedFlow) ||
-              getLocationId(location) === getFlowDestId(highlightedFlow)));
+        const isHighlighted = highlightedLocationId && highlightedLocationId === getLocationId(location);
+        const isDimmed = highlightedLocationId && highlightedLocationId !== getLocationId(location);
 
         const totalWithin = getLocationTotalWithin(location);
         const totalIn = getLocationTotalIn(location) + totalWithin;
@@ -361,7 +359,11 @@ class Selectors {
 
         const isPositive = (isIncoming === true && totalIn >= 0) || totalOut >= 0;
         const circleColors = getLocationCircleColors(colors, isPositive);
-        if (!isActive) {
+        if (isHighlighted) {
+          return colorAsArray(circleColors.highlighted);
+        }
+
+        if (isDimmed) {
           return getDimmedColor(circleColors.inner, colors.dimmedOpacity);
         }
 
@@ -389,10 +391,6 @@ class Selectors {
     [this.getFilteredFlows, getHighlightedLocationId, getHighlightedFlow, getSelectedLocationIds],
     (flows, highlightedLocationId, highlightedFlow, selectedLocationIds) => {
       const { getFlowOriginId, getFlowDestId } = this.inputGetters;
-
-      if (highlightedFlow) {
-        return (id: string) => id === getFlowOriginId(highlightedFlow) || id === getFlowDestId(highlightedFlow);
-      }
 
       if (highlightedLocationId) {
         const isRelated = (flow: Flow) => {
@@ -428,11 +426,11 @@ class Selectors {
         const locationId = this.inputGetters.getLocationId(location);
         const { normal, selected, highlighted, connected } = colors.locationAreas;
         if (_.includes(selectedLocationIds, locationId)) {
-          return colorAsArray(selected);
+          return colorAsArray(selected ? selected : getDefaultLocationAreaSelectedColor(normal));
         }
 
         if (locationId === highlightedLocationId) {
-          return colorAsArray(highlighted ? highlighted : getDefaultLocationAreaHighlightedColor(selected));
+          return colorAsArray(highlighted ? highlighted : getDefaultLocationAreaHighlightedColor(normal));
         }
 
         if (isLocationConnected(locationId) === true) {

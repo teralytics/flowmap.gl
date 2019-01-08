@@ -21,7 +21,7 @@ import * as d3Scale from 'd3-scale';
 import { Colors, ColorScale, DiffColors, isDiffColors, RGBA } from './types';
 
 export const BLACK: RGBA = [0, 0, 0, 255];
-export const DEFAULT_DIMMED_OPACITY = 1.0;
+export const DEFAULT_DIMMED_OPACITY = 0.4;
 
 export function opacityFloatToInteger(opacity: number): number {
   return Math.round(opacity * 255);
@@ -43,7 +43,7 @@ export function getDimmedColor(color: string, opacity?: number): RGBA {
     console.warn('Invalid color: ', color);
     return BLACK;
   }
-  col.c = 0; // desaturate color
+  col.c *= 0.1; // desaturate color
   const rgbColor = col.rgb();
   return [
     Math.floor(rgbColor.r),
@@ -80,43 +80,39 @@ function getDefaultLocationCircleIncomingColor(baseColor: string): string {
 
 export function getLocationCircleColors(colors: Colors | DiffColors, isPositive: boolean) {
   const typedColors = !isDiffColors(colors) ? colors : isPositive === true ? colors.positive : colors.negative;
-  if (!typedColors.locationCircles) {
-    const flowsColor = typedColors.flows.max;
-    return {
-      inner: flowsColor,
-      outgoing: getDefaultLocationCircleOutgoingColor(flowsColor),
-      incoming: getDefaultLocationCircleIncomingColor(flowsColor),
-    };
-  }
-
-  const { inner, outgoing, incoming } = typedColors.locationCircles;
+  const flowsColor = typedColors.flows.max;
   return {
-    inner,
-    outgoing: outgoing ? outgoing : getDefaultLocationCircleOutgoingColor(inner),
-    incoming: incoming ? incoming : getDefaultLocationCircleIncomingColor(inner),
+    inner: flowsColor,
+    outgoing: getDefaultLocationCircleOutgoingColor(flowsColor),
+    incoming: getDefaultLocationCircleIncomingColor(flowsColor),
+    highlighted: getDefaultLocationCircleHighlightedColor(flowsColor),
+    ...typedColors.locationCircles,
   };
 }
 
-export function getDefaultLocationAreaHighlightedColor(selectedColor: string): string {
+export function getDefaultLocationAreaHighlightedColor(normal: string): string {
+  return normal;
+}
+
+export function getDefaultLocationAreaSelectedColor(normal: string): string {
+  return normal;
+}
+
+export function getDefaultLocationAreaConnectedColor(normal: string): string {
+  return normal;
+}
+
+export function getDefaultFlowHighlightedColor(flowsColor: string): string {
   return d3Color
-    .hcl(selectedColor)
-    .brighter(1)
-    .rgb()
+    .hcl(flowsColor)
+    .darker(0.7)
     .toString();
 }
 
-export function getDefaultLocationAreaConnectedColor(normalColor: string): string {
-  return d3Color
-    .hcl(normalColor)
-    .darker(1.25)
-    .rgb()
-    .toString();
+export function getDefaultLocationCircleHighlightedColor(flowsColor: string): string {
+  return getDefaultFlowHighlightedColor(flowsColor);
 }
 
 export function getDefaultFlowMinColor(maxColor: string): string {
-  return d3Color
-    .hcl(maxColor)
-    .brighter(2)
-    .rgb()
-    .toString();
+  return 'rgba(240, 240, 240, 0.5)';
 }
