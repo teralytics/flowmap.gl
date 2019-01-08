@@ -16,32 +16,19 @@
  */
 
 import DeckGL from 'deck.gl';
-import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
 import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 import FlowMapLayer, {
   DiffColors,
   DiffColorsLegend,
-  FlowLayerPickingInfo,
-  Location,
+  Flow,
+  FlowLayerPickingInfo, LocationAccessor,
+  Locations,
   LocationTotalsLegend,
   PickingType,
 } from '../src';
 import { colors, diffColors } from './colors';
 import LegendBox from './LegendBox';
-
-export interface Flow {
-  origin: string;
-  dest: string;
-  count: number;
-}
-
-export interface LocationProperties {
-  abbr: string;
-  name: string;
-  no: number;
-  centroid: [number, number];
-}
 
 export const enum HighlightType {
   LOCATION = 'location',
@@ -69,7 +56,7 @@ export interface State {
 export interface Props {
   flows: Flow[];
   initialViewState: ViewState;
-  locations: FeatureCollection<GeometryObject, LocationProperties>;
+  locations: Locations;
   diff?: boolean;
   showTotals: boolean;
   showTotalsLegend?: boolean;
@@ -77,14 +64,17 @@ export interface Props {
   borderThickness?: number;
   borderColor?: string;
   mapboxAccessToken: string;
+  getLocationId?: LocationAccessor<string>;
 }
 
 const ESC_KEY = 'Escape';
 
-const getLocationId = (loc: Location) => loc.properties.abbr;
-
 export default class InteractiveExample extends React.Component<Props, State> {
   readonly state: State = { viewState: this.props.initialViewState };
+
+  static defaultProps: Partial<Props> = {
+    getLocationId: (loc: any) => loc.id,
+  };
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
@@ -122,7 +112,16 @@ export default class InteractiveExample extends React.Component<Props, State> {
   }
 
   private getFlowMapLayer() {
-    const { locations, flows, diff, showTotals, showLocationAreas, borderThickness, borderColor } = this.props;
+    const {
+      locations,
+      flows,
+      diff,
+      showTotals,
+      showLocationAreas,
+      borderThickness,
+      borderColor,
+      getLocationId,
+    } = this.props;
     const { highlight, selectedLocationIds } = this.state;
     return new FlowMapLayer({
       colors: {
@@ -169,7 +168,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
         } else {
           this.highlight({
             type: HighlightType.LOCATION,
-            locationId: getLocationId(object),
+            locationId: this.props.getLocationId!(object),
           });
         }
         break;
@@ -189,7 +188,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
         if (object) {
           this.setState(state => ({
             ...state,
-            selectedLocationIds: [getLocationId(object)],
+            selectedLocationIds: [this.props.getLocationId!(object)],
           }));
         }
         break;

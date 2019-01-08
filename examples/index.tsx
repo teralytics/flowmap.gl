@@ -50,6 +50,7 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
@@ -67,6 +68,7 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
         showTotals={true}
         showLocationAreas={false}
         flows={flows}
@@ -84,6 +86,7 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
         showTotals={false}
         showLocationAreas={true}
         flows={flows}
@@ -101,6 +104,7 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
@@ -120,6 +124,7 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-diff-2015-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
