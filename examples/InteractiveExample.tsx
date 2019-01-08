@@ -22,11 +22,15 @@ import FlowMapLayer, {
   DiffColors,
   DiffColorsLegend,
   Flow,
-  FlowLayerPickingInfo, LocationAccessor,
+  FlowAccessor,
+  FlowLayerPickingInfo,
+  Location,
+  LocationAccessor,
   Locations,
   LocationTotalsLegend,
   PickingType,
 } from '../src';
+import { FlowCirclesData } from '../src/FlowCirclesLayer/FlowCirclesLayer';
 import { colors, diffColors } from './colors';
 import LegendBox from './LegendBox';
 
@@ -65,16 +69,16 @@ export interface Props {
   borderColor?: string;
   mapboxAccessToken: string;
   getLocationId?: LocationAccessor<string>;
+  getLocationCentroid?: LocationAccessor<[number, number]>;
+  getFlowMagnitude?: FlowAccessor<number>;
+  getFlowOriginId?: FlowAccessor<string>;
+  getFlowDestId?: FlowAccessor<string>;
 }
 
 const ESC_KEY = 'Escape';
 
 export default class InteractiveExample extends React.Component<Props, State> {
   readonly state: State = { viewState: this.props.initialViewState };
-
-  static defaultProps: Partial<Props> = {
-    getLocationId: (loc: any) => loc.id,
-  };
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
@@ -120,7 +124,11 @@ export default class InteractiveExample extends React.Component<Props, State> {
       showLocationAreas,
       borderThickness,
       borderColor,
+      getFlowOriginId,
+      getFlowDestId,
       getLocationId,
+      getLocationCentroid,
+      getFlowMagnitude,
     } = this.props;
     const { highlight, selectedLocationIds } = this.state;
     return new FlowMapLayer({
@@ -128,14 +136,17 @@ export default class InteractiveExample extends React.Component<Props, State> {
         ...(diff ? diffColors : colors),
         ...(borderColor && { borderColor }),
       },
-      getLocationId,
       selectedLocationIds,
       id: 'flow-map-layer',
       locations,
       flows,
+      ...(getLocationId && { getLocationId }),
+      ...(getLocationCentroid && { getLocationCentroid }),
+      ...(getFlowMagnitude && { getFlowMagnitude }),
+      ...(getFlowOriginId && { getFlowOriginId }),
+      ...(getFlowDestId && { getFlowDestId }),
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
-      getFlowMagnitude: f => f.count,
       showLocationAreas,
       varyFlowColorByMagnitude: true,
       showTotals,
