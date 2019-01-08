@@ -3,7 +3,6 @@
 import * as d3Array from 'd3-array';
 import * as d3Collection from 'd3-collection';
 import * as d3Scale from 'd3-scale';
-import * as _ from 'lodash';
 import { createSelector } from 'reselect';
 import {
   colorAsArray,
@@ -77,7 +76,7 @@ class Selectors {
       const locationsById = d3Collection
         .nest<Location, Location | undefined>()
         .key(this.inputGetters.getLocationId)
-        .rollup(_.head)
+        .rollup(([d]) => d)
         .object(locations);
       return (id: string) => {
         const location = locationsById[id];
@@ -97,8 +96,8 @@ class Selectors {
       if (selectedLocationIds) {
         return flows.filter(
           flow =>
-            _.includes(selectedLocationIds, getFlowOriginId(flow)) ||
-            _.includes(selectedLocationIds, getFlowDestId(flow)),
+            selectedLocationIds.indexOf(getFlowOriginId(flow)) >= 0 ||
+            selectedLocationIds.indexOf(getFlowDestId(flow)) >= 0,
         );
       }
 
@@ -116,7 +115,11 @@ class Selectors {
 
   getSortedNonSelfFlows: PropsSelector<Flow[]> = createSelector(
     [this.getNonSelfFlows],
-    flows => _.orderBy(flows, [(f: Flow) => Math.abs(this.inputGetters.getFlowMagnitude(f)), 'desc']),
+    flows => {
+      const comparator = (f1: Flow, f2: Flow) =>
+        Math.abs(this.inputGetters.getFlowMagnitude(f1)) - Math.abs(this.inputGetters.getFlowMagnitude(f2));
+      return flows.slice().sort(comparator);
+    },
   );
 
   getHighlightedFlows: PropsSelector<Flow[] | null> = createSelector(
@@ -245,17 +248,20 @@ class Selectors {
 
   getLocationCircles: PropsSelector<LocationCircle[]> = createSelector(
     [getLocationFeatures],
-    locations =>
-      _.flatMap(locations, location => [
-        {
+    locations => {
+      const circles = [];
+      for (const location of locations) {
+        circles.push({
           location,
           type: LocationCircleType.OUTER,
-        },
-        {
+        });
+        circles.push({
           location,
           type: LocationCircleType.INNER,
-        },
-      ]),
+        });
+      }
+      return circles;
+    },
   );
 
   getLocationTotalInGetter = (props: Props) => {
@@ -398,9 +404,9 @@ class Selectors {
           const destId = getFlowDestId(flow);
           return (
             originId === highlightedLocationId ||
-            _.includes(selectedLocationIds, originId) ||
+            (selectedLocationIds && selectedLocationIds.indexOf(originId) >= 0) ||
             destId === highlightedLocationId ||
-            _.includes(selectedLocationIds, destId)
+            (selectedLocationIds && selectedLocationIds.indexOf(destId) >= 0)
           );
         };
 
@@ -425,7 +431,7 @@ class Selectors {
       return (location: Location) => {
         const locationId = this.inputGetters.getLocationId(location);
         const { normal, selected, highlighted, connected } = colors.locationAreas;
-        if (_.includes(selectedLocationIds, locationId)) {
+        if (selectedLocationIds && selectedLocationIds.indexOf(locationId) >= 0) {
           return colorAsArray(selected ? selected : getDefaultLocationAreaSelectedColor(normal));
         }
 
