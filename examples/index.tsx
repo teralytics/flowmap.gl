@@ -51,6 +51,7 @@ storiesOf('FlowMapLayer', module)
     )(({ locations, flows }: any) => (
       <InteractiveExample
         getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
@@ -69,6 +70,7 @@ storiesOf('FlowMapLayer', module)
     )(({ locations, flows }: any) => (
       <InteractiveExample
         getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={true}
         showLocationAreas={false}
         flows={flows}
@@ -87,6 +89,7 @@ storiesOf('FlowMapLayer', module)
     )(({ locations, flows }: any) => (
       <InteractiveExample
         getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={false}
         showLocationAreas={true}
         flows={flows}
@@ -105,6 +108,7 @@ storiesOf('FlowMapLayer', module)
     )(({ locations, flows }: any) => (
       <InteractiveExample
         getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
@@ -125,6 +129,7 @@ storiesOf('FlowMapLayer', module)
     )(({ locations, flows }: any) => (
       <InteractiveExample
         getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
