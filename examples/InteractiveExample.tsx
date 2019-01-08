@@ -24,13 +24,11 @@ import FlowMapLayer, {
   Flow,
   FlowAccessor,
   FlowLayerPickingInfo,
-  Location,
   LocationAccessor,
   Locations,
   LocationTotalsLegend,
   PickingType,
 } from '../src';
-import { FlowCirclesData } from '../src/FlowCirclesLayer/FlowCirclesLayer';
 import { colors, diffColors } from './colors';
 import LegendBox from './LegendBox';
 
