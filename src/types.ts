@@ -92,7 +92,7 @@ export interface LocationCircle {
 
 export type Data = Flow | Location | LocationCircle;
 
-export const enum PickingType {
+export enum PickingType {
   LOCATION = 'location',
   FLOW = 'flow',
   LOCATION_AREA = 'location-area',
