@@ -121,7 +121,7 @@ storiesOf('FlowMapLayer', module)
     )),
   )
   .add(
-    'diff',
+    'difference mode',
     pipe(
       withStats,
       withFetchJson('locations', '/data/locations.json'),
