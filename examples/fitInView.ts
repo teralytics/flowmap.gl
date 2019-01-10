@@ -39,7 +39,7 @@ export const fitFeaturesInView = (
     center: [longitude, latitude],
     zoom,
   } =
-    // @ts-ignore
+    // @ts-ignore Waiting for github.com/DefinitelyTyped/DefinitelyTyped/pull/31971
     viewport(bounds, size, undefined, undefined, tileSize, true);
 
   return {
