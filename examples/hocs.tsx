@@ -16,7 +16,6 @@
  */
 
 import * as d3dsv from 'd3-dsv';
-import * as _ from 'lodash';
 import * as React from 'react';
 import Stats from 'stats.js';
 
@@ -65,8 +64,8 @@ const withFetch = (mode: 'csv' | 'json', propName: string, url: string) => (Comp
   return <Fetcher />;
 };
 
-export const withFetchCsv = _.partial(withFetch, 'csv');
-export const withFetchJson = _.partial(withFetch, 'json');
+export const withFetchCsv = (propName: string, url: string) => withFetch('csv', propName, url);
+export const withFetchJson = (propName: string, url: string) => withFetch('json', propName, url);
 
 export function withStats<P>(Comp: React.ComponentType<P>) {
   return (props: P) => {

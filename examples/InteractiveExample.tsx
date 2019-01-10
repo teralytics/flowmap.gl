@@ -16,33 +16,21 @@
  */
 
 import DeckGL from 'deck.gl';
-import { FeatureCollection, GeometryObject } from 'geojson';
-import * as _ from 'lodash';
 import * as React from 'react';
 import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 import FlowMapLayer, {
   DiffColors,
   DiffColorsLegend,
+  Flow,
+  FlowAccessor,
   FlowLayerPickingInfo,
-  Location,
+  LocationAccessor,
+  Locations,
   LocationTotalsLegend,
   PickingType,
 } from '../src';
 import { colors, diffColors } from './colors';
 import LegendBox from './LegendBox';
-
-export interface Flow {
-  origin: string;
-  dest: string;
-  count: number;
-}
-
-export interface LocationProperties {
-  abbr: string;
-  name: string;
-  no: number;
-  centroid: [number, number];
-}
 
 export const enum HighlightType {
   LOCATION = 'location',
@@ -70,7 +58,7 @@ export interface State {
 export interface Props {
   flows: Flow[];
   initialViewState: ViewState;
-  locations: FeatureCollection<GeometryObject, LocationProperties>;
+  locations: Locations;
   diff?: boolean;
   showTotals: boolean;
   showTotalsLegend?: boolean;
@@ -78,30 +66,17 @@ export interface Props {
   borderThickness?: number;
   borderColor?: string;
   mapboxAccessToken: string;
+  getLocationId: LocationAccessor<string>; // required as it is used within this component too, not just passed through
+  getLocationCentroid?: LocationAccessor<[number, number]>;
+  getFlowMagnitude?: FlowAccessor<number>;
+  getFlowOriginId?: FlowAccessor<string>;
+  getFlowDestId?: FlowAccessor<string>;
 }
 
 const ESC_KEY = 'Escape';
 
-const getLocationId = (loc: Location) => loc.properties.abbr;
-
-function getNextSelectedLocationIds(
-  selectedLocationIds: string[] | undefined,
-  nextSelectedId: string,
-): string[] | undefined {
-  if (!selectedLocationIds || _.isEmpty(selectedLocationIds)) {
-    return [nextSelectedId];
-  }
-
-  const nextSelectedIds = _.includes(selectedLocationIds, nextSelectedId)
-    ? _.without(selectedLocationIds, nextSelectedId)
-    : selectedLocationIds.concat(nextSelectedId);
-
-  return _.isEmpty(nextSelectedIds) ? undefined : nextSelectedIds;
-}
-
 export default class InteractiveExample extends React.Component<Props, State> {
   readonly state: State = { viewState: this.props.initialViewState };
-  private highlightDebounced = _.debounce(this.highlight, 100);
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
@@ -139,21 +114,37 @@ export default class InteractiveExample extends React.Component<Props, State> {
   }
 
   private getFlowMapLayer() {
-    const { locations, flows, diff, showTotals, showLocationAreas, borderThickness, borderColor } = this.props;
+    const {
+      locations,
+      flows,
+      diff,
+      showTotals,
+      showLocationAreas,
+      borderThickness,
+      borderColor,
+      getFlowOriginId,
+      getFlowDestId,
+      getLocationId,
+      getLocationCentroid,
+      getFlowMagnitude,
+    } = this.props;
     const { highlight, selectedLocationIds } = this.state;
     return new FlowMapLayer({
       colors: {
         ...(diff ? diffColors : colors),
         ...(borderColor && { borderColor }),
       },
-      getLocationId,
       selectedLocationIds,
       id: 'flow-map-layer',
       locations,
       flows,
+      getLocationId,
+      ...(getLocationCentroid && { getLocationCentroid }),
+      ...(getFlowMagnitude && { getFlowMagnitude }),
+      ...(getFlowOriginId && { getFlowOriginId }),
+      ...(getFlowDestId && { getFlowDestId }),
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
-      getFlowMagnitude: f => f.count,
       showLocationAreas,
       varyFlowColorByMagnitude: true,
       showTotals,
@@ -165,7 +156,6 @@ export default class InteractiveExample extends React.Component<Props, State> {
 
   private highlight(highlight: Highlight | undefined) {
     this.setState({ highlight });
-    this.highlightDebounced.cancel();
   }
 
   private handleFlowMapHover = ({ type, object }: FlowLayerPickingInfo) => {
@@ -187,20 +177,13 @@ export default class InteractiveExample extends React.Component<Props, State> {
         } else {
           this.highlight({
             type: HighlightType.LOCATION,
-            locationId: getLocationId(object),
+            locationId: this.props.getLocationId(object),
           });
         }
         break;
       }
       case PickingType.LOCATION_AREA: {
-        if (!object) {
-          this.highlightDebounced(undefined);
-        } else {
-          this.highlightDebounced({
-            type: HighlightType.LOCATION,
-            locationId: getLocationId(object),
-          });
-        }
+        this.highlight(undefined);
         break;
       }
     }
@@ -212,10 +195,9 @@ export default class InteractiveExample extends React.Component<Props, State> {
       // fall through
       case PickingType.LOCATION_AREA: {
         if (object) {
-          const nextSelectedId = getLocationId(object);
           this.setState(state => ({
             ...state,
-            selectedLocationIds: getNextSelectedLocationIds(state.selectedLocationIds, nextSelectedId),
+            selectedLocationIds: [this.props.getLocationId(object)],
           }));
         }
         break;

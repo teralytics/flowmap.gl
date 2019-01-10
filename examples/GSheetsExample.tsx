@@ -15,14 +15,11 @@
  *
  */
 
-import DeckGL from 'deck.gl';
 import * as React from 'react';
-import { StaticMap } from 'react-map-gl';
-import FlowMapLayer, { LocationTotalsLegend } from '../src';
-import { colors } from './colors';
 import { fitLocationsInView } from './fitInView';
 import { pipe, withFetchCsv, withStats } from './hocs';
 import { mapboxAccessToken } from './index';
+import InteractiveExample from './InteractiveExample';
 import LegendBox from './LegendBox';
 
 interface Location {
@@ -38,6 +35,11 @@ interface Flow {
   count: string;
 }
 
+const getFlowMagnitude = (flow: Flow) => +flow.count;
+const getFlowOriginId = (flow: Flow) => flow.origin;
+const getFlowDestId = (flow: Flow) => flow.dest;
+const getLocationId = (loc: Location) => loc.id;
+
 const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
   const Comp = pipe(
     withStats,
@@ -51,28 +53,18 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
     ]);
     return (
       <>
-        <DeckGL
-          style={{ mixBlendMode: 'multiply' }}
-          controller={true}
+        <InteractiveExample
+          showTotals={true}
+          showLocationAreas={false}
+          flows={flows}
+          locations={locations}
           initialViewState={initialViewState}
-          layers={[
-            new FlowMapLayer({
-              id: 'flow-map-layer',
-              colors,
-              locations,
-              flows,
-              getLocationCentroid,
-              getFlowMagnitude: (flow: Flow) => +flow.count,
-              getFlowOriginId: (flow: Flow) => flow.origin,
-              getFlowDestId: (flow: Flow) => flow.dest,
-              getLocationId: (loc: Location) => loc.id,
-              varyFlowColorByMagnitude: true,
-              showTotals: true,
-            }),
-          ]}
-          children={({ width, height, viewState }: any) => (
-            <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
-          )}
+          mapboxAccessToken={mapboxAccessToken}
+          getLocationId={getLocationId}
+          getFlowOriginId={getFlowOriginId}
+          getFlowDestId={getFlowDestId}
+          getLocationCentroid={getLocationCentroid}
+          getFlowMagnitude={getFlowMagnitude}
         />
         <LegendBox bottom={35} right={10}>
           {`Showing ${flows.length} flows. `}
@@ -83,9 +75,6 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
           >
             Data source
           </a>
-        </LegendBox>
-        <LegendBox bottom={35} left={10}>
-          <LocationTotalsLegend colors={colors} />
         </LegendBox>
       </>
     );

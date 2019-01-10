@@ -50,6 +50,8 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
@@ -67,6 +69,8 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={true}
         showLocationAreas={false}
         flows={flows}
@@ -84,6 +88,8 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={false}
         showLocationAreas={true}
         flows={flows}
@@ -101,6 +107,8 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
@@ -113,13 +121,15 @@ storiesOf('FlowMapLayer', module)
     )),
   )
   .add(
-    'diff',
+    'difference mode',
     pipe(
       withStats,
       withFetchJson('locations', '/data/locations.json'),
       withFetchJson('flows', '/data/flows-diff-2015-2016.json'),
     )(({ locations, flows }: any) => (
       <InteractiveExample
+        getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}

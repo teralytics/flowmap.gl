@@ -68,13 +68,13 @@ export interface State {
 const LAYER_ID__LOCATIONS = 'locations';
 const LAYER_ID__LOCATION_AREAS = 'location-areas';
 const LAYER_ID__FLOWS = 'flows';
-const LAYER_ID__FLOWS_ACTIVE = 'flows-highlighted';
+const LAYER_ID__FLOWS_HIGHLIGHTED = 'flows-highlighted';
 
 function getPickType({ id }: DeckGLLayer): PickingType | undefined {
   switch (id) {
     case LAYER_ID__FLOWS:
     // fall through
-    case LAYER_ID__FLOWS_ACTIVE:
+    case LAYER_ID__FLOWS_HIGHLIGHTED:
       return PickingType.FLOW;
     case LAYER_ID__LOCATIONS:
       return PickingType.LOCATION;
@@ -95,6 +95,7 @@ export default class FlowMapLayer extends CompositeLayer {
     getFlowMagnitude: { type: 'accessor', value: (f: Flow) => f.magnitude },
     showTotals: true,
     locationCircleSize: 3,
+    borderThickness: 1,
     showLocationAreas: true,
     varyFlowColorByMagnitude: false,
   };
@@ -184,23 +185,23 @@ export default class FlowMapLayer extends CompositeLayer {
   }
 
   renderLayers() {
-    const { showLocationAreas, locations } = this.props;
+    const { showLocationAreas, locations, highlightedLocationId } = this.props;
     const { selectors } = this.state;
 
-    const allFlows = selectors.getSortedNonSelfFlows(this.props);
-    const activeFlows = selectors.getActiveFlows(this.props);
+    const flows = selectors.getSortedNonSelfFlows(this.props);
+    const highlightedFlows = selectors.getHighlightedFlows(this.props);
+    const isLocationHighlighted = highlightedLocationId != null;
 
     const layers: DeckGLLayer[] = [];
 
     if (showLocationAreas && isFeatureCollection(locations)) {
       layers.push(this.getLocationAreasLayer(LAYER_ID__LOCATION_AREAS));
     }
-    if (activeFlows !== allFlows) {
-      layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS, allFlows, true));
+    layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS, flows, false, isLocationHighlighted));
+    if (highlightedFlows) {
+      layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS_HIGHLIGHTED, highlightedFlows, true, false));
     }
-    layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS_ACTIVE, activeFlows, false));
     layers.push(this.getNodesLayer(LAYER_ID__LOCATIONS));
-
     return layers;
   }
 
@@ -228,14 +229,12 @@ export default class FlowMapLayer extends CompositeLayer {
     });
   }
 
-  private getFlowLinesLayer(id: string, flows: Flow[], dimmed: boolean): FlowLinesLayer {
+  private getFlowLinesLayer(id: string, flows: Flow[], highlighted: boolean, dimmed: boolean): FlowLinesLayer {
     const {
       getFlowOriginId,
       getFlowDestId,
       getFlowMagnitude,
       getLocationCentroid,
-      highlightedLocationId,
-      highlightedFlow,
       colors,
       showTotals,
       locationCircleSize,
@@ -268,8 +267,8 @@ export default class FlowMapLayer extends CompositeLayer {
         }),
       ];
     };
-    const getFlowLinesColorGetter = selectors.getMakeFlowLinesColorGetter(this.props);
-    const getColor = getFlowLinesColorGetter(dimmed);
+    const makeFlowLinesColorGetter = selectors.getMakeFlowLinesColorGetter(this.props);
+    const getColor = makeFlowLinesColorGetter(highlighted, dimmed);
 
     return new FlowLinesLayer({
       id,
@@ -280,13 +279,10 @@ export default class FlowMapLayer extends CompositeLayer {
       getColor,
       data: flows,
       opacity: 1,
-      pickable: dimmed,
+      pickable: !highlighted,
       drawBorder: !dimmed,
       updateTriggers: {
-        getColor: !dimmed && {
-          highlightedLocationId,
-          highlightedFlow,
-        },
+        getColor: { dimmed },
         getEndpointOffsets: {
           showTotals,
         },
@@ -297,14 +293,7 @@ export default class FlowMapLayer extends CompositeLayer {
   }
 
   private getNodesLayer(id: string): FlowCirclesLayer {
-    const {
-      highlightedLocationId,
-      highlightedFlow,
-      selectedLocationIds,
-      getLocationCentroid,
-      flows,
-      showTotals,
-    } = this.props;
+    const { highlightedLocationId, selectedLocationIds, getLocationCentroid, flows, showTotals } = this.props;
     const { selectors } = this.state;
 
     const getRadius = showTotals
@@ -324,7 +313,7 @@ export default class FlowMapLayer extends CompositeLayer {
       pickable: true,
       updateTriggers: {
         getRadius: { selectedLocationIds, flows },
-        getColor: { highlightedLocationId, highlightedFlow, selectedLocationIds, flows },
+        getColor: { highlightedLocationId, selectedLocationIds, flows },
       },
     });
   }

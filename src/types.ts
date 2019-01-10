@@ -20,31 +20,36 @@ import { Feature, FeatureCollection, GeometryObject } from 'geojson';
 export interface FlowColors {
   max: string;
   min?: string;
+  highlighted?: string;
 }
 
 export interface LocationCircleColors {
   inner: string;
   outgoing?: string;
   incoming?: string;
+  highlighted?: string;
 }
 
 export interface LocationAreaColors {
   outline: string;
   normal: string;
-  selected: string;
+  selected?: string;
   highlighted?: string;
   connected?: string;
 }
 
-export interface Colors {
-  flows: FlowColors;
-  locationCircles?: LocationCircleColors;
+export interface BaseColors {
   locationAreas: LocationAreaColors;
   dimmedOpacity?: number;
   borderColor?: string;
 }
 
-export interface DiffColors {
+export interface Colors extends BaseColors {
+  flows: FlowColors;
+  locationCircles?: LocationCircleColors;
+}
+
+export interface DiffColors extends BaseColors {
   positive: {
     flows: FlowColors;
     locationCircles?: LocationCircleColors;
@@ -53,9 +58,6 @@ export interface DiffColors {
     flows: FlowColors;
     locationCircles?: LocationCircleColors;
   };
-  locationAreas: LocationAreaColors;
-  dimmedOpacity?: number;
-  borderColor?: string;
 }
 
 export function isDiffColors(colors: DiffColors | Colors): colors is DiffColors {
@@ -90,7 +92,7 @@ export interface LocationCircle {
 
 export type Data = Flow | Location | LocationCircle;
 
-export const enum PickingType {
+export enum PickingType {
   LOCATION = 'location',
   FLOW = 'flow',
   LOCATION_AREA = 'location-area',
