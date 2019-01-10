@@ -122,7 +122,7 @@ class Selectors {
     },
   );
 
-  getHighlightedFlows: PropsSelector<Flow[] | null> = createSelector(
+  getHighlightedFlows: PropsSelector<Flow[] | undefined> = createSelector(
     [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId],
     (flows, highlightedFlow, highlightedLocationId) => {
       const { getFlowOriginId, getFlowDestId } = this.inputGetters;
@@ -137,7 +137,7 @@ class Selectors {
         );
       }
 
-      return null;
+      return undefined;
     },
   );
 

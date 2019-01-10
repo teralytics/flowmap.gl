@@ -66,7 +66,7 @@ export interface Props {
   borderThickness?: number;
   borderColor?: string;
   mapboxAccessToken: string;
-  getLocationId?: LocationAccessor<string>;
+  getLocationId: LocationAccessor<string>; // required as it is used within this component too, not just passed through
   getLocationCentroid?: LocationAccessor<[number, number]>;
   getFlowMagnitude?: FlowAccessor<number>;
   getFlowOriginId?: FlowAccessor<string>;
@@ -138,7 +138,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
       id: 'flow-map-layer',
       locations,
       flows,
-      ...(getLocationId && { getLocationId }),
+      getLocationId,
       ...(getLocationCentroid && { getLocationCentroid }),
       ...(getFlowMagnitude && { getFlowMagnitude }),
       ...(getFlowOriginId && { getFlowOriginId }),
@@ -177,7 +177,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
         } else {
           this.highlight({
             type: HighlightType.LOCATION,
-            locationId: this.props.getLocationId!(object),
+            locationId: this.props.getLocationId(object),
           });
         }
         break;
@@ -197,7 +197,7 @@ export default class InteractiveExample extends React.Component<Props, State> {
         if (object) {
           this.setState(state => ({
             ...state,
-            selectedLocationIds: [this.props.getLocationId!(object)],
+            selectedLocationIds: [this.props.getLocationId(object)],
           }));
         }
         break;
