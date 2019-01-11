@@ -195,9 +195,12 @@ export default class InteractiveExample extends React.Component<Props, State> {
       // fall through
       case PickingType.LOCATION_AREA: {
         if (object) {
+          const { selectedLocationIds } = this.state;
+          const locationId = this.props.getLocationId(object);
           this.setState(state => ({
             ...state,
-            selectedLocationIds: [this.props.getLocationId(object)],
+            selectedLocationIds:
+              selectedLocationIds && selectedLocationIds.indexOf(locationId) >= 0 ? undefined : [locationId],
           }));
         }
         break;
@@ -205,11 +208,18 @@ export default class InteractiveExample extends React.Component<Props, State> {
     }
   };
 
-  private handleViewStateChange = ({ viewState }: ViewStateChangeInfo) => this.setState({ viewState });
+  private handleViewStateChange = ({ viewState }: ViewStateChangeInfo) =>
+    this.setState({
+      viewState,
+      highlight: undefined,
+    });
 
   private handleKeyDown = (evt: Event) => {
     if (evt instanceof KeyboardEvent && evt.key === ESC_KEY) {
-      this.setState({ selectedLocationIds: undefined });
+      this.setState({
+        selectedLocationIds: undefined,
+        highlight: undefined,
+      });
     }
   };
 }
