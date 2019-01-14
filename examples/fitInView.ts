@@ -46,6 +46,8 @@ export const fitFeaturesInView = (
     longitude,
     latitude,
     zoom: Math.max(Math.min(maxZoom, zoom), minZoom),
+    bearing: 0,
+    pitch: 0,
   };
 };
 

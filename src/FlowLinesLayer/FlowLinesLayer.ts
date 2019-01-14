@@ -39,7 +39,6 @@ export interface Props {
 }
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
-const DEFAULT_ENDPOINT_OFFSETS = [0, 0];
 const INNER_SIDE_BORDER_THICKNESS = 1;
 
 class FlowLinesLayer extends Layer {
@@ -47,7 +46,7 @@ class FlowLinesLayer extends Layer {
   static defaultProps = {
     getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
-    getColor: { type: 'accessor', value: (d: Flow) => DEFAULT_COLOR },
+    getColor: { type: 'accessor', value: DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: (d: Flow) => d.thickness },
     drawBorder: true,
     borderThickness: 1,
@@ -78,41 +77,44 @@ class FlowLinesLayer extends Layer {
       instanceSourcePositions: {
         accessor: 'getSourcePosition',
         size: 3,
-        update: this.calculateInstanceSourcePositions,
+        transition: false,
       },
       instanceTargetPositions: {
         accessor: 'getTargetPosition',
         size: 3,
-        update: this.calculateInstanceTargetPositions,
+        transition: false,
       },
       instanceThickness: {
         accessor: 'getThickness',
         size: 1,
-        update: this.calculateInstanceThickness,
+        transition: false,
       },
       instanceEndpointOffsets: {
         accessor: 'getEndpointOffsets',
         size: 2,
-        update: this.calculateInstanceEndpointOffsets,
+        transition: false,
       },
       instanceColors: {
         accessor: 'getColor',
         size: 4,
         type: UNSIGNED_BYTE,
-        update: this.calculateInstanceColors,
+        transition: false,
       },
     });
   }
 
-  draw({ uniforms }: any) {
+  draw(opts: any) {
     const { gl } = this.context;
     const { borderColor } = this.props;
     gl.lineWidth(1);
-    this.state.model.render({
-      ...uniforms,
-      borderColor: borderColor.map((x: number) => x / 255),
-      thicknessUnit: 16,
-      gap: 0.75,
+    this.state.model.draw({
+      ...opts,
+      uniforms: {
+        ...opts.uniforms,
+        borderColor: borderColor.map((x: number) => x / 255),
+        thicknessUnit: 16,
+        gap: 0.75,
+      },
     });
   }
 
@@ -206,66 +208,6 @@ class FlowLinesLayer extends Layer {
       isInstanced: true,
       shaderCache: this.context.shaderCache,
     });
-  }
-
-  calculateInstanceSourcePositions(attribute: any) {
-    const { data, getSourcePosition } = this.props;
-    const { value, size } = attribute;
-    let i = 0;
-    for (const object of data) {
-      const sourcePosition = getSourcePosition!(object);
-      value[i + 0] = sourcePosition[0];
-      value[i + 1] = sourcePosition[1];
-      i += size;
-    }
-  }
-
-  calculateInstanceTargetPositions(attribute: any) {
-    const { data, getTargetPosition } = this.props;
-    const { value, size } = attribute;
-    let i = 0;
-    for (const object of data) {
-      const targetPosition = getTargetPosition!(object);
-      value[i + 0] = targetPosition[0];
-      value[i + 1] = targetPosition[1];
-      i += size;
-    }
-  }
-
-  calculateInstanceColors(attribute: any) {
-    const { data, getColor } = this.props;
-    const { value, size } = attribute;
-    let i = 0;
-    for (const object of data) {
-      const color = getColor(object);
-      value[i + 0] = color[0];
-      value[i + 1] = color[1];
-      value[i + 2] = color[2];
-      value[i + 3] = isNaN(color[3]) ? 255 : color[3];
-      i += size;
-    }
-  }
-
-  calculateInstanceThickness(attribute: any) {
-    const { data, getThickness } = this.props;
-    const { value, size } = attribute;
-    let i = 0;
-    for (const object of data) {
-      value[i] = getThickness!(object);
-      i += size;
-    }
-  }
-
-  calculateInstanceEndpointOffsets(attribute: any) {
-    const { data, getEndpointOffsets } = this.props;
-    const { value, size } = attribute;
-    let i = 0;
-    for (const object of data) {
-      const [start, end] = getEndpointOffsets ? getEndpointOffsets(object) : DEFAULT_ENDPOINT_OFFSETS;
-      value[i + 0] = start;
-      value[i + 1] = end;
-      i += size;
-    }
   }
 }
 
