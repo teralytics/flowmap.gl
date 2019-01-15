@@ -16,7 +16,7 @@
  */
 
 import * as d3Color from 'd3-color';
-import { Colors, DiffColors } from '../src';
+import { Colors, DiffColors } from '@flowmap.gl/core';
 
 export const colors: Colors = {
   flows: {

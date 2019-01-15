@@ -1,0 +1,80 @@
+{
+  "name": "flowmap.gl-examples",
+  "description": "flowmap.gl usage examples",
+  "author": "Teralytics AG",
+  "license": "Apache-2.0",
+  "version": "5.0.0",
+  "keywords": [
+    "flows",
+    "flow map",
+    "webgl",
+    "visualization",
+    "overlay",
+    "layer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/teralytics/flowmap.gl.git"
+  },
+  "main": "dist/index.js",
+  "module": "dist-esm/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "dist-esm"
+  ],
+  "scripts": {
+    "start": "start-storybook -p 6006 -s ./public --ci ",
+    "storybook:build": "build-storybook -s ./public",
+    "storybook:deploy": "npm run storybook:build && gh-pages -d storybook-static",
+    "typecheck": "tsc --noEmit",
+    "lint": "tslint '{src,test,stories}/**/*.{ts,tsx}'"
+  },
+  "dependencies": {
+    "d3-dsv": "^1.0.10",
+    "d3-geo": "^1.11.3",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "react-map-gl": "^4.0.5",
+    "stats.js": "^0.17.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@mapbox/geo-viewport": "^0.4.0",
+    "@storybook/addon-options": "^4.0.12",
+    "@storybook/react": "^4.0.12",
+    "@types/d3-color": "^1.2.1",
+    "@types/d3-dsv": "^1.0.34",
+    "@types/d3-geo": "^1.10.3",
+    "@types/geojson": "^7946.0.4",
+    "@types/mapbox-gl": "^0.51.1",
+    "@types/mapbox__geo-viewport": "^0.3.1",
+    "@types/node": "^10.12.12",
+    "@types/react": "^16.7.13",
+    "@types/react-map-gl": "^4.0.0",
+    "@types/stats.js": "^0.17.0",
+    "@types/storybook__react": "^4.0.0",
+    "@types/viewport-mercator-project": "^5.2.1",
+    "@types/webpack": "^4.4.21",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.4",
+    "@flowmap.gl/core": "5.0.0",
+    "@flowmap.gl/react": "5.0.0",
+    "@deck.gl/core": "6.3.3",
+    "@deck.gl/layers": "6.3.3",
+    "@deck.gl/react": "6.3.3",
+    "dotenv-webpack": "^1.5.7",
+    "file-loader": "^2.0.0",
+    "gh-pages": "^2.0.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.15.3",
+    "style-loader": "^0.23.1",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "tslint-react": "^3.6.0",
+    "typescript": "^3.2.2",
+    "webpack": "^4.27.1"
+  }
+}

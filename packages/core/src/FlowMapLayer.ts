@@ -15,7 +15,8 @@
  *
  */
 
-import { CompositeLayer, GeoJsonLayer } from 'deck.gl';
+import { CompositeLayer } from '@deck.gl/core';
+import { GeoJsonLayer } from '@deck.gl/layers';
 import { colorAsArray } from './colorUtils';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
@@ -36,6 +37,7 @@ import {
   PickingHandler,
   PickingType,
 } from './types';
+
 
 export interface Props {
   id: string;

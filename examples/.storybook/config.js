@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Teralytics
+ * Copyright 2019 Teralytics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,18 @@
  *
  */
 
-import FlowMapLayer from './FlowMapLayer';
+require('mapbox-gl/dist/mapbox-gl.css');
 
-export * from './FlowMapLayer';
-export * from './types';
-export * from './legend';
+import { configure } from '@storybook/react';
+import { withOptions } from '@storybook/addon-options';
 
-export default FlowMapLayer;
+withOptions({
+  name: 'flowmap.gl',
+  url: 'https://github.com/teralytics/flowmap.gl',
+});
+function loadStories() {
+  require('../src/index');
+}
+
+configure(loadStories, module);
+

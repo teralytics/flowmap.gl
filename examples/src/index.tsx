@@ -17,11 +17,11 @@
 
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
-import FlowMapLayer from '../src';
-import { fitFeaturesInView } from './fitInView';
+import FlowMapLayer from '@flowmap.gl/core';
+import { fitFeaturesInView } from '@flowmap.gl/react';
 import GSheetsExample from './GSheetsExample';
 import { pipe, withFetchJson, withStats } from './hocs';
-import InteractiveExample from './InteractiveExample';
+import InteractiveExample from '@flowmap.gl/react';
 import StaticExample from './StaticExample';
 
 export const mapboxAccessToken = process.env.MapboxAccessToken || '';

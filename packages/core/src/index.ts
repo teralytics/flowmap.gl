@@ -15,4 +15,12 @@
  *
  */
 
-import '@storybook/addon-options/register';
+import FlowMapLayer from './FlowMapLayer';
+
+export * from './FlowMapLayer';
+export * from './types';
+
+// required by LocationTotalsLegend
+export { getLocationCircleColors } from './colorUtils';
+
+export default FlowMapLayer;

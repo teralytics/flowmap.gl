@@ -15,7 +15,7 @@
  *
  */
 
-import { ScatterplotLayer } from 'deck.gl';
+import { ScatterplotLayer } from '@deck.gl/layers';
 import { RGBA } from '../types';
 import FragmentShader from './FlowCirclesLayerFragment.glsl';
 import VertexShader from './FlowCirclesLayerVertex.glsl';

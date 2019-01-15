@@ -15,11 +15,11 @@
  *
  */
 
-import DeckGL from 'deck.gl';
+import { DeckGL } from '@deck.gl/react';
 import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
 import { StaticMap, ViewState } from 'react-map-gl';
-import FlowMapLayer, { Location } from '../src';
+import FlowMapLayer, { Location } from '@flowmap.gl/core';
 import { colors } from './colors';
 
 export interface Flow {
@@ -61,8 +61,8 @@ const StaticExample: React.SFC<Props> = ({
     locations,
     flows,
     getLocationId: (loc: Location) => loc.properties.abbr,
-    showLocationAreas: true,
-    getFlowMagnitude: f => f.count,
+    showLocationAreas: false,
+    getFlowMagnitude: (f: Flow) => f.count,
     varyFlowColorByMagnitude: true,
     showTotals: true,
     borderThickness,

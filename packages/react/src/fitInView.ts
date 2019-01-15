@@ -19,7 +19,7 @@ import { BoundingBox, viewport } from '@mapbox/geo-viewport';
 import { geoBounds } from 'd3-geo';
 import { FeatureCollection, GeometryCollection, GeometryObject } from 'geojson';
 import { ViewState } from 'react-map-gl';
-import { LocationProperties } from '../src';
+import { LocationProperties } from '@flowmap.gl/core';
 
 export const fitFeaturesInView = (
   featureCollection: FeatureCollection<GeometryObject, LocationProperties> | GeometryCollection,

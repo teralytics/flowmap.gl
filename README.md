@@ -2,7 +2,7 @@
 
 [Flow map](https://en.wikipedia.org/wiki/Flow_map) drawing layer for [deck.gl](http://uber.github.io/deck.gl). Can be used for visualizing movement of people (e.g. migration) or objects between geographic locations. The layer is rendered in WebGL and can handle large numbers of flows with a good rendering performance.
 
-Check out the [example app](http://ilyabo.github.io/flowmap.gl-example) and [storybook](https://teralytics.github.io/flowmap.gl/index.html). 
+Check out the [example app](http://ilyabo.github.io/flowmap.gl-example) and [storybook](https://teralytics.github.io/flowmap.gl/index.html).
 
 <img src="./doc/swiss-cantons-migration.png" width="500" />
 
@@ -13,11 +13,11 @@ Given an array of locations and an array of flows between these locations the la
 - Represent the flows as lines of varying thickness depending on the flow magnitudes
 - The flow lines are sorted so that the larger flows are drawn above
 - GeoJSON geometries of the location areas are rendered as polygons
-- Total incoming and outgoing flows for the locations are calculated and represented as circles of varying sizes. 
+- Total incoming and outgoing flows for the locations are calculated and represented as circles of varying sizes.
 
 ### Location totals
-Both the incoming and outgoing totals for the locations are represented. 
-A darker outline means that there are more incoming flows, a lighter outline means that there are more outgoing flows. 
+Both the incoming and outgoing totals for the locations are represented.
+A darker outline means that there are more incoming flows, a lighter outline means that there are more outgoing flows.
 
 For instance, below we compare between the evening and the morning commuting behaviors of a large city:
 
@@ -29,13 +29,18 @@ The layer can be used to show the [difference between two moments in time](https
 
 
 ## Usage
+First install the required dependencies:
+
+```
+npm install @flowmap.gl/core deck.gl react-map-gl
+```
 
 Here's a usage example:
 ```jsx harmony
 import * as React from 'react';
 import DeckGL from 'deck.gl';
 import { StaticMap } from 'react-map-gl';
-import FlowMapLayer from 'flowmap.gl';
+import FlowMapLayer from '@flowmap.gl/core';
 
 const colors = {
   flows: {
@@ -50,7 +55,7 @@ const colors = {
 
 class MyFlowMap extends React.Component {
   state = { viewState: this.props.initialViewState };
-  
+
   render() {
     const flowMapLayer = new FlowMapLayer({
       id: 'flow-map-layer',
@@ -67,9 +72,9 @@ class MyFlowMap extends React.Component {
       locationCircleSize: 3,
       varyFlowColorByMagnitude: true,
     });
-    
+
     return (
-      <DeckGL 
+      <DeckGL
         layers={[flowMapLayer]}
         initialViewState={this.state.viewState}
         controller={true}
@@ -79,7 +84,7 @@ class MyFlowMap extends React.Component {
         )}
       />
     );
-  }  
+  }
 }
 ```
 
@@ -117,8 +122,8 @@ and a more complex [interactive example](./examples/InteractiveExample.tsx).
 
 ## Developing
 
-Create an `.env` file in the project root 
-containing one line: 
+Create an `.env` file in the project root
+containing one line:
 
     MapboxAccessToken=<your-mapbox-access-token>
 
@@ -130,8 +135,8 @@ Then, run:
 
 ## Acknowledgements
 
-Many thanks to [Philippe Voinov](https://github.com/tehwalris) 
-for his help with the first version of the FlowLinesLayer. 
+Many thanks to [Philippe Voinov](https://github.com/tehwalris)
+for his help with the first version of the FlowLinesLayer.
 
 
 ## License

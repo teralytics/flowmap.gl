@@ -15,7 +15,7 @@
  *
  */
 
-import { Layer } from 'deck.gl';
+import { Layer } from '@deck.gl/core';
 import { Geometry, Model } from 'luma.gl';
 import { TRIANGLES, UNSIGNED_BYTE } from 'luma.gl/constants';
 import { Flow, RGBA } from '../types';

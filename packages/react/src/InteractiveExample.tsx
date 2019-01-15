@@ -15,22 +15,22 @@
  *
  */
 
-import DeckGL from 'deck.gl';
+import { DeckGL } from '@deck.gl/react';
 import * as React from 'react';
 import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 import FlowMapLayer, {
   DiffColors,
-  DiffColorsLegend,
   Flow,
   FlowAccessor,
   FlowLayerPickingInfo,
   LocationAccessor,
   Locations,
-  LocationTotalsLegend,
   PickingType,
-} from '../src';
+} from '@flowmap.gl/core';
 import { colors, diffColors } from './colors';
-import LegendBox from './LegendBox';
+import LegendBox from './legend/LegendBox';
+import DiffColorsLegend from './legend/DiffColorsLegend';
+import LocationTotalsLegend from './legend/LocationTotalsLegend';
 
 export const enum HighlightType {
   LOCATION = 'location',
