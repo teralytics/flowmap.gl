@@ -16,8 +16,6 @@
  */
 
 import { DeckGL } from '@deck.gl/react';
-import * as React from 'react';
-import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 import FlowMapLayer, {
   DiffColors,
   Flow,
@@ -27,9 +25,11 @@ import FlowMapLayer, {
   Locations,
   PickingType,
 } from '@flowmap.gl/core';
+import * as React from 'react';
+import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 import { colors, diffColors } from './colors';
-import LegendBox from './legend/LegendBox';
 import DiffColorsLegend from './legend/DiffColorsLegend';
+import LegendBox from './legend/LegendBox';
 import LocationTotalsLegend from './legend/LocationTotalsLegend';
 
 export const enum HighlightType {

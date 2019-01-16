@@ -35,6 +35,7 @@ export interface Props {
 
 class FlowCirclesLayer extends ScatterplotLayer {
   static layerName: string = 'FlowCirclesLayer';
+  props!: Props;
 
   constructor(props: Props) {
     super(props);

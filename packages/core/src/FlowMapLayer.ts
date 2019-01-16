@@ -38,7 +38,6 @@ import {
   PickingType,
 } from './types';
 
-
 export interface Props {
   id: string;
   colors: Colors | DiffColors;
@@ -61,10 +60,6 @@ export interface Props {
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
   borderThickness?: number;
-}
-
-export interface State {
-  selectors: Selectors;
 }
 
 const LAYER_ID__LOCATIONS = 'locations';
@@ -101,6 +96,7 @@ export default class FlowMapLayer extends CompositeLayer {
     showLocationAreas: true,
     varyFlowColorByMagnitude: false,
   };
+  props!: Props;
 
   constructor(props: Props) {
     super(props);
@@ -116,12 +112,12 @@ export default class FlowMapLayer extends CompositeLayer {
       getFlowMagnitude,
     } = this.props;
     const selectors = new Selectors({
-      getLocationId,
+      getLocationId: getLocationId!,
       getLocationTotalIn,
       getLocationTotalOut,
-      getFlowOriginId,
-      getFlowDestId,
-      getFlowMagnitude,
+      getFlowOriginId: getFlowOriginId!,
+      getFlowDestId: getFlowDestId!,
+      getFlowMagnitude: getFlowMagnitude!,
     });
 
     this.setState({ selectors });
@@ -249,10 +245,10 @@ export default class FlowMapLayer extends CompositeLayer {
     const getLocationById = selectors.getLocationByIdGetter(this.props);
     const flowThicknessScale = selectors.getFlowThicknessScale(this.props);
     const getSourcePosition: FlowAccessor<[number, number]> = flow =>
-      getLocationCentroid(getLocationById(getFlowOriginId(flow)));
+      getLocationCentroid!(getLocationById(getFlowOriginId!(flow)));
     const getTargetPosition: FlowAccessor<[number, number]> = flow =>
-      getLocationCentroid(getLocationById(getFlowDestId(flow)));
-    const getThickness: FlowAccessor<number> = flow => flowThicknessScale(getFlowMagnitude(flow));
+      getLocationCentroid!(getLocationById(getFlowDestId!(flow)));
+    const getThickness: FlowAccessor<number> = flow => flowThicknessScale(getFlowMagnitude!(flow));
     const getEndpointOffsets: FlowAccessor<[number, number]> = flow => {
       if (!showTotals) {
         return endpointOffsets;
@@ -260,11 +256,11 @@ export default class FlowMapLayer extends CompositeLayer {
 
       return [
         getLocationRadius({
-          location: getLocationById(getFlowOriginId(flow)),
+          location: getLocationById(getFlowOriginId!(flow)),
           type: LocationCircleType.INNER,
         }),
         getLocationRadius({
-          location: getLocationById(getFlowDestId(flow)),
+          location: getLocationById(getFlowDestId!(flow)),
           type: LocationCircleType.OUTER,
         }),
       ];
@@ -303,7 +299,7 @@ export default class FlowMapLayer extends CompositeLayer {
       : () => this.props.locationCircleSize;
     const circles = selectors.getLocationCircles(this.props);
     const getColor = selectors.getLocationCircleColorGetter(this.props);
-    const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid(locCircle.location);
+    const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid!(locCircle.location);
 
     return new FlowCirclesLayer({
       id,

@@ -15,12 +15,12 @@
  *
  */
 
-import * as React from 'react';
 import { fitLocationsInView } from '@flowmap.gl/react';
-import { pipe, withFetchCsv, withStats } from './hocs';
-import { mapboxAccessToken } from './index';
 import InteractiveExample from '@flowmap.gl/react';
 import { LegendBox } from '@flowmap.gl/react';
+import * as React from 'react';
+import { mapboxAccessToken } from '.';
+import { pipe, withFetchCsv, withStats } from './hocs';
 
 interface Location {
   id: string;

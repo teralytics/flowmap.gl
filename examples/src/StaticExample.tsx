@@ -16,10 +16,10 @@
  */
 
 import { DeckGL } from '@deck.gl/react';
+import FlowMapLayer, { Location } from '@flowmap.gl/core';
 import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
 import { StaticMap, ViewState } from 'react-map-gl';
-import FlowMapLayer, { Location } from '@flowmap.gl/core';
 import { colors } from './colors';
 
 export interface Flow {

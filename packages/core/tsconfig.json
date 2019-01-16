@@ -19,7 +19,7 @@
   "include": [
     "src/**/*",
     "examples/**/*",
-    "../../typings/**/*",
+    "../../typings/*",
     "stories/**/*"
   ]
 }

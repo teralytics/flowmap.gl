@@ -52,6 +52,7 @@ class FlowLinesLayer extends Layer {
     borderThickness: 1,
     borderColor: [255, 255, 255, 255],
   };
+  props!: Props;
 
   constructor(props: Props) {
     super(props);
@@ -111,7 +112,7 @@ class FlowLinesLayer extends Layer {
       ...opts,
       uniforms: {
         ...opts.uniforms,
-        borderColor: borderColor.map((x: number) => x / 255),
+        borderColor: borderColor!.map((x: number) => x / 255),
         thicknessUnit: 16,
         gap: 0.75,
       },
@@ -142,7 +143,7 @@ class FlowLinesLayer extends Layer {
         ],
       );
 
-      const tout = borderThickness;
+      const tout = borderThickness!;
       const tin = INNER_SIDE_BORDER_THICKNESS; // the border shouldn't cover the opposite arrow
       // perpendicular_offset_in_pixels, direction_of_travel_offset_in_pixels, fill_border_color_mix
       // prettier-ignore
@@ -159,7 +160,6 @@ class FlowLinesLayer extends Layer {
         -tin, 3 * tout, 1,
         2 * tout, -tout, 1,
         -tin, -tout, 1,
-
       ]);
     }
 

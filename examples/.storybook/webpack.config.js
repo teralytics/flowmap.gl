@@ -16,18 +16,26 @@
  */
 
 const Dotenv = require('dotenv-webpack');
+const { resolve } = require('path');
+
+const LIB_DIR = resolve(__dirname, '..');
+
 
 module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+    alias: {
+      'luma.gl': resolve(LIB_DIR, './node_modules/luma.gl'),
+      '@deck.gl/core': resolve(LIB_DIR, './node_modules/@deck.gl/core'),
+      '@deck.gl/layers': resolve(LIB_DIR, './node_modules/@deck.gl/layers'),
+      '@deck.gl/react': resolve(LIB_DIR, './node_modules/@deck.gl/react'),
+    }
   },
-
   plugins: [
     new Dotenv({
       path: '../.env',
     })
   ],
-
   module: {
     rules: [
       {

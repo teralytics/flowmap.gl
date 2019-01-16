@@ -15,9 +15,9 @@
  *
  */
 
-import * as React from 'react';
 import { getLocationCircleColors } from '@flowmap.gl/core';
 import { DiffColors } from '@flowmap.gl/core';
+import * as React from 'react';
 import Disc from './Disc';
 
 export interface Props {

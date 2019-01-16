@@ -25,7 +25,7 @@ withOptions({
   url: 'https://github.com/teralytics/flowmap.gl',
 });
 function loadStories() {
-  require('../src/index');
+  require('../src');
 }
 
 configure(loadStories, module);

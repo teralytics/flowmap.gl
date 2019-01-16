@@ -15,13 +15,13 @@
  *
  */
 
+import { LocationProperties } from '@flowmap.gl/core';
 import { BoundingBox, viewport } from '@mapbox/geo-viewport';
 import { geoBounds } from 'd3-geo';
 import { FeatureCollection, GeometryCollection, GeometryObject } from 'geojson';
 import { ViewState } from 'react-map-gl';
-import { LocationProperties } from '@flowmap.gl/core';
 
-export const fitFeaturesInView = (
+export function fitFeaturesInView(
   featureCollection: FeatureCollection<GeometryObject, LocationProperties> | GeometryCollection,
   size: [number, number],
   opts?: {
@@ -30,17 +30,14 @@ export const fitFeaturesInView = (
     minZoom?: number;
     maxZoom?: number;
   },
-): ViewState => {
+): ViewState {
   const { pad = 0.05, tileSize = 512, minZoom = 0, maxZoom = 100 } = opts || {};
   const [[x1, y1], [x2, y2]] = geoBounds(featureCollection as any);
   const bounds: BoundingBox = [x1 - pad * (x2 - x1), y1 - pad * (y2 - y1), x2 + pad * (x2 - x1), y2 + pad * (y2 - y1)];
-
   const {
     center: [longitude, latitude],
     zoom,
-  } =
-    // @ts-ignore Waiting for github.com/DefinitelyTyped/DefinitelyTyped/pull/31971
-    viewport(bounds, size, undefined, undefined, tileSize, true);
+  } = viewport(bounds, size, undefined, undefined, tileSize, true);
 
   return {
     longitude,
@@ -49,9 +46,9 @@ export const fitFeaturesInView = (
     bearing: 0,
     pitch: 0,
   };
-};
+}
 
-export const fitLocationsInView = (
+export function fitLocationsInView(
   locations: any[],
   getLocationCentroid: (location: any) => [number, number],
   size: [number, number],
@@ -61,8 +58,8 @@ export const fitLocationsInView = (
     minZoom?: number;
     maxZoom?: number;
   },
-): ViewState =>
-  fitFeaturesInView(
+): ViewState {
+  return fitFeaturesInView(
     {
       type: 'GeometryCollection',
       geometries: locations.map(location => ({
@@ -73,3 +70,4 @@ export const fitLocationsInView = (
     size,
     opts,
   );
+}
