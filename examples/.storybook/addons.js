@@ -15,11 +15,4 @@
  *
  */
 
-import FlowMap from './FlowMap';
-
-export { default as LocationTotalsLegend } from './legend/LocationTotalsLegend';
-export { default as DiffColorsLegend } from './legend/DiffColorsLegend';
-export { default as LegendBox } from './legend/LegendBox';
-export * from './viewport';
-
-export default FlowMap;
+import '@storybook/addon-options/register';

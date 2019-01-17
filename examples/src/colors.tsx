@@ -16,24 +16,23 @@
  */
 
 import { Colors, DiffColors } from '@flowmap.gl/core';
-import * as d3Color from 'd3-color';
+
+export enum ColorScheme {
+  primary = '#137CBD',
+}
 
 export const colors: Colors = {
   flows: {
-    max: '#137CBD',
+    max: ColorScheme.primary,
   },
   locationAreas: {
     outline: 'rgba(92,112,128,0.5)',
-    normal: 'rgba(220,220,220,0.5)',
+    normal: 'rgba(187,187,187,0.35)',
   },
+  borderColor: 'rgba(250,250,250,0.5)',
 };
 
-const getComplementary = (color: string) => {
-  const hcl = d3Color.hcl(color);
-  hcl.h = (hcl.h + 180) % 360;
-  return hcl.hex();
-};
-
+const complementary = '#f52020';
 const baseDiffColor = '#17a5be';
 
 export const diffColors: DiffColors = {
@@ -44,12 +43,12 @@ export const diffColors: DiffColors = {
   },
   positive: {
     flows: {
-      max: getComplementary(baseDiffColor),
+      max: complementary,
     },
   },
   locationAreas: {
     outline: 'rgba(92,112,128,0.5)',
-    normal: 'rgba(220,220,220,0.5)',
+    normal: 'rgba(220,220,220,0.35)',
   },
-  borderColor: 'rgb(230,233,237)',
+  borderColor: 'rgb(250,250,255)',
 };

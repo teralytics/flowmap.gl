@@ -32,8 +32,6 @@ const styles = {
     padding: 10,
     borderRadius: 4,
     border: '1px solid #ccc',
-    fontFamily: 'sans-serif',
-    fontSize: 11,
   },
 };
 

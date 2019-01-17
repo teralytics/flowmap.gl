@@ -38,13 +38,10 @@ import {
   PickingType,
 } from './types';
 
-export interface Props {
-  id: string;
-  colors: Colors | DiffColors;
+export interface BasicProps {
   locations: Locations;
   flows: Flow[];
-  onClick?: PickingHandler<FlowLayerPickingInfo>;
-  onHover?: PickingHandler<FlowLayerPickingInfo>;
+  colors: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
   getLocationTotalIn?: LocationAccessor<number>;
@@ -60,6 +57,12 @@ export interface Props {
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
   borderThickness?: number;
+}
+
+export interface Props extends BasicProps {
+  id: string;
+  onClick?: PickingHandler<FlowLayerPickingInfo>;
+  onHover?: PickingHandler<FlowLayerPickingInfo>;
 }
 
 const LAYER_ID__LOCATIONS = 'locations';
@@ -94,7 +97,7 @@ export default class FlowMapLayer extends CompositeLayer {
     locationCircleSize: 3,
     borderThickness: 1,
     showLocationAreas: true,
-    varyFlowColorByMagnitude: false,
+    varyFlowColorByMagnitude: true,
   };
   props!: Props;
 

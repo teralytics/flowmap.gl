@@ -21,7 +21,7 @@ import { geoBounds } from 'd3-geo';
 import { FeatureCollection, GeometryCollection, GeometryObject } from 'geojson';
 import { ViewState } from 'react-map-gl';
 
-export function fitFeaturesInView(
+export function getViewStateForFeatures(
   featureCollection: FeatureCollection<GeometryObject, LocationProperties> | GeometryCollection,
   size: [number, number],
   opts?: {
@@ -48,7 +48,7 @@ export function fitFeaturesInView(
   };
 }
 
-export function fitLocationsInView(
+export function getViewStateForLocations(
   locations: any[],
   getLocationCentroid: (location: any) => [number, number],
   size: [number, number],
@@ -59,7 +59,7 @@ export function fitLocationsInView(
     maxZoom?: number;
   },
 ): ViewState {
-  return fitFeaturesInView(
+  return getViewStateForFeatures(
     {
       type: 'GeometryCollection',
       geometries: locations.map(location => ({

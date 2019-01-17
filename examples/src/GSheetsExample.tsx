@@ -15,11 +15,10 @@
  *
  */
 
-import { fitLocationsInView } from '@flowmap.gl/react';
-import InteractiveExample from '@flowmap.gl/react';
-import { LegendBox } from '@flowmap.gl/react';
+import FlowMap, { getViewStateForLocations, LegendBox } from '@flowmap.gl/react';
 import * as React from 'react';
 import { mapboxAccessToken } from '.';
+import { colors } from './colors';
 import { pipe, withFetchCsv, withStats } from './hocs';
 
 interface Location {
@@ -39,6 +38,7 @@ const getFlowMagnitude = (flow: Flow) => +flow.count;
 const getFlowOriginId = (flow: Flow) => flow.origin;
 const getFlowDestId = (flow: Flow) => flow.dest;
 const getLocationId = (loc: Location) => loc.id;
+const getLocationCentroid = (location: Location): [number, number] => [+location.lon, +location.lat];
 
 const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
   const Comp = pipe(
@@ -46,19 +46,18 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
     withFetchCsv('locations', `https://docs.google.com/spreadsheets/d/${sheetKey}/gviz/tq?tqx=out:csv&sheet=locations`),
     withFetchCsv('flows', `https://docs.google.com/spreadsheets/d/${sheetKey}/gviz/tq?tqx=out:csv&sheet=flows`),
   )(({ locations, flows }: { locations: Location[]; flows: Flow[] }) => {
-    const getLocationCentroid = (location: Location): [number, number] => [+location.lon, +location.lat];
-    const initialViewState = fitLocationsInView(locations, getLocationCentroid, [
-      window.innerWidth,
-      window.innerHeight,
-    ]);
     return (
       <>
-        <InteractiveExample
+        <FlowMap
+          initialViewState={getViewStateForLocations(locations, getLocationCentroid, [
+            window.innerWidth,
+            window.innerHeight,
+          ])}
+          colors={colors}
           showTotals={true}
           showLocationAreas={false}
           flows={flows}
           locations={locations}
-          initialViewState={initialViewState}
           mapboxAccessToken={mapboxAccessToken}
           getLocationId={getLocationId}
           getFlowOriginId={getFlowOriginId}
