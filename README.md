@@ -2,7 +2,9 @@
 
 [Flow map](https://en.wikipedia.org/wiki/Flow_map) drawing layer for [deck.gl](http://uber.github.io/deck.gl). Can be used for visualizing movement of people (e.g. migration) or objects between geographic locations. The layer is rendered in WebGL and can handle large numbers of flows with a good rendering performance.
 
-Check out the [example app](http://ilyabo.github.io/flowmap.gl-example) and [storybook](https://teralytics.github.io/flowmap.gl/index.html).
+Try [flowmap.blue](https://flowmap.blue/) for an easy way of publishing a flow map backed by a Google Sheets spreadsheet (no programming skills required).
+
+Check out the [example app](http://ilyabo.github.io/flowmap.gl-example) and [storybook](https://teralytics.github.io/flowmap.gl/index.html). 
 
 <img src="./doc/swiss-cantons-relocations.jpg" width="500" />
 
