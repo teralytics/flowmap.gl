@@ -35,7 +35,12 @@ First install the required dependencies:
 npm install @flowmap.gl/core deck.gl react-map-gl
 ```
 
-Here's a usage example:
+Then, you can either use as a deck.gl layer or flowmap.gl as a React component:
+
+###  Usage as a deck.gl layer
+
+With this approach you can use flowmap.gl together with other deck.gl layers.
+
 ```jsx harmony
 import * as React from 'react';
 import DeckGL from 'deck.gl';
@@ -49,7 +54,6 @@ const colors = {
   locationAreas: {
     outline: 'rgba(92,112,128,0.5)',
     normal: 'rgba(187,187,187,0.5)',
-    selected: 'rgba(217,130,43,0.5)',
   },
 };
 
@@ -60,17 +64,13 @@ class MyFlowMap extends React.Component {
     const flowMapLayer = new FlowMapLayer({
       id: 'flow-map-layer',
       colors,
-      locations: [...],   // array of GeoJSON features of location areas
+      locations: [...],   // either array of location areas or a GeoJSON feature collection
       flows: [...],       // array of Flow objects
       getLocationId: l => l.id,
       getLocationCentroid: l => l.properties.centroid,
       getFlowOriginId: f => f.origin,
       getFlowDestId: f => f.dest,
       getFlowMagnitude: f => f.count,
-      showTotals: true,
-      showLocationAreas: true,
-      locationCircleSize: 3,
-      varyFlowColorByMagnitude: true,
     });
 
     return (
@@ -87,6 +87,37 @@ class MyFlowMap extends React.Component {
   }
 }
 ```
+
+###  Usage as a React component
+
+Install this additional dependency:
+```
+npm install @flowmap.gl/react
+```
+
+
+```jsx harmony
+import FlowMap, { getViewStateForLocations } from '@flowmap.gl/react'
+
+const MapVis = ({ width, height }) =>
+    <div style={{ width, height }}>
+        <FlowMap
+          initialViewState={getViewStateForLocations(
+            locations, l => l.properties.centroid, [ width, height ]
+          )}
+          mapboxAccessToken={mapboxAccessToken}
+          colors={colors}
+          flows={flows}
+          locations={locations}
+          getLocationId={l => l.id}
+          getLocationCentroid={l => l.properties.centroid}
+          getFlowOriginId={f => f.origin}
+          getFlowDestId={f => f.dest}
+          getFlowMagnitude={f => f.count}
+        />
+    </div>
+```
+
 
 The full list of supported props:
 ```typescript
@@ -117,8 +148,6 @@ interface Props {
 }
 ```
 
-Here's the [code for the example app](https://github.com/ilyabo/flowmap.gl-example)
-and a more complex [interactive example](./examples/InteractiveExample.tsx).
 
 ## Developing
 
