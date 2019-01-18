@@ -114,6 +114,10 @@ export type PickingHandler<T> = (info: T) => void;
 export interface LocationPickingInfo extends PickingInfo<Data> {
   type: PickingType.LOCATION;
   object: Location;
+  totalIn: number;
+  totalOut: number;
+  totalWithin: number;
+  circleRadius: number;
 }
 
 export interface LocationAreaPickingInfo extends PickingInfo<Data> {
@@ -124,6 +128,8 @@ export interface LocationAreaPickingInfo extends PickingInfo<Data> {
 export interface FlowPickingInfo extends PickingInfo<Data> {
   type: PickingType.FLOW;
   object: Flow;
+  origin: Location;
+  destination: Location;
 }
 
 export type FlowLayerPickingInfo = LocationPickingInfo | LocationAreaPickingInfo | FlowPickingInfo;

@@ -28,6 +28,7 @@ import {
   Flow,
   FlowAccessor,
   FlowLayerPickingInfo,
+  FlowPickingInfo,
   isFeatureCollection,
   Location,
   LocationAccessor,
@@ -161,27 +162,30 @@ export default class FlowMapLayer extends CompositeLayer {
       type,
     };
 
+    const { selectors } = this.state;
     if (!info.object || type === PickingType.FLOW) {
-      return info;
+      const getLocationById = selectors.getLocationByIdGetter(this.props);
+      const { getFlowOriginId, getFlowDestId } = selectors.inputGetters;
+      const flow = info.object as Flow;
+      return {
+        ...info,
+        origin: getLocationById(getFlowOriginId(flow)),
+        dest: getLocationById(getFlowDestId(flow)),
+      };
     }
 
     const object = type === PickingType.LOCATION ? info.object.location : info.object;
-    const { selectors } = this.state;
     const getLocationTotalIn = selectors.getLocationTotalInGetter(this.props);
     const getLocationTotalOut = selectors.getLocationTotalOutGetter(this.props);
     const getLocationTotalWithin = selectors.getLocationTotalWithinGetter(this.props);
+    const getLocationCircleRadius = selectors.getLocationCircleRadiusGetter(this.props);
 
     return {
       ...info,
-      object: {
-        ...object,
-        properties: {
-          ...object.properties,
-          totalIn: getLocationTotalIn(object),
-          totalOut: getLocationTotalOut(object),
-          totalWithin: getLocationTotalWithin(object),
-        },
-      },
+      totalIn: getLocationTotalIn(object),
+      totalOut: getLocationTotalOut(object),
+      totalWithin: getLocationTotalWithin(object),
+      circleRadius: getLocationCircleRadius({ location, type: LocationCircleType.OUTER }),
     };
   }
 
