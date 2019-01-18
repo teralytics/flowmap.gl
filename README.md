@@ -4,7 +4,7 @@
 
 Check out the [example app](http://ilyabo.github.io/flowmap.gl-example) and [storybook](https://teralytics.github.io/flowmap.gl/index.html).
 
-<img src="./doc/swiss-cantons-migration.png" width="500" />
+<img src="./doc/swiss-cantons-relocations.jpg" width="500" />
 
 ## Features
 
