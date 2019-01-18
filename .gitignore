@@ -6,3 +6,4 @@ dist
 .env
 npm-debug.log
 storybook-static/
+lerna-debug.log
