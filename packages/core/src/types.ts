@@ -83,6 +83,7 @@ export function isFeatureCollection(
 export const enum LocationCircleType {
   INNER = 'inner',
   OUTER = 'outer',
+  BORDER = 'border',
 }
 
 export interface LocationCircle {

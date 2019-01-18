@@ -177,7 +177,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const { selectors } = this.state;
     if (type === PickingType.FLOW) {
       const getLocationById = selectors.getLocationByIdGetter(this.props);
-      const { getFlowOriginId, getFlowDestId } = selectors.inputGetters;
+      const { getFlowOriginId, getFlowDestId } = selectors.getInputGetters();
       const flow = info.object as Flow;
       return {
         ...info,
@@ -289,11 +289,11 @@ export default class FlowMapLayer extends CompositeLayer {
       return [
         getLocationRadius({
           location: getLocationById(getFlowOriginId!(flow)),
-          type: LocationCircleType.INNER,
+          type: LocationCircleType.BORDER,
         }),
         getLocationRadius({
           location: getLocationById(getFlowDestId!(flow)),
-          type: LocationCircleType.OUTER,
+          type: LocationCircleType.BORDER,
         }),
       ];
     };
