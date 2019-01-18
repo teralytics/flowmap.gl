@@ -29,9 +29,9 @@ export interface Props {
   pickable?: boolean;
   updateTriggers?: { [key: string]: {} };
   data: Flow[];
-  drawBorder: boolean;
-  borderColor?: RGBA;
-  borderThickness?: number;
+  drawOutline: boolean;
+  outlineColor?: RGBA;
+  outlineThickness?: number;
   getSourcePosition?: (d: Flow) => [number, number];
   getTargetPosition?: (d: Flow) => [number, number];
   getColor?: (d: Flow) => RGBA;
@@ -40,7 +40,7 @@ export interface Props {
 }
 
 const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
-const INNER_SIDE_BORDER_THICKNESS = 1;
+const INNER_SIDE_OUTLINE_THICKNESS = 1;
 
 class FlowLinesLayer extends Layer {
   static layerName: string = 'FlowLinesLayer';
@@ -49,9 +49,9 @@ class FlowLinesLayer extends Layer {
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: (d: Flow) => d.thickness },
-    drawBorder: true,
-    borderThickness: 1,
-    borderColor: [255, 255, 255, 255],
+    drawOutline: true,
+    outlineThickness: 1,
+    outlineColor: [255, 255, 255, 255],
   };
   props!: Props;
 
@@ -107,13 +107,13 @@ class FlowLinesLayer extends Layer {
 
   draw(opts: any) {
     const { gl } = this.context;
-    const { borderColor } = this.props;
+    const { outlineColor } = this.props;
     gl.lineWidth(1);
     this.state.model.draw({
       ...opts,
       uniforms: {
         ...opts.uniforms,
-        borderColor: borderColor!.map((x: number) => x / 255),
+        outlineColor: outlineColor!.map((x: number) => x / 255),
         thicknessUnit: 16,
         gap: 0.75,
       },
@@ -124,12 +124,12 @@ class FlowLinesLayer extends Layer {
     let positions: number[] = [];
     let pixelOffsets: number[] = [];
 
-    const { drawBorder, borderThickness } = this.props;
-    if (drawBorder) {
+    const { drawOutline, outlineThickness } = this.props;
+    if (drawOutline) {
       // source_target_mix, perpendicular_offset_in_thickness_units, direction_of_travel_offset_in_thickness_units
       // prettier-ignore
       positions = positions.concat([
-          // Border
+          // Outline
           0, 0, 0,
           0, 1, 0,
           1, 0, 0,
@@ -144,12 +144,12 @@ class FlowLinesLayer extends Layer {
         ],
       );
 
-      const tout = borderThickness!;
-      const tin = INNER_SIDE_BORDER_THICKNESS; // the border shouldn't cover the opposite arrow
-      // perpendicular_offset_in_pixels, direction_of_travel_offset_in_pixels, fill_border_color_mix
+      const tout = outlineThickness!;
+      const tin = INNER_SIDE_OUTLINE_THICKNESS; // the outline shouldn't cover the opposite arrow
+      // perpendicular_offset_in_pixels, direction_of_travel_offset_in_pixels, fill_outline_color_mix
       // prettier-ignore
       pixelOffsets = pixelOffsets.concat([
-        // Border
+        // Outline
         -tin, -tout, 1,
         tout, -tout, 1,
         -tin, tout, 1,

@@ -66,10 +66,10 @@ const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
-const getBorderThickness = (props: Props) =>
-  props.borderThickness != null ? props.borderThickness : FlowMapLayer.defaultProps.borderThickness;
+const getOutlineThickness = (props: Props) =>
+  props.outlineThickness != null ? props.outlineThickness : FlowMapLayer.defaultProps.outlineThickness;
 
-const MIN_BORDER_CIRCLE_RADIUS = 3;
+const MIN_OUTLINE_CIRCLE_RADIUS = 3;
 
 class Selectors {
   constructor(private inputGetters: InputGetters) {}
@@ -263,7 +263,7 @@ class Selectors {
       for (const location of locations) {
         circles.push({
           location,
-          type: LocationCircleType.BORDER,
+          type: LocationCircleType.OUTLINE,
         });
         circles.push({
           location,
@@ -341,21 +341,21 @@ class Selectors {
 
   getLocationCircleRadiusGetter: PropsSelector<(locCircle: LocationCircle) => number> = createSelector(
     [
-      getBorderThickness,
+      getOutlineThickness,
       this.getSizeScale,
       this.getLocationTotalInGetter,
       this.getLocationTotalOutGetter,
       this.getLocationTotalWithinGetter,
     ],
-    (borderThickness, sizeScale, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
+    (outlineThickness, sizeScale, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
       return ({ location, type }: LocationCircle) => {
         const getSide = type === LocationCircleType.INNER ? Math.min : Math.max;
         const totalIn = getLocationTotalIn(location);
         const totalOut = getLocationTotalOut(location);
         const totalWithin = getLocationTotalWithin(location);
         const r = sizeScale(getSide(totalIn + totalWithin, totalOut + totalWithin));
-        if (type === LocationCircleType.BORDER) {
-          return Math.max(r + borderThickness, MIN_BORDER_CIRCLE_RADIUS);
+        if (type === LocationCircleType.OUTLINE) {
+          return Math.max(r + outlineThickness, MIN_OUTLINE_CIRCLE_RADIUS);
         }
         return r;
       };
@@ -385,16 +385,16 @@ class Selectors {
         const isPositive = (isIncoming === true && totalIn >= 0) || totalOut >= 0;
         const circleColors = (isDiffColorsRGBA(colors) ? (isPositive ? colors.positive : colors.negative) : colors)
           .locationCircles;
-        if (isHighlighted && type === LocationCircleType.BORDER) {
+        if (isHighlighted && type === LocationCircleType.OUTLINE) {
           return circleColors.highlighted;
         }
 
-        if (isDimmed && type !== LocationCircleType.BORDER) {
+        if (isDimmed && type !== LocationCircleType.OUTLINE) {
           return getDimmedColor(circleColors.inner, colors.dimmedOpacity);
         }
 
-        if (type === LocationCircleType.BORDER) {
-          return colors.borderColor;
+        if (type === LocationCircleType.OUTLINE) {
+          return colors.outlineColor;
         }
 
         if (type === LocationCircleType.INNER) {

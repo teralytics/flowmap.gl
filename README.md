@@ -130,7 +130,7 @@ interface Props {
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
-  borderThickness: number;
+  outlineThickness: number;
   onClick?: PickingHandler<FlowLayerPickingInfo>;
   onHover?: PickingHandler<FlowLayerPickingInfo>;
 }

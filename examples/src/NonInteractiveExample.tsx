@@ -39,7 +39,7 @@ export interface Props {
   initialViewState: ViewState;
   flows: Flow[];
   locations: FeatureCollection<GeometryObject, LocationProperties>;
-  borderThickness?: number;
+  outlineThickness?: number;
 }
 
 const NonInteractiveExample: React.SFC<Props> = ({
@@ -47,7 +47,7 @@ const NonInteractiveExample: React.SFC<Props> = ({
   flows,
   initialViewState,
   mapboxAccessToken,
-  borderThickness,
+  outlineThickness,
 }) => {
   const flowMapLayer = new FlowMapLayer({
     id: 'flow-map-layer',
@@ -58,7 +58,7 @@ const NonInteractiveExample: React.SFC<Props> = ({
     getFlowMagnitude: (f: Flow) => f.count,
     varyFlowColorByMagnitude: true,
     showTotals: true,
-    borderThickness,
+    outlineThickness,
   });
 
   return (

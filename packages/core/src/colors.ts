@@ -22,7 +22,7 @@ import { scalePow } from 'd3-scale';
 const DEFAULT_FLOW_COLOR = '#137CBD';
 const DEFAULT_FLOW_COLOR_POSITIVE = '#f6654e';
 const DEFAULT_FLOW_COLOR_NEGATIVE = '#00a9cc';
-const DEFAULT_BORDER_COLOR = '#fff';
+const DEFAULT_OUTLINE_COLOR = '#fff';
 const DEFAULT_FLOW_MIN_COLOR = 'rgba(240,240,240,0.5)';
 const DEFAULT_LOCATION_AREA_COLOR = 'rgba(220,220,220,0.5)';
 const DEFAULT_DIMMED_OPACITY = 0.4;
@@ -55,7 +55,7 @@ export interface LocationAreaColors {
 export interface BaseColors {
   locationAreas?: LocationAreaColors;
   dimmedOpacity?: number;
-  borderColor?: string;
+  outlineColor?: string;
 }
 
 export interface Colors extends BaseColors {
@@ -100,7 +100,7 @@ export interface LocationAreaColorsRGBA {
 export interface BaseColorsRGBA {
   locationAreas: LocationAreaColorsRGBA;
   dimmedOpacity: number;
-  borderColor: RGBA;
+  outlineColor: RGBA;
 }
 
 export interface ColorsRGBA extends BaseColorsRGBA {
@@ -129,7 +129,7 @@ export function isDiffColorsRGBA(colors: DiffColorsRGBA | ColorsRGBA): colors is
 function getBaseColorsRGBA(colors: Colors | DiffColors | undefined): BaseColorsRGBA {
   return {
     locationAreas: getLocationAreaColorsRGBA(colors && colors.locationAreas),
-    borderColor: colorAsRGBA((colors && colors.borderColor) || DEFAULT_BORDER_COLOR),
+    outlineColor: colorAsRGBA((colors && colors.outlineColor) || DEFAULT_OUTLINE_COLOR),
     dimmedOpacity: colors && colors.dimmedOpacity != null ? colors.dimmedOpacity : DEFAULT_DIMMED_OPACITY,
   };
 }

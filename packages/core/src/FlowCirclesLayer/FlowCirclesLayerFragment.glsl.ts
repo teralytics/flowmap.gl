@@ -32,8 +32,8 @@ void main(void) {
   }
   gl_FragColor = vColor;
   
-  const float SOFT_BORDER = 0.1;
-  float soften = smoothstep(0.0, SOFT_BORDER, 1.0 - distToCenter);
+  const float SOFT_OUTLINE = 0.1;
+  float soften = smoothstep(0.0, SOFT_OUTLINE, 1.0 - distToCenter);
   gl_FragColor = vec4(vColor.rgb, vColor.a * soften);
 
   // use highlight color if this fragment belongs to the selected object.

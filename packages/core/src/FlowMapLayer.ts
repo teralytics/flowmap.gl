@@ -55,7 +55,7 @@ export interface BasicProps {
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
-  borderThickness?: number;
+  outlineThickness?: number;
 }
 
 export interface Props extends BasicProps {
@@ -107,7 +107,7 @@ export default class FlowMapLayer extends CompositeLayer {
     getFlowMagnitude: { type: 'accessor', value: (f: Flow) => f.magnitude },
     showTotals: true,
     locationCircleSize: 3,
-    borderThickness: 1,
+    outlineThickness: 1,
     showLocationAreas: true,
     varyFlowColorByMagnitude: true,
   };
@@ -266,7 +266,7 @@ export default class FlowMapLayer extends CompositeLayer {
       colors,
       showTotals,
       locationCircleSize,
-      borderThickness,
+      outlineThickness,
     } = this.props;
     const { selectors } = this.state;
 
@@ -287,11 +287,11 @@ export default class FlowMapLayer extends CompositeLayer {
       return [
         getLocationRadius({
           location: getLocationById(getFlowOriginId!(flow)),
-          type: LocationCircleType.BORDER,
+          type: LocationCircleType.OUTLINE,
         }),
         getLocationRadius({
           location: getLocationById(getFlowDestId!(flow)),
-          type: LocationCircleType.BORDER,
+          type: LocationCircleType.OUTLINE,
         }),
       ];
     };
@@ -308,15 +308,15 @@ export default class FlowMapLayer extends CompositeLayer {
       data: flows,
       opacity: 1,
       pickable: !highlighted,
-      drawBorder: !dimmed,
+      drawOutline: !dimmed,
       updateTriggers: {
         getColor: { dimmed },
         getEndpointOffsets: {
           showTotals,
         },
       },
-      ...(colors && colors.borderColor && { borderColor: colorAsRGBA(colors.borderColor) }),
-      ...(borderThickness && { borderThickness }),
+      ...(colors && colors.outlineColor && { outlineColor: colorAsRGBA(colors.outlineColor) }),
+      ...(outlineThickness && { outlineThickness }),
     });
   }
 

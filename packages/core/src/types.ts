@@ -34,7 +34,7 @@ export function isFeatureCollection(
 export const enum LocationCircleType {
   INNER = 'inner',
   OUTER = 'outer',
-  BORDER = 'border',
+  OUTLINE = 'outline',
 }
 
 export interface LocationCircle {

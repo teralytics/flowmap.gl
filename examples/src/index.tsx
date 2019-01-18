@@ -51,7 +51,7 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        colors={{ borderColor: '#fff' }}
+        colors={{ outlineColor: '#fff' }}
         getLocationId={(loc: any) => loc.properties.abbr}
         getFlowMagnitude={(flow: any) => flow.count}
         showTotals={true}
@@ -118,7 +118,7 @@ storiesOf('FlowMapLayer', module)
     )),
   )
   .add(
-    'custom borders',
+    'custom outlines',
     pipe(
       withStats,
       withFetchJson('locations', '/data/locations.json'),
@@ -126,7 +126,7 @@ storiesOf('FlowMapLayer', module)
     )(({ locations, flows }: any) => (
       <FlowMap
         colors={{
-          borderColor: '#64e9f9',
+          outlineColor: '#64e9f9',
         }}
         getLocationId={(loc: any) => loc.properties.abbr}
         getFlowMagnitude={(flow: any) => flow.count}
@@ -135,7 +135,7 @@ storiesOf('FlowMapLayer', module)
         flows={flows}
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-        borderThickness={5}
+        outlineThickness={5}
         mapboxAccessToken={mapboxAccessToken}
       />
     )),
