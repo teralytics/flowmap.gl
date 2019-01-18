@@ -51,5 +51,9 @@
     "react": ">= 16.0.0",
     "react-dom": ">= 16.0.0",
     "react-map-gl": ">= 4.0.0"
+  },
+  "gitHead": "45089da23f3b190b9fe9791f0143398b686fafe9",
+  "publishConfig": {
+    "access": "public"
   }
 }

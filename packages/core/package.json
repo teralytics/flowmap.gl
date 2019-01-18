@@ -63,5 +63,9 @@
     "@deck.gl/core": ">= 6.3.0",
     "@deck.gl/layers": ">= 6.3.0",
     "luma.gl": ">= 6.3.0"
+  },
+  "gitHead": "45089da23f3b190b9fe9791f0143398b686fafe9",
+  "publishConfig": {
+    "access": "public"
   }
 }
