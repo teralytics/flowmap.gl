@@ -15,7 +15,7 @@
  *
  */
 
-import * as d3dsv from 'd3-dsv';
+import { csvParse } from 'd3-dsv';
 import * as React from 'react';
 import Stats from 'stats.js';
 
@@ -48,7 +48,7 @@ const withFetch = (mode: 'csv' | 'json', propName: string, url: string) => (Comp
           console.log(reason);
           this.setState({ error: true });
         })
-        .then(data => this.setState({ data: mode === 'csv' ? d3dsv.csvParse(data) : data }));
+        .then(data => this.setState({ data: mode === 'csv' ? csvParse(data) : data }));
     }
     render() {
       const { data, error } = this.state;

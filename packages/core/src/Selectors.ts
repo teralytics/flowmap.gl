@@ -1,8 +1,8 @@
 // tslint:disable:member-ordering
 
-import * as d3Array from 'd3-array';
-import * as d3Collection from 'd3-collection';
-import * as d3Scale from 'd3-scale';
+import { extent, max } from 'd3-array';
+import { nest } from 'd3-collection';
+import { scaleLinear, scalePow } from 'd3-scale';
 import { createSelector } from 'reselect';
 import {
   ColorScale,
@@ -87,8 +87,7 @@ class Selectors {
   getLocationByIdGetter: PropsSelector<LocationsById> = createSelector(
     [getLocationFeatures],
     locations => {
-      const locationsById = d3Collection
-        .nest<Location, Location | undefined>()
+      const locationsById = nest<Location, Location | undefined>()
         .key(this.inputGetters.getLocationId)
         .rollup(([d]) => d)
         .object(locations);
@@ -157,14 +156,13 @@ class Selectors {
 
   private getFlowMagnitudeExtent: PropsSelector<[number, number] | [undefined, undefined]> = createSelector(
     [this.getNonSelfFlows],
-    flows => d3Array.extent(flows, this.inputGetters.getFlowMagnitude),
+    flows => extent(flows, this.inputGetters.getFlowMagnitude),
   );
 
   getFlowThicknessScale: PropsSelector<NumberScale> = createSelector(
     [this.getFlowMagnitudeExtent],
     ([minMagnitude, maxMagnitude]) => {
-      const scale = d3Scale
-        .scaleLinear()
+      const scale = scaleLinear()
         .range([0.05, 0.5])
         .domain([0, Math.max(Math.abs(minMagnitude || 0), Math.abs(maxMagnitude || 0))]);
 
@@ -316,21 +314,20 @@ class Selectors {
       this.getLocationTotalWithinGetter,
     ],
     (locations, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
-      const max = d3Array.max(locations, (location: Location) =>
+      const maxTotal = max(locations, (location: Location) =>
         Math.max(
           Math.abs(getLocationTotalIn(location) + getLocationTotalWithin(location)),
           Math.abs(getLocationTotalOut(location) + getLocationTotalWithin(location)),
         ),
       );
-      return max || 0;
+      return maxTotal || 0;
     },
   );
 
   private getSizeScale: PropsSelector<NumberScale> = createSelector(
     [this.getLocationMaxAbsTotal],
     maxTotal => {
-      const scale = d3Scale
-        .scalePow()
+      const scale = scalePow()
         .exponent(1 / 2)
         .domain([0, maxTotal])
         .range([0, 15]);
