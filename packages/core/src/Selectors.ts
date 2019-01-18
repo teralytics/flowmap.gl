@@ -385,11 +385,11 @@ class Selectors {
         const isPositive = (isIncoming === true && totalIn >= 0) || totalOut >= 0;
         const circleColors = (isDiffColorsRGBA(colors) ? (isPositive ? colors.positive : colors.negative) : colors)
           .locationCircles;
-        if (isHighlighted) {
+        if (isHighlighted && type === LocationCircleType.BORDER) {
           return circleColors.highlighted;
         }
 
-        if (isDimmed) {
+        if (isDimmed && type !== LocationCircleType.BORDER) {
           return getDimmedColor(circleColors.inner, colors.dimmedOpacity);
         }
 
