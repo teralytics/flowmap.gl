@@ -263,7 +263,6 @@ export default class FlowMapLayer extends CompositeLayer {
       getFlowDestId,
       getFlowMagnitude,
       getLocationCentroid,
-      colors,
       showTotals,
       locationCircleSize,
       outlineThickness,
@@ -295,8 +294,9 @@ export default class FlowMapLayer extends CompositeLayer {
         }),
       ];
     };
-    const makeFlowLinesColorGetter = selectors.getMakeFlowLinesColorGetter(this.props);
-    const getColor = makeFlowLinesColorGetter(highlighted, dimmed);
+    const flowColorScale = selectors.getFlowColorScale(this.props);
+    const colors = selectors.getColors(this.props);
+    const getColor = selectors.getFlowLinesColorGetter(colors, flowColorScale, highlighted, dimmed);
 
     return new FlowLinesLayer({
       id,
@@ -315,7 +315,7 @@ export default class FlowMapLayer extends CompositeLayer {
           showTotals,
         },
       },
-      ...(colors && colors.outlineColor && { outlineColor: colorAsRGBA(colors.outlineColor) }),
+      outlineColor: colors.outlineColor,
       ...(outlineThickness && { outlineThickness }),
     });
   }

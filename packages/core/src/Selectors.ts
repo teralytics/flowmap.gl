@@ -200,37 +200,35 @@ class Selectors {
     },
   );
 
-  getMakeFlowLinesColorGetter: PropsSelector<
-    (highlighted: boolean, dimmed: boolean) => ((flow: Flow) => RGBA) | RGBA
-  > = createSelector(
-    [this.getColors, this.getFlowColorScale],
-    (colors, flowColorScale) => {
-      const { getFlowMagnitude } = this.inputGetters;
-      return (highlighted: boolean, dimmed: boolean) => {
-        if (highlighted) {
-          if (isDiffColorsRGBA(colors)) {
-            const positiveColor = colors.positive.flows.highlighted;
-            const negativeColor = colors.negative.flows.highlighted;
-            return (flow: Flow) => {
-              const magnitude = getFlowMagnitude(flow);
-              return magnitude >= 0 ? positiveColor : negativeColor;
-            };
-          } else {
-            return colors.flows.highlighted;
-          }
-        } else {
-          return (flow: Flow) => {
-            const magnitude = getFlowMagnitude(flow);
-            const color = flowColorScale(magnitude);
-            if (dimmed) {
-              return getDimmedColor(color, colors.dimmedOpacity);
-            }
-            return color;
-          };
+  getFlowLinesColorGetter(
+    colors: ColorsRGBA | DiffColorsRGBA,
+    flowColorScale: ColorScale,
+    highlighted: boolean,
+    dimmed: boolean,
+  ) {
+    const { getFlowMagnitude } = this.inputGetters;
+    if (highlighted) {
+      if (isDiffColorsRGBA(colors)) {
+        const positiveColor = colors.positive.flows.highlighted;
+        const negativeColor = colors.negative.flows.highlighted;
+        return (flow: Flow) => {
+          const magnitude = getFlowMagnitude(flow);
+          return magnitude >= 0 ? positiveColor : negativeColor;
+        };
+      } else {
+        return colors.flows.highlighted;
+      }
+    } else {
+      return (flow: Flow) => {
+        const magnitude = getFlowMagnitude(flow);
+        const color = flowColorScale(magnitude);
+        if (dimmed) {
+          return getDimmedColor(color, colors.dimmedOpacity);
         }
+        return color;
       };
-    },
-  );
+    }
+  }
 
   private getLocationTotals: PropsSelector<LocationTotals> = createSelector(
     [getLocationFeatures, this.getFilteredFlows],
