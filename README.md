@@ -47,23 +47,12 @@ import DeckGL from 'deck.gl';
 import { StaticMap } from 'react-map-gl';
 import FlowMapLayer from '@flowmap.gl/core';
 
-const colors = {
-  flows: {
-    max: '#137CBD',
-  },
-  locationAreas: {
-    outline: 'rgba(92,112,128,0.5)',
-    normal: 'rgba(187,187,187,0.5)',
-  },
-};
-
 class MyFlowMap extends React.Component {
   state = { viewState: this.props.initialViewState };
 
   render() {
     const flowMapLayer = new FlowMapLayer({
       id: 'flow-map-layer',
-      colors,
       locations: [...],   // either array of location areas or a GeoJSON feature collection
       flows: [...],       // array of Flow objects
       getLocationId: l => l.id,
@@ -106,7 +95,6 @@ const MapVis = ({ width, height }) =>
             locations, l => l.properties.centroid, [ width, height ]
           )}
           mapboxAccessToken={mapboxAccessToken}
-          colors={colors}
           flows={flows}
           locations={locations}
           getLocationId={l => l.id}
@@ -123,11 +111,10 @@ The full list of supported props:
 ```typescript
 interface Props {
   id: string;
-  colors: Colors | DiffColors;
   locations: Locations;
   flows: Flow[];
-  onClick?: PickingHandler<FlowLayerPickingInfo>;
-  onHover?: PickingHandler<FlowLayerPickingInfo>;
+  diffMode: boolean;
+  colors: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
   getLocationTotalIn?: LocationAccessor<number>;
@@ -144,7 +131,8 @@ interface Props {
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
   borderThickness: number;
-  borderColor: Color;
+  onClick?: PickingHandler<FlowLayerPickingInfo>;
+  onHover?: PickingHandler<FlowLayerPickingInfo>;
 }
 ```
 

@@ -21,7 +21,7 @@ import { storiesOf } from '@storybook/react';
 import * as React from 'react';
 import GSheetsExample from './GSheetsExample';
 import { pipe, withFetchJson, withStats } from './hocs';
-import StaticExample from './StaticExample';
+import NonInteractiveExample from './NonInteractiveExample';
 
 export const mapboxAccessToken = process.env.MapboxAccessToken || '';
 
@@ -83,13 +83,33 @@ storiesOf('FlowMapLayer', module)
     )),
   )
   .add(
+    'non-varying flow color',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <FlowMap
+        getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
+        showTotals={true}
+        showLocationAreas={true}
+        varyFlowColorByMagnitude={false}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
     'non-interactive',
     pipe(
       withStats,
       withFetchJson('locations', '/data/locations.json'),
       withFetchJson('flows', '/data/flows-2016.json'),
     )(({ locations, flows }: any) => (
-      <StaticExample
+      <NonInteractiveExample
         flows={flows}
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
