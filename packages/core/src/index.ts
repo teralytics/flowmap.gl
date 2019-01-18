@@ -21,6 +21,16 @@ export * from './FlowMapLayer';
 export * from './types';
 
 // required by LocationTotalsLegend
-export { getLocationCircleColors } from './colorUtils';
+export {
+  Colors,
+  DiffColors,
+  ColorsRGBA,
+  getColorsRGBA,
+  getDiffColorsRGBA,
+  DiffColorsRGBA,
+  isDiffColorsRGBA,
+  rgbaAsString,
+  RGBA,
+} from './colors';
 
 export default FlowMapLayer;

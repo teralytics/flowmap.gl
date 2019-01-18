@@ -17,14 +17,12 @@
 
 import { CompositeLayer } from '@deck.gl/core';
 import { GeoJsonLayer } from '@deck.gl/layers';
-import { colorAsArray } from './colorUtils';
+import { colorAsRGBA, Colors, DiffColors } from './colors';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import Selectors from './Selectors';
 import {
-  Colors,
   DeckGLLayer,
-  DiffColors,
   Flow,
   FlowAccessor,
   FlowLayerPickingInfo,
@@ -41,7 +39,8 @@ import {
 export interface BasicProps {
   locations: Locations;
   flows: Flow[];
-  colors: Colors | DiffColors;
+  diffMode?: boolean;
+  colors?: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
   getLocationTotalIn?: LocationAccessor<number>;
@@ -238,13 +237,12 @@ export default class FlowMapLayer extends CompositeLayer {
   private getLocationAreasLayer(id: string): DeckGLLayer {
     const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow } = this.props;
     const { selectors } = this.state;
-    const getLineColor = selectors.getLocationAreaLineColorGetter(this.props);
-    const getFillColor = selectors.getLocationAreaFillColorGetter(this.props);
+    const colors = selectors.getColors(this.props);
 
     return new GeoJsonLayer({
       id,
-      getFillColor,
-      getLineColor,
+      getFillColor: selectors.getLocationAreaFillColorGetter(this.props),
+      getLineColor: colors.locationAreas.outline,
       lineJointRounded: true,
       data: locations,
       stroked: true,
@@ -317,7 +315,7 @@ export default class FlowMapLayer extends CompositeLayer {
           showTotals,
         },
       },
-      ...(colors.borderColor && { borderColor: colorAsArray(colors.borderColor) }),
+      ...(colors && colors.borderColor && { borderColor: colorAsRGBA(colors.borderColor) }),
       ...(borderThickness && { borderThickness }),
     });
   }

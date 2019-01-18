@@ -20,7 +20,6 @@ import FlowMapLayer, { Location } from '@flowmap.gl/core';
 import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
 import { StaticMap, ViewState } from 'react-map-gl';
-import { colors } from './colors';
 
 export interface Flow {
   origin: string;
@@ -54,10 +53,6 @@ const StaticExample: React.SFC<Props> = ({
 }) => {
   const flowMapLayer = new FlowMapLayer({
     id: 'flow-map-layer',
-    colors: {
-      ...colors,
-      ...(borderColor && { borderColor }),
-    },
     locations,
     flows,
     getLocationId: (loc: Location) => loc.properties.abbr,

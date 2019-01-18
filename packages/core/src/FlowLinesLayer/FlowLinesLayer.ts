@@ -18,7 +18,8 @@
 import { Layer } from '@deck.gl/core';
 import { Geometry, Model } from 'luma.gl';
 import { TRIANGLES, UNSIGNED_BYTE } from 'luma.gl/constants';
-import { Flow, RGBA } from '../types';
+import { RGBA } from '../colors';
+import { Flow } from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
 

@@ -5,29 +5,28 @@ import * as d3Collection from 'd3-collection';
 import * as d3Scale from 'd3-scale';
 import { createSelector } from 'reselect';
 import {
-  colorAsArray,
+  ColorScale,
+  ColorsRGBA,
   createFlowColorScale,
-  getDefaultFlowHighlightedColor,
-  getDefaultFlowMinColor,
-  getDefaultLocationAreaConnectedColor,
-  getDefaultLocationAreaHighlightedColor,
-  getDefaultLocationAreaSelectedColor,
+  DiffColors,
+  DiffColorsRGBA,
+  getColorsRGBA,
+  getDiffColorsRGBA,
   getDimmedColor,
-  getLocationCircleColors,
-} from './colorUtils';
+  isDiffColors,
+  isDiffColorsRGBA,
+  RGBA,
+} from './colors';
 import FlowMapLayer, { Props } from './FlowMapLayer';
 import {
-  ColorScale,
   Flow,
   FlowAccessor,
-  isDiffColors,
   isFeatureCollection,
   Location,
   LocationAccessor,
   LocationCircle,
   LocationCircleType,
   NumberScale,
-  RGBA,
 } from './types';
 
 export interface InputGetters {
@@ -58,7 +57,8 @@ export interface LocationsById {
   [key: string]: Location;
 }
 
-const getColors = (props: Props) => props.colors;
+const getDiffMode = (props: Props) => props.diffMode;
+const getColorsProp = (props: Props) => props.colors;
 const getLocationFeatures = (props: Props) =>
   isFeatureCollection(props.locations) ? props.locations.features : props.locations;
 const getFlows = (props: Props) => props.flows;
@@ -73,6 +73,16 @@ const MIN_BORDER_CIRCLE_RADIUS = 3;
 
 class Selectors {
   constructor(private inputGetters: InputGetters) {}
+
+  getColors: PropsSelector<ColorsRGBA | DiffColorsRGBA> = createSelector(
+    [getColorsProp, getDiffMode],
+    (colors, diffMode) => {
+      if (diffMode) {
+        return getDiffColorsRGBA(colors);
+      }
+      return getColorsRGBA(colors);
+    },
+  );
 
   getLocationByIdGetter: PropsSelector<LocationsById> = createSelector(
     [getLocationFeatures],
@@ -163,37 +173,31 @@ class Selectors {
   );
 
   private getFlowColorScale: PropsSelector<ColorScale> = createSelector(
-    [getColors, this.getFlowMagnitudeExtent, getVaryFlowColorByMagnitude],
+    [this.getColors, this.getFlowMagnitudeExtent, getVaryFlowColorByMagnitude],
     (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude) => {
       if (!varyFlowColorByMagnitude) {
-        if (isDiffColors(colors)) {
+        if (isDiffColorsRGBA(colors)) {
           return (v: number) => (v >= 0 ? colors.positive.flows.max : colors.negative.flows.max);
         }
 
         return () => colors.flows.max;
       }
 
-      if (isDiffColors(colors)) {
+      if (isDiffColorsRGBA(colors)) {
         const posScale = createFlowColorScale(
           [0, maxMagnitude || 0],
-          [
-            colors.positive.flows.min ? colors.positive.flows.min : getDefaultFlowMinColor(colors.positive.flows.max),
-            colors.positive.flows.max,
-          ],
+          [colors.positive.flows.min, colors.positive.flows.max],
         );
         const negScale = createFlowColorScale(
           [minMagnitude || 0, 0],
-          [
-            colors.negative.flows.max,
-            colors.negative.flows.min ? colors.negative.flows.min : getDefaultFlowMinColor(colors.negative.flows.max),
-          ],
+          [colors.negative.flows.max, colors.negative.flows.min],
         );
 
         return (magnitude: number) => (magnitude >= 0 ? posScale(magnitude) : negScale(magnitude));
       }
 
       const { max, min } = colors.flows;
-      const scale = createFlowColorScale([0, maxMagnitude || 0], [min ? min : getDefaultFlowMinColor(max), max]);
+      const scale = createFlowColorScale([0, maxMagnitude || 0], [min, max]);
       return (magnitude: number) => scale(magnitude);
     },
   );
@@ -201,24 +205,20 @@ class Selectors {
   getMakeFlowLinesColorGetter: PropsSelector<
     (highlighted: boolean, dimmed: boolean) => ((flow: Flow) => RGBA) | RGBA
   > = createSelector(
-    [getColors, this.getFlowColorScale],
+    [this.getColors, this.getFlowColorScale],
     (colors, flowColorScale) => {
       const { getFlowMagnitude } = this.inputGetters;
       return (highlighted: boolean, dimmed: boolean) => {
         if (highlighted) {
-          if (isDiffColors(colors)) {
-            const positiveColor = colorAsArray(
-              colors.positive.flows.highlighted || getDefaultFlowHighlightedColor(colors.positive.flows.max),
-            );
-            const negativeColor = colorAsArray(
-              colors.negative.flows.highlighted || getDefaultFlowHighlightedColor(colors.negative.flows.max),
-            );
+          if (isDiffColorsRGBA(colors)) {
+            const positiveColor = colors.positive.flows.highlighted;
+            const negativeColor = colors.negative.flows.highlighted;
             return (flow: Flow) => {
               const magnitude = getFlowMagnitude(flow);
               return magnitude >= 0 ? positiveColor : negativeColor;
             };
           } else {
-            return colorAsArray(colors.flows.highlighted || getDefaultFlowHighlightedColor(colors.flows.max));
+            return colors.flows.highlighted;
           }
         } else {
           return (flow: Flow) => {
@@ -227,7 +227,7 @@ class Selectors {
             if (dimmed) {
               return getDimmedColor(color, colors.dimmedOpacity);
             }
-            return colorAsArray(color);
+            return color;
           };
         }
       };
@@ -364,7 +364,7 @@ class Selectors {
 
   getLocationCircleColorGetter: PropsSelector<(flow: Flow) => RGBA> = createSelector(
     [
-      getColors,
+      this.getColors,
       getHighlightedLocationId,
       this.getLocationTotalInGetter,
       this.getLocationTotalOutGetter,
@@ -372,7 +372,6 @@ class Selectors {
     ],
     (colors, highlightedLocationId, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
       const { getLocationId } = this.inputGetters;
-      const borderColor = (colors.borderColor ? colorAsArray(colors.borderColor) : [255, 255, 255, 255]) as RGBA;
 
       return ({ location, type }: Flow) => {
         const isHighlighted = highlightedLocationId && highlightedLocationId === getLocationId(location);
@@ -384,9 +383,10 @@ class Selectors {
         const isIncoming = type === LocationCircleType.OUTER && Math.abs(totalIn) > Math.abs(totalOut);
 
         const isPositive = (isIncoming === true && totalIn >= 0) || totalOut >= 0;
-        const circleColors = getLocationCircleColors(colors, isPositive);
+        const circleColors = (isDiffColorsRGBA(colors) ? (isPositive ? colors.positive : colors.negative) : colors)
+          .locationCircles;
         if (isHighlighted) {
-          return colorAsArray(circleColors.highlighted);
+          return circleColors.highlighted;
         }
 
         if (isDimmed) {
@@ -394,26 +394,19 @@ class Selectors {
         }
 
         if (type === LocationCircleType.BORDER) {
-          return borderColor;
+          return colors.borderColor;
         }
 
         if (type === LocationCircleType.INNER) {
-          return colorAsArray(circleColors.inner);
+          return circleColors.inner;
         }
 
         if (isIncoming === true) {
-          return colorAsArray(circleColors.incoming);
+          return circleColors.incoming;
         }
 
-        return colorAsArray(circleColors.outgoing);
+        return circleColors.outgoing;
       };
-    },
-  );
-
-  getLocationAreaLineColorGetter: PropsSelector<() => RGBA> = createSelector(
-    [getColors],
-    colors => {
-      return () => colorAsArray(colors.locationAreas.outline);
     },
   );
 
@@ -450,24 +443,23 @@ class Selectors {
   );
 
   getLocationAreaFillColorGetter: PropsSelector<(location: Location) => RGBA> = createSelector(
-    [getColors, getSelectedLocationIds, getHighlightedLocationId, this.isLocationConnectedGetter],
+    [this.getColors, getSelectedLocationIds, getHighlightedLocationId, this.isLocationConnectedGetter],
     (colors, selectedLocationIds, highlightedLocationId, isLocationConnected) => {
       return (location: Location) => {
         const locationId = this.inputGetters.getLocationId(location);
-        const { normal, selected, highlighted, connected } = colors.locationAreas;
         if (selectedLocationIds && selectedLocationIds.indexOf(locationId) >= 0) {
-          return colorAsArray(selected ? selected : getDefaultLocationAreaSelectedColor(normal));
+          return colors.locationAreas.selected;
         }
 
         if (locationId === highlightedLocationId) {
-          return colorAsArray(highlighted ? highlighted : getDefaultLocationAreaHighlightedColor(normal));
+          return colors.locationAreas.highlighted;
         }
 
         if (isLocationConnected(locationId) === true) {
-          return colorAsArray(connected ? connected : getDefaultLocationAreaConnectedColor(normal));
+          return colors.locationAreas.connected;
         }
 
-        return colorAsArray(normal);
+        return colors.locationAreas.normal;
       };
     },
   );

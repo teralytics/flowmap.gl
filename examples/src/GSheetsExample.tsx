@@ -18,7 +18,6 @@
 import FlowMap, { getViewStateForLocations, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import * as React from 'react';
 import { mapboxAccessToken } from '.';
-import { colors, diffColors } from './colors';
 import { pipe, withFetchCsv, withStats } from './hocs';
 
 interface Location {
@@ -53,7 +52,6 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
             window.innerWidth,
             window.innerHeight,
           ])}
-          colors={colors}
           showTotals={true}
           showLocationAreas={false}
           flows={flows}
@@ -66,7 +64,7 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
           getFlowMagnitude={getFlowMagnitude}
         />
         <LegendBox bottom={35} left={10}>
-          <LocationTotalsLegend colors={colors} />
+          <LocationTotalsLegend />
         </LegendBox>
         <LegendBox bottom={35} right={10}>
           {`Showing ${flows.length} flows. `}

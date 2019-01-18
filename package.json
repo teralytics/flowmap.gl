@@ -27,6 +27,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "start": "cd examples && npm start",
+    "core-dev": "cd packages/core && npm run dev",
+    "react-dev": "cd packages/react && npm run dev",
     "storybook:build": "cd examples && npm run storybook:build",
     "storybook:deploy": "cd examples && npm run storybook:deploy",
     "lint": "tslint --fix '{examples,packages/*}/{src,test,stories}/**/*.{ts,tsx}'",
@@ -46,7 +48,7 @@
     "typescript": "^3.2.2"
   },
   "lint-staged": {
-    "{examples,packages/*}/{src,test,stories}/**/*.{ts,tsx}": [
+    "{examples,packages/*}/{src,test}/**/*.{ts,tsx}": [
       "tslint --fix",
       "git add"
     ]

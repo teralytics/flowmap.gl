@@ -15,19 +15,20 @@
  *
  */
 
+import { RGBA, rgbaAsString } from '@flowmap.gl/core';
 import * as React from 'react';
 
 export interface DiscProps {
   size: number;
-  inner: string;
-  outer: string;
+  inner: RGBA;
+  outer: RGBA;
 }
 
 const Disc: React.SFC<DiscProps> = ({ size, inner, outer }) => {
   return (
     <svg width={size} height={size} style={{ marginRight: 5 }}>
-      <circle cx={size / 2} cy={size / 2} r={size * 0.5} fill={outer} />
-      <circle cx={size / 2} cy={size / 2} r={size * 0.5 * 0.75} fill={inner} />
+      <circle cx={size / 2} cy={size / 2} r={size * 0.5} fill={rgbaAsString(outer)} />
+      <circle cx={size / 2} cy={size / 2} r={size * 0.5 * 0.75} fill={rgbaAsString(inner)} />
     </svg>
   );
 };

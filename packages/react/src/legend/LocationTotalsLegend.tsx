@@ -15,13 +15,13 @@
  *
  */
 
-import { getLocationCircleColors } from '@flowmap.gl/core';
-import { Colors, DiffColors, isDiffColors } from '@flowmap.gl/core';
+import { Colors, DiffColors, getColorsRGBA, getDiffColorsRGBA, isDiffColorsRGBA } from '@flowmap.gl/core';
 import * as React from 'react';
 import Disc from './Disc';
 
 export interface Props {
-  colors: Colors | DiffColors;
+  diff?: boolean;
+  colors?: Colors | DiffColors;
 }
 
 const styles = {
@@ -42,10 +42,11 @@ const styles = {
   },
 };
 
-const LocationTotalsLegend = ({ colors }: Props) => {
+const LocationTotalsLegend = ({ diff, colors }: Props) => {
   const size = 20;
-  const pos = getLocationCircleColors(colors, true);
-  const neg = isDiffColors(colors) ? getLocationCircleColors(colors, false) : undefined;
+  const colorsRGBA = diff ? getDiffColorsRGBA(colors) : getColorsRGBA(colors);
+  const pos = isDiffColorsRGBA(colorsRGBA) ? colorsRGBA.positive.locationCircles : colorsRGBA.locationCircles;
+  const neg = isDiffColorsRGBA(colorsRGBA) ? colorsRGBA.negative.locationCircles : undefined;
   return (
     <div style={styles.outer}>
       <div>

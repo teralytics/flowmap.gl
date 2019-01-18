@@ -17,55 +17,6 @@
 
 import { Feature, FeatureCollection, GeometryObject } from 'geojson';
 
-export interface FlowColors {
-  max: string;
-  min?: string;
-  highlighted?: string;
-}
-
-export interface LocationCircleColors {
-  inner: string;
-  outgoing?: string;
-  incoming?: string;
-  highlighted?: string;
-}
-
-export interface LocationAreaColors {
-  outline: string;
-  normal: string;
-  selected?: string;
-  highlighted?: string;
-  connected?: string;
-}
-
-export interface BaseColors {
-  locationAreas: LocationAreaColors;
-  dimmedOpacity?: number;
-  borderColor?: string;
-}
-
-export interface Colors extends BaseColors {
-  flows: FlowColors;
-  locationCircles?: LocationCircleColors;
-}
-
-export interface DiffColors extends BaseColors {
-  positive: {
-    flows: FlowColors;
-    locationCircles?: LocationCircleColors;
-  };
-  negative: {
-    flows: FlowColors;
-    locationCircles?: LocationCircleColors;
-  };
-}
-
-export function isDiffColors(colors: DiffColors | Colors): colors is DiffColors {
-  return (colors as DiffColors).positive !== undefined;
-}
-
-export type RGBA = [number, number, number, number];
-
 export type Flow = any;
 
 export type LocationProperties = any;
@@ -140,4 +91,3 @@ export type LocationAccessor<T> = (location: Location) => T;
 export type LocationCircleAccessor<T> = (locCircle: LocationCircle) => T;
 
 export type NumberScale = (value: number) => number;
-export type ColorScale = (value: number) => string;
