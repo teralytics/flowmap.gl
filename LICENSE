@@ -203,20 +203,20 @@
    limitations under the License.
 
    ------ END OF THE BOILERPLATE NOTICE ---------------------
-   
+
    ========================================================================
    FLOWMAP.GL COMPONENTS:
 
-   The flowmap.gl project bundles or references the following components with 
-   separate copyright notices and license terms in example(s) and/or as dev- 
-   and/or peer-dependencies. Your use of the these components  is subject to 
+   The flowmap.gl project bundles or references the following components with
+   separate copyright notices and license terms in example(s) and/or as dev-
+   and/or peer-dependencies. Your use of the these components  is subject to
    the terms and conditions of the following licenses.
-   
+
    ========================================================================
    MIT licenses
    ========================================================================
    The following components are provided under the MIT License:
-   
+
    reselect - http://www.npmjs.com/package/reselect
    @storybook/react - http://www.npmjs.com/package/@storybook/react
    @types/d3-array - http://www.npmjs.com/package/@types/d3-array
@@ -227,7 +227,6 @@
    @types/geojson - http://www.npmjs.com/package/@types/geojson
    @types/gl-matrix - http://www.npmjs.com/package/@types/gl-matrix
    @types/hammerjs - http://www.npmjs.com/package/@types/hammerjs
-   @types/lodash - http://www.npmjs.com/package/@types/lodash
    @types/node - http://www.npmjs.com/package/@types/node
    @types/react - http://www.npmjs.com/package/@types/react
    @types/storybook__react - http://www.npmjs.com/package/@types/storybook__react
@@ -238,7 +237,6 @@
    file-loader - http://www.npmjs.com/package/file-loader
    husky - http://www.npmjs.com/package/husky
    lint-staged - http://www.npmjs.com/package/lint-staged
-   lodash - http://www.npmjs.com/package/lodash
    luma.gl - http://www.npmjs.com/package/luma.gl
    npm-run-all - http://www.npmjs.com/package/npm-run-all
    prettier - http://www.npmjs.com/package/prettier
@@ -253,25 +251,25 @@
    react-dom - http://www.npmjs.com/package/react-dom
    deck.gl - http://www.npmjs.com/package/deck.gl
    luma.gl - http://www.npmjs.com/package/luma.gl
-   
+
    ========================================================================
    BSD 3-Clause licenses
    ========================================================================
    The following components are provided under the BSD 3-Clause license:
-   
+
    d3-array - http://www.npmjs.com/package/d3-array
    d3-collection - http://www.npmjs.com/package/d3-collection
    d3-color - http://www.npmjs.com/package/d3-color
    d3-interpolate - http://www.npmjs.com/package/d3-interpolate
    d3-scale - http://www.npmjs.com/package/d3-scale
    @mapbox/geo-viewport - http://www.npmjs.com/package/@mapbox/geo-viewport
-   
+
    ========================================================================
    Apache 2.0 licenses
    ========================================================================
    The following components are provided under the Apache 2.0 license:
-    
+
    tslint - http://www.npmjs.com/package/tslint
    tslint-react - http://www.npmjs.com/package/tslint-react
    typescript - http://www.npmjs.com/package/typescript
-   
+
