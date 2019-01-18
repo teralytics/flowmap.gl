@@ -52,6 +52,7 @@ export interface BasicProps {
   locationCircleSize?: number;
   showLocationAreas?: boolean;
   varyFlowColorByMagnitude?: boolean;
+  showOnlyTopFlows?: number;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
@@ -214,6 +215,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const { selectors } = this.state;
 
     const flows = selectors.getSortedNonSelfFlows(this.props);
+    const topFlows = selectors.getTopFlows(this.props);
     const highlightedFlows = selectors.getHighlightedFlows(this.props);
     const isLocationHighlighted = highlightedLocationId != null;
 
@@ -223,7 +225,7 @@ export default class FlowMapLayer extends CompositeLayer {
       layers.push(this.getLocationAreasLayer(getLayerId(this.props.id, LayerKind.LOCATION_AREAS)));
     }
     layers.push(
-      this.getFlowLinesLayer(getLayerId(this.props.id, LayerKind.FLOWS), flows, false, isLocationHighlighted),
+      this.getFlowLinesLayer(getLayerId(this.props.id, LayerKind.FLOWS), topFlows, false, isLocationHighlighted),
     );
     if (highlightedFlows) {
       layers.push(

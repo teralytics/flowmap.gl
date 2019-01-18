@@ -124,6 +124,7 @@ interface Props {
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
   showTotals?: boolean;
+  showOnlyTopFlows?: number;
   locationCircleSize?: number;
   showLocationAreas?: boolean;
   varyFlowColorByMagnitude?: boolean;

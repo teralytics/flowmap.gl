@@ -44,6 +44,26 @@ storiesOf('FlowMapLayer', module)
     )),
   )
   .add(
+    'only top 100 flows',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <FlowMap
+        getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
+        showTotals={true}
+        showOnlyTopFlows={100}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
     'no location areas',
     pipe(
       withStats,
@@ -103,21 +123,6 @@ storiesOf('FlowMapLayer', module)
     )),
   )
   .add(
-    'non-interactive',
-    pipe(
-      withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-2016.json'),
-    )(({ locations, flows }: any) => (
-      <NonInteractiveExample
-        flows={flows}
-        locations={locations}
-        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-        mapboxAccessToken={mapboxAccessToken}
-      />
-    )),
-  )
-  .add(
     'custom outlines',
     pipe(
       withStats,
@@ -153,6 +158,21 @@ storiesOf('FlowMapLayer', module)
         flows={flows}
         locations={locations}
         multiselect={true}
+        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'non-interactive',
+    pipe(
+      withStats,
+      withFetchJson('locations', '/data/locations.json'),
+      withFetchJson('flows', '/data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <NonInteractiveExample
+        flows={flows}
+        locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />

@@ -8,12 +8,10 @@ import {
   ColorScale,
   ColorsRGBA,
   createFlowColorScale,
-  DiffColors,
   DiffColorsRGBA,
   getColorsRGBA,
   getDiffColorsRGBA,
   getDimmedColor,
-  isDiffColors,
   isDiffColorsRGBA,
   RGBA,
 } from './colors';
@@ -66,6 +64,7 @@ const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
+const getShowOnlyTopFlows = (props: Props) => props.showOnlyTopFlows;
 const getOutlineThickness = (props: Props) =>
   props.outlineThickness != null ? props.outlineThickness : FlowMapLayer.defaultProps.outlineThickness;
 
@@ -132,6 +131,16 @@ class Selectors {
       const comparator = (f1: Flow, f2: Flow) =>
         Math.abs(this.inputGetters.getFlowMagnitude(f1)) - Math.abs(this.inputGetters.getFlowMagnitude(f2));
       return flows.slice().sort(comparator);
+    },
+  );
+
+  getTopFlows: PropsSelector<Flow[]> = createSelector(
+    [this.getSortedNonSelfFlows, getShowOnlyTopFlows],
+    (flows, showOnlyTopFlows) => {
+      if (showOnlyTopFlows != null && showOnlyTopFlows > 0 && flows.length > showOnlyTopFlows) {
+        return flows.slice(flows.length - showOnlyTopFlows, flows.length);
+      }
+      return flows;
     },
   );
 

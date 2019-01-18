@@ -39,6 +39,8 @@ const getFlowDestId = (flow: Flow) => flow.dest;
 const getLocationId = (loc: Location) => loc.id;
 const getLocationCentroid = (location: Location): [number, number] => [+location.lon, +location.lat];
 
+const SHOW_TOP_FLOWS = 10000;
+
 const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
   const Comp = pipe(
     withStats,
@@ -54,6 +56,7 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
           ])}
           showTotals={true}
           showLocationAreas={false}
+          showOnlyTopFlows={SHOW_TOP_FLOWS}
           flows={flows}
           locations={locations}
           mapboxAccessToken={mapboxAccessToken}
@@ -67,7 +70,7 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
           <LocationTotalsLegend />
         </LegendBox>
         <LegendBox bottom={35} right={10}>
-          {`Showing ${flows.length} flows. `}
+          {`Showing ${flows.length > SHOW_TOP_FLOWS ? `top ${SHOW_TOP_FLOWS} of` : ''} ${flows.length} flows. `}
           <a
             href={`https://docs.google.com/spreadsheets/d/${sheetKey}/edit?usp=sharing`}
             target="_blank"
