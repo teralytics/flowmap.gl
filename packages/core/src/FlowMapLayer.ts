@@ -28,7 +28,6 @@ import {
   Flow,
   FlowAccessor,
   FlowLayerPickingInfo,
-  FlowPickingInfo,
   isFeatureCollection,
   Location,
   LocationAccessor,
@@ -66,20 +65,33 @@ export interface Props extends BasicProps {
   onHover?: PickingHandler<FlowLayerPickingInfo>;
 }
 
-const LAYER_ID__LOCATIONS = 'locations';
-const LAYER_ID__LOCATION_AREAS = 'location-areas';
-const LAYER_ID__FLOWS = 'flows';
-const LAYER_ID__FLOWS_HIGHLIGHTED = 'flows-highlighted';
+enum LayerKind {
+  LOCATIONS = 'LOCATIONS',
+  LOCATION_AREAS = 'LOCATION_AREAS',
+  FLOWS = 'FLOWS',
+  FLOWS_HIGHLIGHTED = 'FLOWS_HIGHLIGHTED',
+}
+
+const LAYER_ID_SEPARATOR = ':::';
+
+function getLayerId(baseLayerId: string, layerKind: LayerKind) {
+  return `${baseLayerId}${LAYER_ID_SEPARATOR}${layerKind.valueOf()}`;
+}
+
+function getLayerKind(id: string): LayerKind {
+  const kind = id.substr(id.lastIndexOf(LAYER_ID_SEPARATOR) + LAYER_ID_SEPARATOR.length);
+  return LayerKind[kind as keyof typeof LayerKind];
+}
 
 function getPickType({ id }: DeckGLLayer): PickingType | undefined {
-  switch (id) {
-    case LAYER_ID__FLOWS:
+  switch (getLayerKind(id)) {
+    case LayerKind.FLOWS:
     // fall through
-    case LAYER_ID__FLOWS_HIGHLIGHTED:
+    case LayerKind.FLOWS_HIGHLIGHTED:
       return PickingType.FLOW;
-    case LAYER_ID__LOCATIONS:
+    case LayerKind.LOCATIONS:
       return PickingType.LOCATION;
-    case LAYER_ID__LOCATION_AREAS:
+    case LayerKind.LOCATION_AREAS:
       return PickingType.LOCATION_AREA;
     default:
       return undefined;
@@ -163,30 +175,39 @@ export default class FlowMapLayer extends CompositeLayer {
     };
 
     const { selectors } = this.state;
-    if (!info.object || type === PickingType.FLOW) {
+    if (type === PickingType.FLOW) {
       const getLocationById = selectors.getLocationByIdGetter(this.props);
       const { getFlowOriginId, getFlowDestId } = selectors.inputGetters;
       const flow = info.object as Flow;
       return {
         ...info,
-        origin: getLocationById(getFlowOriginId(flow)),
-        dest: getLocationById(getFlowDestId(flow)),
+        ...(flow && {
+          origin: getLocationById(getFlowOriginId(flow)),
+          dest: getLocationById(getFlowDestId(flow)),
+        }),
       };
     }
 
-    const object = type === PickingType.LOCATION ? info.object.location : info.object;
-    const getLocationTotalIn = selectors.getLocationTotalInGetter(this.props);
-    const getLocationTotalOut = selectors.getLocationTotalOutGetter(this.props);
-    const getLocationTotalWithin = selectors.getLocationTotalWithinGetter(this.props);
-    const getLocationCircleRadius = selectors.getLocationCircleRadiusGetter(this.props);
+    if (type === PickingType.LOCATION || type === PickingType.LOCATION_AREA) {
+      const location: Location = type === PickingType.LOCATION ? info.object && info.object.location : info.object;
+      const getLocationTotalIn = selectors.getLocationTotalInGetter(this.props);
+      const getLocationTotalOut = selectors.getLocationTotalOutGetter(this.props);
+      const getLocationTotalWithin = selectors.getLocationTotalWithinGetter(this.props);
+      const getLocationCircleRadius = selectors.getLocationCircleRadiusGetter(this.props);
 
-    return {
-      ...info,
-      totalIn: getLocationTotalIn(object),
-      totalOut: getLocationTotalOut(object),
-      totalWithin: getLocationTotalWithin(object),
-      circleRadius: getLocationCircleRadius({ location, type: LocationCircleType.OUTER }),
-    };
+      return {
+        ...info,
+        ...(location && {
+          object: location,
+          totalIn: getLocationTotalIn(location),
+          totalOut: getLocationTotalOut(location),
+          totalWithin: getLocationTotalWithin(location),
+          circleRadius: getLocationCircleRadius({ location, type: LocationCircleType.OUTER }),
+        }),
+      };
+    }
+
+    return info;
   }
 
   renderLayers() {
@@ -200,13 +221,17 @@ export default class FlowMapLayer extends CompositeLayer {
     const layers: DeckGLLayer[] = [];
 
     if (showLocationAreas && isFeatureCollection(locations)) {
-      layers.push(this.getLocationAreasLayer(LAYER_ID__LOCATION_AREAS));
+      layers.push(this.getLocationAreasLayer(getLayerId(this.props.id, LayerKind.LOCATION_AREAS)));
     }
-    layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS, flows, false, isLocationHighlighted));
+    layers.push(
+      this.getFlowLinesLayer(getLayerId(this.props.id, LayerKind.FLOWS), flows, false, isLocationHighlighted),
+    );
     if (highlightedFlows) {
-      layers.push(this.getFlowLinesLayer(LAYER_ID__FLOWS_HIGHLIGHTED, highlightedFlows, true, false));
+      layers.push(
+        this.getFlowLinesLayer(getLayerId(this.props.id, LayerKind.FLOWS_HIGHLIGHTED), highlightedFlows, true, false),
+      );
     }
-    layers.push(this.getNodesLayer(LAYER_ID__LOCATIONS));
+    layers.push(this.getLocationCirclesLayer(getLayerId(this.props.id, LayerKind.LOCATIONS)));
     return layers;
   }
 
@@ -297,7 +322,7 @@ export default class FlowMapLayer extends CompositeLayer {
     });
   }
 
-  private getNodesLayer(id: string): FlowCirclesLayer {
+  private getLocationCirclesLayer(id: string): FlowCirclesLayer {
     const { highlightedLocationId, selectedLocationIds, getLocationCentroid, flows, showTotals } = this.props;
     const { selectors } = this.state;
 
