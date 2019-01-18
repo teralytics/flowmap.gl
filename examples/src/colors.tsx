@@ -29,7 +29,6 @@ export const colors: Colors = {
     outline: 'rgba(92,112,128,0.5)',
     normal: 'rgba(187,187,187,0.35)',
   },
-  borderColor: 'rgba(250,250,250,0.5)',
 };
 
 const complementary = '#f52020';
@@ -50,5 +49,4 @@ export const diffColors: DiffColors = {
     outline: 'rgba(92,112,128,0.5)',
     normal: 'rgba(220,220,220,0.35)',
   },
-  borderColor: 'rgb(250,250,255)',
 };
