@@ -30,8 +30,8 @@ storiesOf('FlowMapLayer', module)
     'basic',
     pipe(
       withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-2016.json'),
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
         getLocationId={(loc: any) => loc.properties.abbr}
@@ -47,8 +47,8 @@ storiesOf('FlowMapLayer', module)
     'only top 100 flows',
     pipe(
       withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-2016.json'),
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
         getLocationId={(loc: any) => loc.properties.abbr}
@@ -67,8 +67,8 @@ storiesOf('FlowMapLayer', module)
     'no location areas',
     pipe(
       withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-2016.json'),
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
         colors={{ outlineColor: '#fff' }}
@@ -87,8 +87,8 @@ storiesOf('FlowMapLayer', module)
     'no location totals',
     pipe(
       withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-2016.json'),
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
         getLocationId={(loc: any) => loc.properties.abbr}
@@ -106,8 +106,8 @@ storiesOf('FlowMapLayer', module)
     'non-varying flow color',
     pipe(
       withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-2016.json'),
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
         getLocationId={(loc: any) => loc.properties.abbr}
@@ -126,8 +126,8 @@ storiesOf('FlowMapLayer', module)
     'custom outlines',
     pipe(
       withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-2016.json'),
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
         colors={{
@@ -149,8 +149,8 @@ storiesOf('FlowMapLayer', module)
     'multiselect',
     pipe(
       withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-2016.json'),
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
         getLocationId={(loc: any) => loc.properties.abbr}
@@ -167,8 +167,8 @@ storiesOf('FlowMapLayer', module)
     'non-interactive',
     pipe(
       withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-2016.json'),
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <NonInteractiveExample
         flows={flows}
@@ -182,8 +182,8 @@ storiesOf('FlowMapLayer', module)
     'difference mode',
     pipe(
       withStats,
-      withFetchJson('locations', '/data/locations.json'),
-      withFetchJson('flows', '/data/flows-diff-2015-2016.json'),
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-diff-2015-2016.json'),
     )(({ locations, flows }: any) => (
       <>
         <FlowMap
