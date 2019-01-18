@@ -1,0 +1,55 @@
+{
+  "name": "@flowmap.gl/react",
+  "version": "5.0.0",
+  "description": "React components for @flowmap.gl/core",
+  "main": "dist/index.js",
+  "module": "dist-esm/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "dist-esm"
+  ],
+  "scripts": {
+    "dev": "tsc --watch",
+    "build:es5": "rm -rf dist && tsc --project tsconfig.build.json",
+    "build:esm": "rm -rf dist-esm && tsc --project tsconfig.build.esm.json",
+    "build": "npm-run-all build:*",
+    "typecheck": "tsc --noEmit",
+    "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teralytics/flowmap.gl.git"
+  },
+  "author": "Teralytics AG",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/teralytics/flowmap.gl/issues"
+  },
+  "homepage": "https://github.com/teralytics/flowmap.gl#readme",
+  "dependencies": {
+    "@flowmap.gl/core": "5.0.0",
+    "@mapbox/geo-viewport": "^0.4.0",
+    "d3-color": "^1.2.3",
+    "d3-geo": "^1.11.3"
+  },
+  "devDependencies": {
+    "@types/d3-color": "^1.2.1",
+    "@types/d3-geo": "^1.11.0",
+    "@types/mapbox__geo-viewport": "^0.4.0",
+    "@types/react": "^16.7.20",
+    "@types/react-map-gl": "^4.0.1",
+    "@deck.gl/react": "6.3.4",
+    "npm-run-all": "^4.1.5",
+    "react": "^16.7.0",
+    "react-map-gl": "^4.0.7",
+    "typescript": "^3.2.2"
+  },
+  "peerDependencies": {
+    "@deck.gl/react": ">= 6.3.0",
+    "react": ">= 16.0.0",
+    "react-dom": ">= 16.0.0",
+    "react-map-gl": ">= 4.0.0"
+  }
+}
