@@ -4,6 +4,7 @@
   "author": "Teralytics AG",
   "license": "Apache-2.0",
   "version": "5.0.0",
+  "private": true,
   "keywords": [
     "flows",
     "flow map",
