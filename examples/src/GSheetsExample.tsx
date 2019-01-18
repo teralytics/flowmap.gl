@@ -15,10 +15,10 @@
  *
  */
 
-import FlowMap, { getViewStateForLocations, LegendBox } from '@flowmap.gl/react';
+import FlowMap, { getViewStateForLocations, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import * as React from 'react';
 import { mapboxAccessToken } from '.';
-import { colors } from './colors';
+import { colors, diffColors } from './colors';
 import { pipe, withFetchCsv, withStats } from './hocs';
 
 interface Location {
@@ -65,6 +65,9 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
           getLocationCentroid={getLocationCentroid}
           getFlowMagnitude={getFlowMagnitude}
         />
+        <LegendBox bottom={35} left={10}>
+          <LocationTotalsLegend colors={colors} />
+        </LegendBox>
         <LegendBox bottom={35} right={10}>
           {`Showing ${flows.length} flows. `}
           <a
