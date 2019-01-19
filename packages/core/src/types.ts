@@ -81,7 +81,7 @@ export interface FlowPickingInfo extends PickingInfo<Data> {
   type: PickingType.FLOW;
   object: Flow;
   origin: Location;
-  destination: Location;
+  dest: Location;
 }
 
 export type FlowLayerPickingInfo = LocationPickingInfo | LocationAreaPickingInfo | FlowPickingInfo;
