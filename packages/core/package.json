@@ -1,0 +1,71 @@
+{
+  "name": "@flowmap.gl/core",
+  "version": "5.0.2",
+  "description": "Flow map drawing layer for deck.gl",
+  "main": "dist/index.js",
+  "module": "dist-esm/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "dist-esm"
+  ],
+  "scripts": {
+    "dev": "tsc --watch",
+    "build:es5": "rm -rf dist && tsc --project tsconfig.build.json",
+    "build:esm": "rm -rf dist-esm && tsc --project tsconfig.build.esm.json",
+    "build": "npm-run-all build:*",
+    "typecheck": "tsc --noEmit",
+    "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teralytics/flowmap.gl.git"
+  },
+  "keywords": [
+    "flows",
+    "flow",
+    "map",
+    "webgl",
+    "visualization",
+    "overlay",
+    "layer"
+  ],
+  "author": "Teralytics AG",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/teralytics/flowmap.gl/issues"
+  },
+  "homepage": "https://github.com/teralytics/flowmap.gl#readme",
+  "dependencies": {
+    "d3-array": "^2.0.3",
+    "d3-collection": "^1.0.7",
+    "d3-color": "^1.2.3",
+    "d3-interpolate": "^1.3.2",
+    "d3-scale": "^2.1.2",
+    "reselect": "^4.0.0"
+  },
+  "devDependencies": {
+    "@deck.gl/core": "6.3.4",
+    "@deck.gl/layers": "6.3.4",
+    "@types/d3-array": "^1.2.4",
+    "@types/d3-collection": "^1.0.7",
+    "@types/d3-color": "^1.2.1",
+    "@types/d3-interpolate": "^1.3.0",
+    "@types/d3-scale": "^2.1.0",
+    "@types/geojson": "^7946.0.5",
+    "@types/node": "^10.12.18",
+    "luma.gl": "6.3.2",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^3.2.2"
+  },
+  "peerDependencies": {
+    "@deck.gl/core": ">= 6.3.0",
+    "@deck.gl/layers": ">= 6.3.0",
+    "luma.gl": ">= 6.3.0"
+  },
+  "gitHead": "45089da23f3b190b9fe9791f0143398b686fafe9",
+  "publishConfig": {
+    "access": "public"
+  }
+}

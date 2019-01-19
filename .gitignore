@@ -1,8 +1,9 @@
 node_modules
-dist*
+dist-*
 dist
 .idea
 .DS_Store
 .env
 npm-debug.log
 storybook-static/
+lerna-debug.log
