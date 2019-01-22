@@ -26,6 +26,7 @@ const DEFAULT_OUTLINE_COLOR = '#fff';
 const DEFAULT_FLOW_MIN_COLOR = 'rgba(240,240,240,0.5)';
 const DEFAULT_LOCATION_AREA_COLOR = 'rgba(220,220,220,0.5)';
 const DEFAULT_DIMMED_OPACITY = 0.4;
+const CIRCLE_DIMMED_OPACITY_MULTIPLIER = 0.5;
 const FALLBACK_COLOR_RGBA: RGBA = [255, 255, 255, 255];
 
 export type ColorScale = (value: number) => RGBA;
@@ -224,6 +225,15 @@ export function rgbaAsString(color: RGBA): string {
 
 export function opacityFloatToInteger(opacity: number): number {
   return Math.round(opacity * 255);
+}
+
+export function getDimmedCircleOutlineColor(outlineColor: RGBA, opacity: number): RGBA {
+  const [r, g, b, a] = outlineColor;
+  return [r, g, b, a * opacity * CIRCLE_DIMMED_OPACITY_MULTIPLIER] as RGBA;
+}
+
+export function getDimmedCircleColor(color: RGBA, opacity: number): RGBA {
+  return getDimmedColor(color, opacity * CIRCLE_DIMMED_OPACITY_MULTIPLIER);
 }
 
 export function getDimmedColor(color: RGBA, opacity?: number): RGBA {

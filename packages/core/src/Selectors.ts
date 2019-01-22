@@ -11,6 +11,8 @@ import {
   DiffColorsRGBA,
   getColorsRGBA,
   getDiffColorsRGBA,
+  getDimmedCircleColor,
+  getDimmedCircleOutlineColor,
   getDimmedColor,
   isDiffColorsRGBA,
   RGBA,
@@ -366,7 +368,7 @@ class Selectors {
     },
   );
 
-  getLocationCircleColorGetter: PropsSelector<(flow: Flow) => RGBA> = createSelector(
+  getLocationCircleColorGetter: PropsSelector<(locCircle: LocationCircle) => RGBA> = createSelector(
     [
       this.getColors,
       getHighlightedLocationId,
@@ -377,7 +379,7 @@ class Selectors {
     (colors, highlightedLocationId, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
       const { getLocationId } = this.inputGetters;
 
-      return ({ location, type }: Flow) => {
+      return ({ location, type }: LocationCircle) => {
         const isHighlighted = highlightedLocationId && highlightedLocationId === getLocationId(location);
         const isDimmed = highlightedLocationId && highlightedLocationId !== getLocationId(location);
 
@@ -393,8 +395,11 @@ class Selectors {
           return circleColors.highlighted;
         }
 
-        if (isDimmed && type !== LocationCircleType.OUTLINE) {
-          return getDimmedColor(circleColors.inner, colors.dimmedOpacity);
+        if (isDimmed) {
+          if (type === LocationCircleType.OUTLINE) {
+            return getDimmedCircleOutlineColor(colors.outlineColor, colors.dimmedOpacity);
+          }
+          return getDimmedCircleColor(circleColors.inner, colors.dimmedOpacity);
         }
 
         if (type === LocationCircleType.OUTLINE) {
