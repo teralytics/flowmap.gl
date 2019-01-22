@@ -11,6 +11,8 @@ import {
   DiffColorsRGBA,
   getColorsRGBA,
   getDiffColorsRGBA,
+  getDimmedCircleColor,
+  getDimmedCircleOutlineColor,
   getDimmedColor,
   isDiffColorsRGBA,
   RGBA,
@@ -51,9 +53,7 @@ export interface LocationTotals {
   };
 }
 
-export interface LocationsById {
-  [key: string]: Location;
-}
+export type LocationByIdGetter = (id: string) => Location | undefined;
 
 const getDiffMode = (props: Props) => props.diffMode;
 const getColorsProp = (props: Props) => props.colors;
@@ -83,7 +83,7 @@ class Selectors {
     },
   );
 
-  getLocationByIdGetter: PropsSelector<LocationsById> = createSelector(
+  getLocationByIdGetter: PropsSelector<LocationByIdGetter> = createSelector(
     [getLocationFeatures],
     locations => {
       const locationsById = nest<Location, Location | undefined>()
@@ -283,6 +283,22 @@ class Selectors {
     },
   );
 
+  getHighlightedLocationCircles: PropsSelector<LocationCircle[] | undefined> = createSelector(
+    [this.getLocationByIdGetter, getHighlightedLocationId],
+    (getLocationById, highlightedLocationId) => {
+      if (highlightedLocationId) {
+        const location = getLocationById(highlightedLocationId);
+        if (!location) { return undefined; }
+        return [
+          { location, type: LocationCircleType.OUTLINE },
+          { location, type: LocationCircleType.OUTER },
+          { location, type: LocationCircleType.INNER },
+        ];
+      }
+      return undefined;
+    },
+  );
+
   getLocationTotalInGetter = (props: Props) => {
     const { getLocationTotalIn, getLocationId } = this.inputGetters;
     if (getLocationTotalIn) {
@@ -366,7 +382,7 @@ class Selectors {
     },
   );
 
-  getLocationCircleColorGetter: PropsSelector<(flow: Flow) => RGBA> = createSelector(
+  getLocationCircleColorGetter: PropsSelector<(locCircle: LocationCircle) => RGBA> = createSelector(
     [
       this.getColors,
       getHighlightedLocationId,
@@ -377,7 +393,7 @@ class Selectors {
     (colors, highlightedLocationId, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
       const { getLocationId } = this.inputGetters;
 
-      return ({ location, type }: Flow) => {
+      return ({ location, type }: LocationCircle) => {
         const isHighlighted = highlightedLocationId && highlightedLocationId === getLocationId(location);
         const isDimmed = highlightedLocationId && highlightedLocationId !== getLocationId(location);
 
@@ -393,8 +409,11 @@ class Selectors {
           return circleColors.highlighted;
         }
 
-        if (isDimmed && type !== LocationCircleType.OUTLINE) {
-          return getDimmedColor(circleColors.inner, colors.dimmedOpacity);
+        if (isDimmed) {
+          if (type === LocationCircleType.OUTLINE) {
+            return getDimmedCircleOutlineColor(colors.outlineColor, colors.dimmedOpacity);
+          }
+          return getDimmedCircleColor(circleColors.inner, colors.dimmedOpacity);
         }
 
         if (type === LocationCircleType.OUTLINE) {
