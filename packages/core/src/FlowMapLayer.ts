@@ -29,6 +29,7 @@ import {
   isFeatureCollection,
   Location,
   LocationAccessor,
+  LocationCircle,
   LocationCircleAccessor,
   LocationCircleType,
   Locations,
@@ -69,6 +70,7 @@ enum LayerKind {
   LOCATIONS = 'LOCATIONS',
   LOCATION_AREAS = 'LOCATION_AREAS',
   FLOWS = 'FLOWS',
+  LOCATIONS_HIGHLIGHTED = 'LOCATIONS_HIGHLIGHTED',
   FLOWS_HIGHLIGHTED = 'FLOWS_HIGHLIGHTED',
 }
 
@@ -86,10 +88,10 @@ function getLayerKind(id: string): LayerKind {
 function getPickType({ id }: DeckGLLayer): PickingType | undefined {
   switch (getLayerKind(id)) {
     case LayerKind.FLOWS:
-    // fall through
     case LayerKind.FLOWS_HIGHLIGHTED:
       return PickingType.FLOW;
     case LayerKind.LOCATIONS:
+    case LayerKind.LOCATIONS_HIGHLIGHTED:
       return PickingType.LOCATION;
     case LayerKind.LOCATION_AREAS:
       return PickingType.LOCATION_AREA;
@@ -214,10 +216,10 @@ export default class FlowMapLayer extends CompositeLayer {
     const { showLocationAreas, locations, highlightedLocationId } = this.props;
     const { selectors } = this.state;
 
-    const flows = selectors.getSortedNonSelfFlows(this.props);
     const topFlows = selectors.getTopFlows(this.props);
     const highlightedFlows = selectors.getHighlightedFlows(this.props);
     const isLocationHighlighted = highlightedLocationId != null;
+    const locationCircles = selectors.getLocationCircles(this.props);
 
     const layers: DeckGLLayer[] = [];
 
@@ -232,7 +234,17 @@ export default class FlowMapLayer extends CompositeLayer {
         this.getFlowLinesLayer(getLayerId(this.props.id, LayerKind.FLOWS_HIGHLIGHTED), highlightedFlows, true, false),
       );
     }
-    layers.push(this.getLocationCirclesLayer(getLayerId(this.props.id, LayerKind.LOCATIONS)));
+    layers.push(this.getLocationCirclesLayer(getLayerId(this.props.id, LayerKind.LOCATIONS), locationCircles, false));
+    if (isLocationHighlighted) {
+      const highlightedLocationCircles = selectors.getHighlightedLocationCircles(this.props);
+      layers.push(
+        this.getLocationCirclesLayer(
+          getLayerId(this.props.id, LayerKind.LOCATIONS_HIGHLIGHTED),
+          highlightedLocationCircles,
+          true,
+        ),
+      );
+    }
     return layers;
   }
 
@@ -322,14 +334,13 @@ export default class FlowMapLayer extends CompositeLayer {
     });
   }
 
-  private getLocationCirclesLayer(id: string): FlowCirclesLayer {
+  private getLocationCirclesLayer(id: string, circles: LocationCircle[], highlighted: boolean): FlowCirclesLayer {
     const { highlightedLocationId, selectedLocationIds, getLocationCentroid, flows, showTotals } = this.props;
     const { selectors } = this.state;
 
     const getRadius = showTotals
       ? selectors.getLocationCircleRadiusGetter(this.props)
       : () => this.props.locationCircleSize;
-    const circles = selectors.getLocationCircles(this.props);
     const getColor = selectors.getLocationCircleColorGetter(this.props);
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid!(locCircle.location);
 

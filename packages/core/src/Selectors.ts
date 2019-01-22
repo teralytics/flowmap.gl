@@ -53,9 +53,7 @@ export interface LocationTotals {
   };
 }
 
-export interface LocationsById {
-  [key: string]: Location;
-}
+export type LocationByIdGetter = (id: string) => Location | undefined;
 
 const getDiffMode = (props: Props) => props.diffMode;
 const getColorsProp = (props: Props) => props.colors;
@@ -85,7 +83,7 @@ class Selectors {
     },
   );
 
-  getLocationByIdGetter: PropsSelector<LocationsById> = createSelector(
+  getLocationByIdGetter: PropsSelector<LocationByIdGetter> = createSelector(
     [getLocationFeatures],
     locations => {
       const locationsById = nest<Location, Location | undefined>()
@@ -282,6 +280,22 @@ class Selectors {
         });
       }
       return circles;
+    },
+  );
+
+  getHighlightedLocationCircles: PropsSelector<LocationCircle[] | undefined> = createSelector(
+    [this.getLocationByIdGetter, getHighlightedLocationId],
+    (getLocationById, highlightedLocationId) => {
+      if (highlightedLocationId) {
+        const location = getLocationById(highlightedLocationId);
+        if (!location) { return undefined; }
+        return [
+          { location, type: LocationCircleType.OUTLINE },
+          { location, type: LocationCircleType.OUTER },
+          { location, type: LocationCircleType.INNER },
+        ];
+      }
+      return undefined;
     },
   );
 
