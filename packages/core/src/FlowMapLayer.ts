@@ -17,7 +17,8 @@
 
 import { CompositeLayer } from '@deck.gl/core';
 import { GeoJsonLayer } from '@deck.gl/layers';
-import { colorAsRGBA, Colors, DiffColors } from './colors';
+import AnimatedFlowLinesLayer from './AnimatedFlowLinesLayer/AnimatedFlowLinesLayer';
+import { Colors, DiffColors } from './colors';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import Selectors from './Selectors';
@@ -41,6 +42,8 @@ export interface BasicProps {
   locations: Locations;
   flows: Flow[];
   diffMode?: boolean;
+  animate?: boolean;
+  animationCurrentTime?: number;
   colors?: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
@@ -271,7 +274,12 @@ export default class FlowMapLayer extends CompositeLayer {
     });
   }
 
-  private getFlowLinesLayer(id: string, flows: Flow[], highlighted: boolean, dimmed: boolean): FlowLinesLayer {
+  private getFlowLinesLayer(
+    id: string,
+    flows: Flow[],
+    highlighted: boolean,
+    dimmed: boolean,
+  ): FlowLinesLayer | AnimatedFlowLinesLayer {
     const {
       getFlowOriginId,
       getFlowDestId,
@@ -312,7 +320,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const colors = selectors.getColors(this.props);
     const getColor = selectors.getFlowLinesColorGetter(colors, flowColorScale, highlighted, dimmed);
 
-    return new FlowLinesLayer({
+    const baseProps = {
       id,
       getSourcePosition,
       getTargetPosition,
@@ -331,7 +339,16 @@ export default class FlowMapLayer extends CompositeLayer {
       },
       outlineColor: colors.outlineColor,
       ...(outlineThickness && { outlineThickness }),
-    });
+    };
+    const { animate } = this.props;
+    if (animate) {
+      return new AnimatedFlowLinesLayer({
+        ...baseProps,
+        currentTime: this.props.animationCurrentTime,
+      });
+    } else {
+      return new FlowLinesLayer(baseProps);
+    }
   }
 
   private getLocationCirclesLayer(id: string, circles: LocationCircle[], highlighted: boolean): FlowCirclesLayer {

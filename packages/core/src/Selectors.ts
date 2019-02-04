@@ -57,6 +57,7 @@ export type LocationByIdGetter = (id: string) => Location | undefined;
 
 const getDiffMode = (props: Props) => props.diffMode;
 const getColorsProp = (props: Props) => props.colors;
+const getAnimate = (props: Props) => props.animate;
 const getLocationFeatures = (props: Props) =>
   isFeatureCollection(props.locations) ? props.locations.features : props.locations;
 const getFlows = (props: Props) => props.flows;
@@ -180,8 +181,8 @@ class Selectors {
   );
 
   private getFlowColorScale: PropsSelector<ColorScale> = createSelector(
-    [this.getColors, this.getFlowMagnitudeExtent, getVaryFlowColorByMagnitude],
-    (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude) => {
+    [this.getColors, this.getFlowMagnitudeExtent, getVaryFlowColorByMagnitude, getAnimate],
+    (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude, animate) => {
       if (!varyFlowColorByMagnitude) {
         if (isDiffColorsRGBA(colors)) {
           return (v: number) => (v >= 0 ? colors.positive.flows.max : colors.negative.flows.max);
@@ -194,17 +195,19 @@ class Selectors {
         const posScale = createFlowColorScale(
           [0, maxMagnitude || 0],
           [colors.positive.flows.min, colors.positive.flows.max],
+          animate,
         );
         const negScale = createFlowColorScale(
           [minMagnitude || 0, 0],
           [colors.negative.flows.max, colors.negative.flows.min],
+          animate,
         );
 
         return (magnitude: number) => (magnitude >= 0 ? posScale(magnitude) : negScale(magnitude));
       }
 
       const { max, min } = colors.flows;
-      const scale = createFlowColorScale([0, maxMagnitude || 0], [min, max]);
+      const scale = createFlowColorScale([0, maxMagnitude || 0], [min, max], animate);
       return (magnitude: number) => scale(magnitude);
     },
   );
@@ -288,7 +291,9 @@ class Selectors {
     (getLocationById, highlightedLocationId) => {
       if (highlightedLocationId) {
         const location = getLocationById(highlightedLocationId);
-        if (!location) { return undefined; }
+        if (!location) {
+          return undefined;
+        }
         return [
           { location, type: LocationCircleType.OUTLINE },
           { location, type: LocationCircleType.OUTER },

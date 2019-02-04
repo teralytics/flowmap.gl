@@ -50,6 +50,10 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
     return (
       <>
         <FlowMap
+          colors={{
+            flows: { min: '#fff' },
+          }}
+          animate={true}
           initialViewState={getViewStateForLocations(locations, getLocationCentroid, [
             window.innerWidth,
             window.innerHeight,

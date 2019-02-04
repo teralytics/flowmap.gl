@@ -53,9 +53,12 @@ void main(void) {
   innerUnitRadius = outline * (1.0 - strokeWidth / outerRadiusPixels);
   
   // Find the center of the point and add the current vertex
-  vec3 center = project_position(instancePositions);
-  vec3 vertex = positions * outerRadiusPixels;
-  gl_Position = project_to_clipspace(vec4(center + vertex, 1.0));
+  // vec3 center = project_position(instancePositions);
+  // vec3 vertex = positions * outerRadiusPixels;
+  // gl_Position = project_to_clipspace(vec4(center + vertex, 1.0));
+  vec3 offset = positions * outerRadiusPixels;
+  gl_Position = project_position_to_clipspace(instancePositions, vec2(0.), offset);
+  
   
   // Apply opacity to instance color, or return instance picking color
   vColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;

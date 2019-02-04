@@ -252,9 +252,13 @@ export function getDimmedColor(color: RGBA, opacity?: number): RGBA {
   ];
 }
 
-export function createFlowColorScale(domain: [number, number], range: [RGBA, RGBA]): ColorScale {
+export function createFlowColorScale(
+  domain: [number, number],
+  range: [RGBA, RGBA],
+  animate: boolean | undefined,
+): ColorScale {
   const scale = scalePow<string, string>()
-    .exponent(1 / 3)
+    .exponent(animate ? 1 / 1.5 : 1 / 3)
     .interpolate(interpolateHcl)
     .range(range.map(rgbaAsString))
     .domain(domain);
