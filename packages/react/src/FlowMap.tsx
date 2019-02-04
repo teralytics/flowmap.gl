@@ -248,6 +248,7 @@ export default class FlowMap extends React.Component<Props, State> {
             }
           }
           this.selectLocations(next);
+          this.highlight(undefined);
         }
         break;
       }
