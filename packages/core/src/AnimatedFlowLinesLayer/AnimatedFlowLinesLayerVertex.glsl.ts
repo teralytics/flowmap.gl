@@ -40,6 +40,9 @@
 
 export default `\
 #define SHADER_NAME animated-flow-lines-layer-vertex-shader
+#define SPEED 0.015
+#define NUM_PARTS 5.0
+#define DIR_OFFSET 0.0 
 
 attribute vec3 positions;
 attribute vec3 instanceSourcePositions;
@@ -80,13 +83,12 @@ void main(void) {
   vec4 p = mix(source, target, segmentIndex);
 
   // extrude
-  vec2 offset = getExtrusionOffset(target.xy - source.xy, positions.y  /*- 1.1*/);
+  vec2 offset = getExtrusionOffset(target.xy - source.xy, positions.y - DIR_OFFSET);
   gl_Position = p + vec4(offset, 0.0, 0.0);
 
   // Color
   vColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
-  // vColor = vec4(vColor.xyz, 1.0);
-  sourceToTarget = positions.x * length(source - target) * 10.0 - currentTime / 50.0; 
+  sourceToTarget = positions.x * length(source - target) * NUM_PARTS - currentTime * SPEED; 
 
   // Set color to be rendered to picking fbo (also used to check for selection highlight).
   picking_setPickingColor(instancePickingColors);

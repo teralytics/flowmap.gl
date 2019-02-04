@@ -47,11 +47,7 @@ varying vec4 vColor;
 varying float sourceToTarget;
 
 void main(void) {
-  gl_FragColor = vColor;
-  // gl_FragColor = vec4(vColor.xyz, fract(sourceToTarget) );
-  // gl_FragColor = mix(vec4(1.0), gl_FragColor, fract(sourceToTarget));
-  gl_FragColor = vec4(gl_FragColor.xyz, gl_FragColor.w * smoothstep(0.3, 1.0, fract(sourceToTarget)));
-  
+  gl_FragColor = vec4(vColor.xyz, vColor.w * smoothstep(0.3, 1.0, fract(sourceToTarget)));
 
   // use highlight color if this fragment belongs to the selected object.
   gl_FragColor = picking_filterHighlightColor(gl_FragColor);
