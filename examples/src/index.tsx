@@ -15,7 +15,7 @@
  *
  */
 
-import FlowMapLayer, { getColorsRGBA, getDiffColorsRGBA } from '@flowmap.gl/core';
+import FlowMapLayer, { Colors, getColorsRGBA, getDiffColorsRGBA } from '@flowmap.gl/core';
 import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
@@ -34,6 +34,24 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        getLocationId={(loc: any) => loc.properties.abbr}
+        getFlowMagnitude={(flow: any) => flow.count}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'animated',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <FlowMap
+        animate={true}
         getLocationId={(loc: any) => loc.properties.abbr}
         getFlowMagnitude={(flow: any) => flow.count}
         flows={flows}
@@ -210,6 +228,4 @@ storiesOf('Other datasets', module)
   .add('London bicycle hire', () => <GSheetsExample sheetKey="1Z6dVVFFrdooHIs8xnJ_O7eM5bhS5KscCi7G_k0jUNDI" />)
   .add('NYC citibike', () => <GSheetsExample sheetKey="1Aum0anWxPx6bHyfcFXWCCTE8u0xtfenIls_kPAJEDIA" />)
   .add('Chicago taxis', () => <GSheetsExample sheetKey="1fhX98NFv5gAkkjB2YFCm50-fplFpmWVAZby3dmm9cgQ" />)
-  .add('Relocations in the Netherlands', () => (
-    <GSheetsExample sheetKey="1rhsLubo_ZCjoBhP7PbX16nm-WUPvtHRguEFXhLJu1Jk" />
-  ));
+  .add('NL commuters', () => <GSheetsExample sheetKey="1Oe3zM219uSfJ3sjdRT90SAK2kU3xIvzdcCW6cwTsAuc" />);
