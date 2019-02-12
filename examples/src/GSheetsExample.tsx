@@ -53,7 +53,6 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
           colors={{
             flows: { min: '#fff' },
           }}
-          animate={true}
           initialViewState={getViewStateForLocations(locations, getLocationCentroid, [
             window.innerWidth,
             window.innerHeight,
