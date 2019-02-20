@@ -159,7 +159,7 @@ function getLocationAreaColorsRGBA(colors: LocationAreaColors | undefined): Loca
     connected: colorAsRgbaOr(colors && colors.connected, locationAreasNormal),
     highlighted: colorAsRgbaOr(colors && colors.highlighted, locationAreasNormal),
     outline: colorAsRgbaOr(colors && colors.outline, colorAsRGBA(normalColorHcl.darker().toString())),
-    selected: colorAsRgbaOr(colors && colors.outline, locationAreasNormal),
+    selected: colorAsRgbaOr(colors && colors.selected, locationAreasNormal),
   };
 }
 
