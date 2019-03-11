@@ -1,6 +1,6 @@
 # Change log
 
-## [5.1.0] - 2019-03-11
+## [5.2.0] - 2019-03-11
 ### Added
 - Flow color overriding via `getFlowColor`
 
