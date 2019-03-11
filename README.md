@@ -125,6 +125,7 @@ interface Props {
   getFlowOriginId?: FlowAccessor<string>;
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
+  getFlowColor?: FlowAccessor<string | undefined>;  // override color of some of the flows
   showTotals?: boolean;
   showOnlyTopFlows?: number;
   locationCircleSize?: number;
