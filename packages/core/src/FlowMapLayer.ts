@@ -52,6 +52,7 @@ export interface BasicProps {
   getFlowOriginId?: FlowAccessor<string>;
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
+  getFlowColor?: FlowAccessor<string | undefined>;
   showTotals?: boolean;
   locationCircleSize?: number;
   showLocationAreas?: boolean;
@@ -131,6 +132,7 @@ export default class FlowMapLayer extends CompositeLayer {
       getFlowOriginId,
       getFlowDestId,
       getFlowMagnitude,
+      getFlowColor,
     } = this.props;
     const selectors = new Selectors({
       getLocationId: getLocationId!,
@@ -139,6 +141,7 @@ export default class FlowMapLayer extends CompositeLayer {
       getFlowOriginId: getFlowOriginId!,
       getFlowDestId: getFlowDestId!,
       getFlowMagnitude: getFlowMagnitude!,
+      getFlowColor,
     });
 
     this.setState({ selectors });
@@ -156,6 +159,7 @@ export default class FlowMapLayer extends CompositeLayer {
         getFlowOriginId,
         getFlowDestId,
         getFlowMagnitude,
+        getFlowColor,
       } = props;
       this.state.selectors.setInputGetters({
         getLocationId,
@@ -164,6 +168,7 @@ export default class FlowMapLayer extends CompositeLayer {
         getFlowOriginId,
         getFlowDestId,
         getFlowMagnitude,
+        getFlowColor,
       });
     }
   }
