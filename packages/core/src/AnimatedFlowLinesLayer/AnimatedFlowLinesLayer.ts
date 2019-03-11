@@ -73,6 +73,9 @@ export default class AnimatedFlowLinesLayer extends Layer {
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: 1 },
+    parameters: {
+      depthTest: false,
+    },
   };
 
   constructor(props: Props) {

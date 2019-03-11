@@ -52,6 +52,9 @@ class FlowLinesLayer extends Layer {
     drawOutline: true,
     outlineThickness: 1,
     outlineColor: [255, 255, 255, 255],
+    parameters: {
+      depthTest: false,
+    },
   };
   props!: Props;
 

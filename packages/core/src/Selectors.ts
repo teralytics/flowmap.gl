@@ -5,6 +5,7 @@ import { nest } from 'd3-collection';
 import { scaleLinear, scalePow } from 'd3-scale';
 import { createSelector } from 'reselect';
 import {
+  colorAsRGBA,
   ColorScale,
   ColorsRGBA,
   createFlowColorScale,
@@ -37,6 +38,7 @@ export interface InputGetters {
   getFlowOriginId: FlowAccessor<string>;
   getFlowDestId: FlowAccessor<string>;
   getFlowMagnitude: FlowAccessor<number>;
+  getFlowColor?: FlowAccessor<string | undefined>;
 }
 
 export type PropsSelector<T> = (props: Props) => T;
@@ -218,28 +220,32 @@ class Selectors {
     highlighted: boolean,
     dimmed: boolean,
   ) {
-    const { getFlowMagnitude } = this.inputGetters;
-    if (highlighted) {
-      if (isDiffColorsRGBA(colors)) {
-        const positiveColor = colors.positive.flows.highlighted;
-        const negativeColor = colors.negative.flows.highlighted;
-        return (flow: Flow) => {
+    const { getFlowMagnitude, getFlowColor } = this.inputGetters;
+    return (flow: Flow) => {
+      if (getFlowColor) {
+        const color = getFlowColor(flow);
+        if (color) {
+          return colorAsRGBA(color);
+        }
+      }
+      if (highlighted) {
+        if (isDiffColorsRGBA(colors)) {
+          const positiveColor = colors.positive.flows.highlighted;
+          const negativeColor = colors.negative.flows.highlighted;
           const magnitude = getFlowMagnitude(flow);
           return magnitude >= 0 ? positiveColor : negativeColor;
-        };
+        } else {
+          return colors.flows.highlighted;
+        }
       } else {
-        return colors.flows.highlighted;
-      }
-    } else {
-      return (flow: Flow) => {
         const magnitude = getFlowMagnitude(flow);
         const color = flowColorScale(magnitude);
         if (dimmed) {
           return getDimmedColor(color, colors.dimmedOpacity);
         }
         return color;
-      };
-    }
+      }
+    };
   }
 
   private getLocationTotals: PropsSelector<LocationTotals> = createSelector(
