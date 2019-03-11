@@ -15,7 +15,7 @@
  *
  */
 
-import FlowMapLayer, { Colors, getColorsRGBA, getDiffColorsRGBA } from '@flowmap.gl/core';
+import FlowMapLayer, { Flow, Location } from '@flowmap.gl/core';
 import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
@@ -34,8 +34,8 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: any) => loc.properties.abbr}
-        getFlowMagnitude={(flow: any) => flow.count}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
         flows={flows}
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
@@ -52,8 +52,8 @@ storiesOf('FlowMapLayer', module)
     )(({ locations, flows }: any) => (
       <FlowMap
         animate={true}
-        getLocationId={(loc: any) => loc.properties.abbr}
-        getFlowMagnitude={(flow: any) => flow.count}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
         flows={flows}
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
@@ -69,8 +69,8 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: any) => loc.properties.abbr}
-        getFlowMagnitude={(flow: any) => flow.count}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
         showTotals={true}
         showOnlyTopFlows={100}
         showLocationAreas={true}
@@ -90,8 +90,8 @@ storiesOf('FlowMapLayer', module)
     )(({ locations, flows }: any) => (
       <FlowMap
         colors={{ outlineColor: '#fff' }}
-        getLocationId={(loc: any) => loc.properties.abbr}
-        getFlowMagnitude={(flow: any) => flow.count}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
         showTotals={true}
         showLocationAreas={false}
         flows={flows}
@@ -109,8 +109,8 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: any) => loc.properties.abbr}
-        getFlowMagnitude={(flow: any) => flow.count}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
         showTotals={false}
         showLocationAreas={true}
         flows={flows}
@@ -128,8 +128,8 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: any) => loc.properties.abbr}
-        getFlowMagnitude={(flow: any) => flow.count}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
         showTotals={true}
         showLocationAreas={true}
         varyFlowColorByMagnitude={false}
@@ -137,6 +137,27 @@ storiesOf('FlowMapLayer', module)
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'flow color override',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <FlowMap
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+        getFlowColor={(f: Flow) => {
+          if (f.origin === 'ZH' && f.dest === 'AG') { return 'orange'; }
+          return undefined;
+        }}
       />
     )),
   )
@@ -151,8 +172,8 @@ storiesOf('FlowMapLayer', module)
         colors={{
           outlineColor: '#64e9f9',
         }}
-        getLocationId={(loc: any) => loc.properties.abbr}
-        getFlowMagnitude={(flow: any) => flow.count}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
@@ -171,8 +192,8 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: any) => loc.properties.abbr}
-        getFlowMagnitude={(flow: any) => flow.count}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
         flows={flows}
         locations={locations}
         multiselect={true}
@@ -206,8 +227,8 @@ storiesOf('FlowMapLayer', module)
       <>
         <FlowMap
           diffMode={true}
-          getLocationId={(loc: any) => loc.properties.abbr}
-          getFlowMagnitude={(flow: any) => flow.count}
+          getLocationId={(loc: Location) => loc.properties.abbr}
+          getFlowMagnitude={(flow: Flow) => flow.count}
           showTotals={true}
           showLocationAreas={true}
           flows={flows}
