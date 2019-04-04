@@ -169,31 +169,32 @@ function getFlowAndCircleColors(
 ): FlowAndCircleColorsRGBA {
   const flowColor = (inputColors && inputColors.flows && inputColors.flows.max) || defaultFlowColor;
   const flowColorHcl = hcl(flowColor);
-  const flowColorRGBA = colorAsRGBA(flowColor);
-  const flowColorHighlighted = colorAsRgbaOr(
-    inputColors && inputColors.flows && inputColors.flows.highlighted,
-    colorAsRGBA(flowColorHcl.darker(0.7).toString()),
-  );
+  const innerCircleColor =
+    (inputColors && inputColors.locationCircles && inputColors.locationCircles.inner) || flowColor;
+  const innerCircleColorHcl = hcl(innerCircleColor);
 
   return {
     flows: {
-      max: flowColorRGBA,
+      max: colorAsRGBA(flowColor),
       min: colorAsRgbaOr(inputColors && inputColors.flows && inputColors.flows.min, DEFAULT_FLOW_MIN_COLOR),
-      highlighted: flowColorHighlighted,
+      highlighted: colorAsRgbaOr(
+        inputColors && inputColors.flows && inputColors.flows.highlighted,
+        colorAsRGBA(flowColorHcl.darker(0.7).toString()),
+      ),
     },
     locationCircles: {
-      inner: flowColorRGBA,
+      inner: colorAsRGBA(innerCircleColor),
       outgoing: colorAsRgbaOr(
         inputColors && inputColors.locationCircles && inputColors.locationCircles.outgoing,
-        flowColorHcl.brighter(3).toString(),
+        innerCircleColorHcl.brighter(3).toString(),
       ),
       incoming: colorAsRgbaOr(
         inputColors && inputColors.locationCircles && inputColors.locationCircles.incoming,
-        flowColorHcl.darker(1.25).toString(),
+        innerCircleColorHcl.darker(1.25).toString(),
       ),
       highlighted: colorAsRgbaOr(
         inputColors && inputColors.locationCircles && inputColors.locationCircles.highlighted,
-        flowColorHighlighted,
+        colorAsRGBA(innerCircleColorHcl.darker(0.7).toString()),
       ),
     },
   };
