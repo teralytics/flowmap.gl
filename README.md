@@ -130,7 +130,6 @@ interface Props {
   showOnlyTopFlows?: number;
   locationCircleSize?: number;
   showLocationAreas?: boolean;
-  varyFlowColorByMagnitude?: boolean;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;

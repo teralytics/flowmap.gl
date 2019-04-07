@@ -56,7 +56,6 @@ const NonInteractiveExample: React.SFC<Props> = ({
     getLocationId: (loc: Location) => loc.properties.abbr,
     showLocationAreas: true,
     getFlowMagnitude: (f: Flow) => f.count,
-    varyFlowColorByMagnitude: true,
     showTotals: true,
     outlineThickness,
   });

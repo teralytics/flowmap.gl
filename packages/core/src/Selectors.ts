@@ -5,7 +5,7 @@ import { nest } from 'd3-collection';
 import { scaleLinear, scalePow } from 'd3-scale';
 import { createSelector } from 'reselect';
 import {
-  colorAsRGBA,
+  colorAsRgba,
   ColorScale,
   ColorsRGBA,
   createFlowColorScale,
@@ -66,7 +66,6 @@ const getFlows = (props: Props) => props.flows;
 const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
-const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
 const getShowOnlyTopFlows = (props: Props) => props.showOnlyTopFlows;
 const getOutlineThickness = (props: Props) =>
   props.outlineThickness != null ? props.outlineThickness : FlowMapLayer.defaultProps.outlineThickness;
@@ -183,33 +182,16 @@ class Selectors {
   );
 
   private getFlowColorScale: PropsSelector<ColorScale> = createSelector(
-    [this.getColors, this.getFlowMagnitudeExtent, getVaryFlowColorByMagnitude, getAnimate],
-    (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude, animate) => {
-      if (!varyFlowColorByMagnitude) {
-        if (isDiffColorsRGBA(colors)) {
-          return (v: number) => (v >= 0 ? colors.positive.flows.max : colors.negative.flows.max);
-        }
-
-        return () => colors.flows.max;
-      }
-
+    [this.getColors, this.getFlowMagnitudeExtent, getAnimate],
+    (colors, [minMagnitude, maxMagnitude], animate) => {
       if (isDiffColorsRGBA(colors)) {
-        const posScale = createFlowColorScale(
-          [0, maxMagnitude || 0],
-          [colors.positive.flows.min, colors.positive.flows.max],
-          animate,
-        );
-        const negScale = createFlowColorScale(
-          [minMagnitude || 0, 0],
-          [colors.negative.flows.max, colors.negative.flows.min],
-          animate,
-        );
+        const posScale = createFlowColorScale([0, maxMagnitude || 0], colors.positive.flows.scheme, animate);
+        const negScale = createFlowColorScale([minMagnitude || 0, 0], colors.negative.flows.scheme, animate);
 
         return (magnitude: number) => (magnitude >= 0 ? posScale(magnitude) : negScale(magnitude));
       }
 
-      const { max, min } = colors.flows;
-      const scale = createFlowColorScale([0, maxMagnitude || 0], [min, max], animate);
+      const scale = createFlowColorScale([0, maxMagnitude || 0], colors.flows.scheme, animate);
       return (magnitude: number) => scale(magnitude);
     },
   );
@@ -225,7 +207,7 @@ class Selectors {
       if (getFlowColor) {
         const color = getFlowColor(flow);
         if (color) {
-          return colorAsRGBA(color);
+          return colorAsRgba(color);
         }
       }
       if (highlighted) {

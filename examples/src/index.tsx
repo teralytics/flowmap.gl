@@ -18,6 +18,7 @@
 import FlowMapLayer, { Flow, Location } from '@flowmap.gl/core';
 import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import { storiesOf } from '@storybook/react';
+import * as d3scaleChromatic from 'd3-scale-chromatic';
 import * as React from 'react';
 import GSheetsExample from './GSheetsExample';
 import { pipe, withFetchJson, withStats } from './hocs';
@@ -34,6 +35,28 @@ storiesOf('FlowMapLayer', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getFlowMagnitude={(flow: Flow) => flow.count}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'custom flow color scheme',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <FlowMap
+        colors={{
+          flows: {
+            scheme: d3scaleChromatic.schemeGnBu[d3scaleChromatic.schemeGnBu.length - 1] as string[],
+          },
+        }}
         getLocationId={(loc: Location) => loc.properties.abbr}
         getFlowMagnitude={(flow: Flow) => flow.count}
         flows={flows}
@@ -121,26 +144,6 @@ storiesOf('FlowMapLayer', module)
     )),
   )
   .add(
-    'non-varying flow color',
-    pipe(
-      withStats,
-      withFetchJson('locations', './data/locations.json'),
-      withFetchJson('flows', './data/flows-2016.json'),
-    )(({ locations, flows }: any) => (
-      <FlowMap
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
-        showTotals={true}
-        showLocationAreas={true}
-        varyFlowColorByMagnitude={false}
-        flows={flows}
-        locations={locations}
-        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-        mapboxAccessToken={mapboxAccessToken}
-      />
-    )),
-  )
-  .add(
     'flow color override',
     pipe(
       withStats,
@@ -155,7 +158,9 @@ storiesOf('FlowMapLayer', module)
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
         getFlowColor={(f: Flow) => {
-          if (f.origin === 'ZH' && f.dest === 'AG') { return 'orange'; }
+          if (f.origin === 'ZH' && f.dest === 'AG') {
+            return 'orange';
+          }
           return undefined;
         }}
       />

@@ -56,7 +56,6 @@ export interface BasicProps {
   showTotals?: boolean;
   locationCircleSize?: number;
   showLocationAreas?: boolean;
-  varyFlowColorByMagnitude?: boolean;
   showOnlyTopFlows?: number;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
@@ -116,7 +115,6 @@ export default class FlowMapLayer extends CompositeLayer {
     locationCircleSize: 3,
     outlineThickness: 1,
     showLocationAreas: true,
-    varyFlowColorByMagnitude: true,
   };
   props!: Props;
 

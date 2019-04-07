@@ -18,6 +18,7 @@
 import FlowMap, { getViewStateForLocations, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import * as React from 'react';
 import { mapboxAccessToken } from '.';
+import { Colors } from '../../packages/core/src';
 import { pipe, withFetchCsv, withStats } from './hocs';
 
 interface Location {
@@ -47,12 +48,14 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
     withFetchCsv('locations', `https://docs.google.com/spreadsheets/d/${sheetKey}/gviz/tq?tqx=out:csv&sheet=locations`),
     withFetchCsv('flows', `https://docs.google.com/spreadsheets/d/${sheetKey}/gviz/tq?tqx=out:csv&sheet=flows`),
   )(({ locations, flows }: { locations: Location[]; flows: Flow[] }) => {
+    const centroidsById: { [key: string]: [number, number] } = {};
+    for (const loc of locations) {
+      centroidsById[getLocationId(loc)] = getLocationCentroid(loc);
+    }
+
     return (
       <>
         <FlowMap
-          colors={{
-            flows: { min: '#fff' },
-          }}
           initialViewState={getViewStateForLocations(locations, getLocationCentroid, [
             window.innerWidth,
             window.innerHeight,
