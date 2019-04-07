@@ -1,6 +1,6 @@
 // tslint:disable:member-ordering
 
-import { extent, max } from 'd3-array';
+import { ascending, extent, max } from 'd3-array';
 import { nest } from 'd3-collection';
 import { scaleLinear, scalePow } from 'd3-scale';
 import { createSelector } from 'reselect';
@@ -252,28 +252,6 @@ class Selectors {
     },
   );
 
-  getLocationCircles: PropsSelector<LocationCircle[]> = createSelector(
-    [getLocationFeatures],
-    locations => {
-      const circles = [];
-      for (const location of locations) {
-        circles.push({
-          location,
-          type: LocationCircleType.OUTLINE,
-        });
-        circles.push({
-          location,
-          type: LocationCircleType.OUTER,
-        });
-        circles.push({
-          location,
-          type: LocationCircleType.INNER,
-        });
-      }
-      return circles;
-    },
-  );
-
   getHighlightedLocationCircles: PropsSelector<LocationCircle[] | undefined> = createSelector(
     [this.getLocationByIdGetter, getHighlightedLocationId],
     (getLocationById, highlightedLocationId) => {
@@ -322,7 +300,7 @@ class Selectors {
     return (location: Location) => within[getLocationId(location)] || 0;
   };
 
-  private getLocationMaxAbsTotal: PropsSelector<number> = createSelector(
+  private getLocationMaxAbsTotalGetter: PropsSelector<(location: Location) => number> = createSelector(
     [
       getLocationFeatures,
       this.getLocationTotalInGetter,
@@ -330,18 +308,47 @@ class Selectors {
       this.getLocationTotalWithinGetter,
     ],
     (locations, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
-      const maxTotal = max(locations, (location: Location) =>
+      return (location: Location) =>
         Math.max(
           Math.abs(getLocationTotalIn(location) + getLocationTotalWithin(location)),
           Math.abs(getLocationTotalOut(location) + getLocationTotalWithin(location)),
-        ),
-      );
-      return maxTotal || 0;
+        );
+    },
+  );
+
+  private getMaxLocationMaxAbsTotal: PropsSelector<number> = createSelector(
+    [getLocationFeatures, this.getLocationMaxAbsTotalGetter],
+    (locations, getLocationMaxAbsTotal) => max(locations, getLocationMaxAbsTotal) || 0,
+  );
+
+  getLocationCircles: PropsSelector<LocationCircle[]> = createSelector(
+    [getLocationFeatures, this.getLocationMaxAbsTotalGetter],
+    (locations, getLocationMaxAbsTotalGetter) => {
+      const circles = [];
+      const sorted = locations
+        .slice()
+        .sort((a, b) => ascending(getLocationMaxAbsTotalGetter(a), getLocationMaxAbsTotalGetter(b)));
+
+      for (const location of sorted) {
+        circles.push({
+          location,
+          type: LocationCircleType.OUTLINE,
+        });
+        circles.push({
+          location,
+          type: LocationCircleType.OUTER,
+        });
+        circles.push({
+          location,
+          type: LocationCircleType.INNER,
+        });
+      }
+      return circles;
     },
   );
 
   private getSizeScale: PropsSelector<NumberScale> = createSelector(
-    [this.getLocationMaxAbsTotal],
+    [this.getMaxLocationMaxAbsTotal],
     maxTotal => {
       const scale = scalePow()
         .exponent(1 / 2)
@@ -471,7 +478,7 @@ class Selectors {
           return colors.locationAreas.highlighted;
         }
 
-        if (isLocationConnected(locationId) === true) {
+        if (isLocationConnected(locationId)) {
           return colors.locationAreas.connected;
         }
 
