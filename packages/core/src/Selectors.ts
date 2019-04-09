@@ -70,8 +70,6 @@ const getShowOnlyTopFlows = (props: Props) => props.showOnlyTopFlows;
 const getOutlineThickness = (props: Props) =>
   props.outlineThickness != null ? props.outlineThickness : FlowMapLayer.defaultProps.outlineThickness;
 
-const MIN_OUTLINE_CIRCLE_RADIUS = 3;
-
 class Selectors {
   constructor(private inputGetters: InputGetters) {}
 
@@ -375,7 +373,7 @@ class Selectors {
         const totalWithin = getLocationTotalWithin(location);
         const r = sizeScale(getSide(totalIn + totalWithin, totalOut + totalWithin));
         if (type === LocationCircleType.OUTLINE) {
-          return Math.max(r + outlineThickness, MIN_OUTLINE_CIRCLE_RADIUS);
+          return r + outlineThickness;
         }
         return r;
       };
