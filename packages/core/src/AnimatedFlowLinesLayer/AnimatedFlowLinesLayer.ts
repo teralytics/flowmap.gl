@@ -40,8 +40,8 @@
  */
 
 import { Layer } from '@deck.gl/core';
-import { Geometry, Model } from 'luma.gl';
-import { TRIANGLE_STRIP, UNSIGNED_BYTE } from 'luma.gl/constants';
+import { TRIANGLE_STRIP, UNSIGNED_BYTE } from '@luma.gl/constants';
+import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
 import { Flow } from '../types';
 import FragmentShader from './AnimatedFlowLinesLayerFragment.glsl';
@@ -89,11 +89,13 @@ export default class AnimatedFlowLinesLayer extends Layer {
 
   draw({ uniforms }: any) {
     const { currentTime } = this.props;
-    this.state.model.render({
-      ...uniforms,
-      thicknessUnit: 15 * 2,
-      currentTime,
-    });
+    this.state.model
+      .setUniforms({
+        ...uniforms,
+        thicknessUnit: 15 * 2,
+        currentTime,
+      })
+      .draw();
   }
 
   initializeState() {

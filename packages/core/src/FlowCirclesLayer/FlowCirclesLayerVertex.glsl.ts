@@ -28,40 +28,19 @@ attribute float instanceRadius;
 attribute vec4 instanceColors;
 attribute vec3 instancePickingColors;
 
-uniform float opacity;
-uniform float radiusScale;
-uniform float radiusMinPixels;
-uniform float radiusMaxPixels;
-uniform float outline;
-uniform float strokeWidth;
-
 varying vec4 vColor;
 varying vec2 unitPosition;
-varying float innerUnitRadius;
 
 void main(void) {
-  // Multiply out radius and clamp to limits
-  float outerRadiusPixels = instanceRadius;
-  
-  // outline is centered at the radius
-  // outer radius needs to offset by half stroke width
-  outerRadiusPixels += outline * strokeWidth / 2.0;
-  
   // position on the containing square in [-1, 1] space
   unitPosition = positions.xy;
-  // 0 - solid circle, 1 - stroke with lineWidth=0
-  innerUnitRadius = outline * (1.0 - strokeWidth / outerRadiusPixels);
   
   // Find the center of the point and add the current vertex
-  // vec3 center = project_position(instancePositions);
-  // vec3 vertex = positions * outerRadiusPixels;
-  // gl_Position = project_to_clipspace(vec4(center + vertex, 1.0));
-  vec3 offset = positions * outerRadiusPixels;
+  vec3 offset = positions * instanceRadius;
   gl_Position = project_position_to_clipspace(instancePositions, vec2(0.), offset);
   
-  
   // Apply opacity to instance color, or return instance picking color
-  vColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
+  vColor = instanceColors / 255.;
   
   // Set color to be rendered to picking fbo (also used to check for selection highlight).
   picking_setPickingColor(instancePickingColors);

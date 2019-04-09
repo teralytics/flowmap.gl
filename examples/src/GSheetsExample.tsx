@@ -18,7 +18,6 @@
 import FlowMap, { getViewStateForLocations, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import * as React from 'react';
 import { mapboxAccessToken } from '.';
-import { Colors } from '../../packages/core/src';
 import { pipe, withFetchCsv, withStats } from './hocs';
 
 interface Location {

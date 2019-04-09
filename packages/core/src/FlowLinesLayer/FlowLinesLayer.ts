@@ -16,8 +16,8 @@
  */
 
 import { Layer } from '@deck.gl/core';
-import { Geometry, Model } from 'luma.gl';
-import { TRIANGLES, UNSIGNED_BYTE } from 'luma.gl/constants';
+import { TRIANGLES, UNSIGNED_BYTE } from '@luma.gl/constants';
+import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
 import { Flow } from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
@@ -63,11 +63,10 @@ class FlowLinesLayer extends Layer {
   }
 
   getShaders() {
-    const projectModule = this.use64bitProjection() ? 'project64' : 'project32';
     return {
       vs: VertexShader,
       fs: FragmentShader,
-      modules: [projectModule, 'picking'],
+      modules: ['project32', 'picking'],
       shaderCache: this.context.shaderCache,
     };
   }
@@ -108,19 +107,18 @@ class FlowLinesLayer extends Layer {
     });
   }
 
-  draw(opts: any) {
+  draw({ uniforms }: any) {
     const { gl } = this.context;
     const { outlineColor } = this.props;
     gl.lineWidth(1);
-    this.state.model.draw({
-      ...opts,
-      uniforms: {
-        ...opts.uniforms,
+    this.state.model
+      .setUniforms({
+        ...uniforms,
         outlineColor: outlineColor!.map((x: number) => x / 255),
         thicknessUnit: 16,
         gap: 0.75,
-      },
-    });
+      })
+      .draw();
   }
 
   createModel(gl: WebGLRenderingContext) {
