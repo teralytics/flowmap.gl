@@ -18,6 +18,7 @@
 import FlowMapLayer from './FlowMapLayer';
 
 export * from './FlowMapLayer';
+export * from './DelaunayFlowMapLayer';
 export * from './types';
 
 // required by LocationTotalsLegend

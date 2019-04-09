@@ -19,7 +19,7 @@
       true,
       "never-prefix"
     ],
-    "no-console": [true, "log"],
+    "no-console": [false, "log"],
     "object-literal-sort-keys": false,
     "member-access": [
       true,

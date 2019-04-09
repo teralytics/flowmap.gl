@@ -21,6 +21,8 @@ import AnimatedFlowLinesLayer from './AnimatedFlowLinesLayer/AnimatedFlowLinesLa
 import { Colors, DiffColors } from './colors';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
+import FlowMapLayer from './FlowMapLayer';
+import { getLayerId, getPickType, LayerKind, Props } from './FlowMapLayer';
 import Selectors from './Selectors';
 import {
   DeckGLLayer,
@@ -38,74 +40,8 @@ import {
   PickingType,
 } from './types';
 
-export interface BasicProps {
-  locations: Locations;
-  flows: Flow[];
-  diffMode?: boolean;
-  animate?: boolean;
-  animationCurrentTime?: number;
-  colors?: Colors | DiffColors;
-  getLocationId?: LocationAccessor<string>;
-  getLocationCentroid?: LocationAccessor<[number, number]>;
-  getLocationTotalIn?: LocationAccessor<number>;
-  getLocationTotalOut?: LocationAccessor<number>;
-  getFlowOriginId?: FlowAccessor<string>;
-  getFlowDestId?: FlowAccessor<string>;
-  getFlowMagnitude?: FlowAccessor<number>;
-  getFlowColor?: FlowAccessor<string | undefined>;
-  showTotals?: boolean;
-  locationCircleSize?: number;
-  showLocationAreas?: boolean;
-  varyFlowColorByMagnitude?: boolean;
-  showOnlyTopFlows?: number;
-  selectedLocationIds?: string[];
-  highlightedLocationId?: string;
-  highlightedFlow?: Flow;
-  outlineThickness?: number;
-}
-
-export interface Props extends BasicProps {
-  id: string;
-  onClick?: PickingHandler<FlowLayerPickingInfo>;
-  onHover?: PickingHandler<FlowLayerPickingInfo>;
-}
-
-export enum LayerKind {
-  LOCATIONS = 'LOCATIONS',
-  LOCATION_AREAS = 'LOCATION_AREAS',
-  FLOWS = 'FLOWS',
-  LOCATIONS_HIGHLIGHTED = 'LOCATIONS_HIGHLIGHTED',
-  FLOWS_HIGHLIGHTED = 'FLOWS_HIGHLIGHTED',
-}
-
-const LAYER_ID_SEPARATOR = ':::';
-
-export function getLayerId(baseLayerId: string, layerKind: LayerKind) {
-  return `${baseLayerId}${LAYER_ID_SEPARATOR}${layerKind.valueOf()}`;
-}
-
-function getLayerKind(id: string): LayerKind {
-  const kind = id.substr(id.lastIndexOf(LAYER_ID_SEPARATOR) + LAYER_ID_SEPARATOR.length);
-  return LayerKind[kind as keyof typeof LayerKind];
-}
-
-export function getPickType({ id }: DeckGLLayer): PickingType | undefined {
-  switch (getLayerKind(id)) {
-    case LayerKind.FLOWS:
-    case LayerKind.FLOWS_HIGHLIGHTED:
-      return PickingType.FLOW;
-    case LayerKind.LOCATIONS:
-    case LayerKind.LOCATIONS_HIGHLIGHTED:
-      return PickingType.LOCATION;
-    case LayerKind.LOCATION_AREAS:
-      return PickingType.LOCATION_AREA;
-    default:
-      return undefined;
-  }
-}
-
-export default class FlowMapLayer extends CompositeLayer {
-  static layerName: string = 'FlowMapLayer';
+export default class DelaunayFlowMapLayer extends FlowMapLayer {
+  static layerName: string = 'DelaunayFlowMapLayer';
   static defaultProps = {
     getLocationId: { type: 'accessor', value: (l: Location) => l.id || l.properties.id },
     getLocationCentroid: { type: 'accessor', value: (l: Location) => l.properties.centroid },
@@ -113,7 +49,7 @@ export default class FlowMapLayer extends CompositeLayer {
     getFlowDestId: { type: 'accessor', value: (f: Flow) => f.dest },
     getFlowMagnitude: { type: 'accessor', value: (f: Flow) => f.magnitude },
     showTotals: true,
-    locationCircleSize: 3,
+    locationCircleSize: 6,
     outlineThickness: 1,
     showLocationAreas: true,
     varyFlowColorByMagnitude: true,
@@ -220,66 +156,7 @@ export default class FlowMapLayer extends CompositeLayer {
     return info;
   }
 
-  renderLayers() {
-    const { showLocationAreas, locations, highlightedLocationId } = this.props;
-    const { selectors } = this.state;
-
-    const topFlows = selectors.getTopFlows(this.props);
-    const highlightedFlows = selectors.getHighlightedFlows(this.props);
-    const isLocationHighlighted = highlightedLocationId != null;
-    const locationCircles = selectors.getLocationCircles(this.props);
-
-    const layers: DeckGLLayer[] = [];
-
-    if (showLocationAreas && isFeatureCollection(locations)) {
-      layers.push(this.getLocationAreasLayer(getLayerId(this.props.id, LayerKind.LOCATION_AREAS)));
-    }
-    layers.push(
-      this.getFlowLinesLayer(getLayerId(this.props.id, LayerKind.FLOWS), topFlows, false, isLocationHighlighted),
-    );
-    if (highlightedFlows) {
-      layers.push(
-        this.getFlowLinesLayer(getLayerId(this.props.id, LayerKind.FLOWS_HIGHLIGHTED), highlightedFlows, true, false),
-      );
-    }
-    layers.push(this.getLocationCirclesLayer(getLayerId(this.props.id, LayerKind.LOCATIONS), locationCircles, false));
-    if (isLocationHighlighted) {
-      const highlightedLocationCircles = selectors.getHighlightedLocationCircles(this.props);
-      layers.push(
-        this.getLocationCirclesLayer(
-          getLayerId(this.props.id, LayerKind.LOCATIONS_HIGHLIGHTED),
-          highlightedLocationCircles,
-          true,
-        ),
-      );
-    }
-    return layers;
-  }
-
-  getLocationAreasLayer(id: string): DeckGLLayer {
-    const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow } = this.props;
-    const { selectors } = this.state;
-    const colors = selectors.getColors(this.props);
-
-    return new GeoJsonLayer({
-      id,
-      getFillColor: selectors.getLocationAreaFillColorGetter(this.props),
-      getLineColor: colors.locationAreas.outline,
-      lineJointRounded: true,
-      data: locations,
-      stroked: true,
-      filled: true,
-      pickable: true,
-      opacity: 1,
-      lineWidthMinPixels: 1,
-      pointRadiusMinPixels: 1,
-      updateTriggers: {
-        getFillColor: { selectedLocationIds, highlightedLocationId, highlightedFlow },
-      },
-    });
-  }
-
-  getFlowLinesLayer(
+  getDelaunayFlowLinesLayer(
     id: string,
     flows: Flow[],
     highlighted: boolean,
@@ -332,7 +209,7 @@ export default class FlowMapLayer extends CompositeLayer {
       getThickness,
       getEndpointOffsets,
       getColor,
-      data: flows,
+      data: flows.slice(1, 10),
       opacity: 1,
       pickable: !highlighted,
       drawOutline: !dimmed,
@@ -352,32 +229,56 @@ export default class FlowMapLayer extends CompositeLayer {
         currentTime: this.props.animationCurrentTime,
       });
     } else {
+      {
+        console.log('JAMIE');
+      }
       return new FlowLinesLayer(baseProps);
     }
   }
 
-  getLocationCirclesLayer(id: string, circles: LocationCircle[], highlighted: boolean): FlowCirclesLayer {
-    const { highlightedLocationId, selectedLocationIds, getLocationCentroid, flows, showTotals } = this.props;
+  renderLayers() {
+    const { showLocationAreas, locations, highlightedLocationId } = this.props;
     const { selectors } = this.state;
 
-    const getRadius = showTotals
-      ? selectors.getLocationCircleRadiusGetter(this.props)
-      : () => this.props.locationCircleSize;
-    const getColor = selectors.getLocationCircleColorGetter(this.props);
-    const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid!(locCircle.location);
+    const topFlows = selectors.getTopFlows(this.props);
+    const highlightedFlows = selectors.getHighlightedFlows(this.props);
+    const isLocationHighlighted = highlightedLocationId != null;
+    const locationCircles = selectors.getLocationCircles(this.props);
 
-    return new FlowCirclesLayer({
-      id,
-      getColor,
-      getPosition,
-      getRadius,
-      data: circles,
-      opacity: 1,
-      pickable: true,
-      updateTriggers: {
-        getRadius: { selectedLocationIds, flows },
-        getColor: { highlightedLocationId, selectedLocationIds, flows },
-      },
-    });
+    const layers: DeckGLLayer[] = [];
+
+    if (showLocationAreas && isFeatureCollection(locations)) {
+      layers.push(this.getLocationAreasLayer(getLayerId(this.props.id, LayerKind.LOCATION_AREAS)));
+    }
+    layers.push(
+      this.getDelaunayFlowLinesLayer(
+        getLayerId(this.props.id, LayerKind.FLOWS),
+        topFlows,
+        false,
+        isLocationHighlighted,
+      ),
+    );
+    if (highlightedFlows) {
+      layers.push(
+        this.getDelaunayFlowLinesLayer(
+          getLayerId(this.props.id, LayerKind.FLOWS_HIGHLIGHTED),
+          highlightedFlows,
+          true,
+          false,
+        ),
+      );
+    }
+    layers.push(this.getLocationCirclesLayer(getLayerId(this.props.id, LayerKind.LOCATIONS), locationCircles, false));
+    if (isLocationHighlighted) {
+      const highlightedLocationCircles = selectors.getHighlightedLocationCircles(this.props);
+      layers.push(
+        this.getLocationCirclesLayer(
+          getLayerId(this.props.id, LayerKind.LOCATIONS_HIGHLIGHTED),
+          highlightedLocationCircles,
+          true,
+        ),
+      );
+    }
+    return layers;
   }
 }

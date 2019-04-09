@@ -15,8 +15,12 @@
  *
  */
 
-import FlowMapLayer, { Flow, Location } from '@flowmap.gl/core';
+import FlowMapLayer from '@flowmap.gl/core';
+import DelaunayFlowMapLayer from '@flowmap.gl/core';
+import { Flow, Location } from '@flowmap.gl/core';
 import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
+import DelaunayFlowMap from '@flowmap.gl/react';
+
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
 import GSheetsExample from './GSheetsExample';
@@ -25,24 +29,43 @@ import NonInteractiveExample from './NonInteractiveExample';
 
 export const mapboxAccessToken = process.env.MapboxAccessToken || '';
 
+const basicFlow = pipe(
+  withStats,
+  withFetchJson('locations', './data/locations.json'),
+  withFetchJson('flows', './data/flows-2016.json'),
+)(({ locations, flows }: any) => (
+  <FlowMap
+    getLocationId={(loc: Location) => loc.properties.abbr}
+    getFlowMagnitude={(flow: Flow) => flow.count}
+    flows={flows}
+    locations={locations}
+    initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+    mapboxAccessToken={mapboxAccessToken}
+  />
+));
+
+const delaunayFlow = pipe(
+  withStats,
+  withFetchJson('locations', './data/locations.json'),
+  withFetchJson('flows', './data/flows-2016.json'),
+)(({ locations, flows }: any) => (
+  <FlowMap
+    getLocationId={(loc: Location) => loc.properties.abbr}
+    getFlowMagnitude={(flow: Flow) => flow.count * 2}
+    flows={flows}
+    locations={locations}
+    initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+    mapboxAccessToken={mapboxAccessToken}
+    useDelaunay={true}
+  />
+));
+
+console.log('about to story');
+
+storiesOf('DelaunayFlowMapLayer', module).add('basic', delaunayFlow);
+
 storiesOf('FlowMapLayer', module)
-  .add(
-    'basic',
-    pipe(
-      withStats,
-      withFetchJson('locations', './data/locations.json'),
-      withFetchJson('flows', './data/flows-2016.json'),
-    )(({ locations, flows }: any) => (
-      <FlowMap
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
-        flows={flows}
-        locations={locations}
-        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-        mapboxAccessToken={mapboxAccessToken}
-      />
-    )),
-  )
+  .add('basic', basicFlow)
   .add(
     'animated',
     pipe(
@@ -155,7 +178,9 @@ storiesOf('FlowMapLayer', module)
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
         getFlowColor={(f: Flow) => {
-          if (f.origin === 'ZH' && f.dest === 'AG') { return 'orange'; }
+          if (f.origin === 'ZH' && f.dest === 'AG') {
+            return 'orange';
+          }
           return undefined;
         }}
       />

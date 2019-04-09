@@ -22,7 +22,7 @@ import { BlendMode } from 'csstype';
 import * as React from 'react';
 import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 
-const FLOW_MAP_LAYER_ID = 'flow-map-layer';
+const DELAUNAY_FLOW_MAP_LAYER_ID = 'delaunay-flow-map-layer';
 
 const enum HighlightType {
   LOCATION = 'location',
@@ -60,9 +60,10 @@ export interface State {
 
 const ESC_KEY = 'Escape';
 
-export default class FlowMap extends React.Component<Props, State> {
+export default class DelaunayFlowMap extends React.Component<Props, State> {
   static defaultProps: Partial<Props> = {
     mixBlendMode: 'multiply',
+    useDelaunay: true,
   };
 
   static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
@@ -154,28 +155,16 @@ export default class FlowMap extends React.Component<Props, State> {
     } = this.props;
 
     const { highlight, selectedLocationIds } = this.state;
-    if (true) {
-      return new DelaunayFlowMapLayer({
-        id: FLOW_MAP_LAYER_ID,
-        animationCurrentTime: this.state.time,
-        ...flowMapLayerProps,
-        selectedLocationIds,
-        highlightedLocationId:
-          highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
-        highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
-        onHover: this.handleFlowMapHover,
-        onClick: this.handleFlowMapClick,
-      });
-    } else {
-      return new FlowMapLayer({
-        id: FLOW_MAP_LAYER_ID,
-        animationCurrentTime: this.state.time,
-        ...flowMapLayerProps,
-        selectedLocationIds,
-        onHover: this.handleFlowMapHover,
-        onClick: this.handleFlowMapClick,
-      });
-    }
+    return new DelaunayFlowMapLayer({
+      id: DELAUNAY_FLOW_MAP_LAYER_ID,
+      animationCurrentTime: this.state.time,
+      ...flowMapLayerProps,
+      selectedLocationIds,
+      highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
+      highlightedFlow: highlight && highlight.type === HighlightType.FLOW ? highlight.flow : undefined,
+      onHover: this.handleFlowMapHover,
+      onClick: this.handleFlowMapClick,
+    });
   }
 
   private highlight(highlight: Highlight | undefined, info?: FlowLayerPickingInfo) {
