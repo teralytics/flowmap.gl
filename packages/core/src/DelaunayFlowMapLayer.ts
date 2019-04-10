@@ -40,6 +40,12 @@ import {
   PickingType,
 } from './types';
 
+import * as _ from 'lodash';
+const DijkstraJS = require('dijkstrajs');
+// var Delaunator = require('dijkstrajs');
+const Delaunator = require('delaunator').default;
+// import Delaunator from 'delaunator';
+
 export class DelaunayFlowMapLayer extends FlowMapLayer {
   static layerName: string = 'DelaunayFlowMapLayer';
   static defaultProps = {
@@ -57,6 +63,19 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
   props!: Props;
 
   constructor(props: Props) {
+    console.log(props);
+    const newFlows = this.buildNetwork(props.locations);
+    const toAbbr = function(x) {
+      // 1: {year: "2016", origin: "ZH", dest: "BE", count: 1673}
+      const o = props.locations.features[x[0]].properties.abbr;
+      const d = props.locations.features[x[1]].properties.abbr;
+      return { year: '2016', origin: o, dest: d, count: 10 };
+    };
+    const newFlows2 = newFlows.map(toAbbr);
+    console.log(newFlows2);
+    console.log(props.flows);
+    props.flows = newFlows2;
+    this.buildGraph();
     super(props);
   }
 
@@ -81,6 +100,43 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
     });
 
     this.setState({ selectors });
+  }
+
+  buildNetwork(locations) {
+    console.log('building Network');
+    const getXY = function(f) {
+      return f.properties.centroid;
+    };
+    const points = locations.features.map(getXY);
+
+    const delaunay = Delaunator.from(points);
+    const triangles = _.chunk(delaunay.triangles, 3);
+    points = triangles.map(function(t) {
+      return t.slice(0, 2);
+    });
+    points = points.concat(
+      triangles.map(function(t) {
+        return t.slice(1, 3);
+      }),
+    );
+    return points;
+  }
+
+  buildGraph() {
+    console.log('jamie');
+    const graph = {
+      a: { b: 10, d: 1 },
+      b: { a: 1, c: 1, e: 1 },
+      c: { b: 1, f: 1 },
+      d: { a: 1, e: 1, g: 1 },
+      e: { b: 1, d: 1, f: 1, h: 1 },
+      f: { c: 1, e: 1, i: 1 },
+      g: { d: 1, h: 1 },
+      h: { e: 1, g: 1, i: 1 },
+      i: { f: 1, h: 1 },
+    };
+    const path = DijkstraJS.find_path(graph, 'a', 'i');
+    console.log(path);
   }
 
   updateState(params: any) {
@@ -209,7 +265,7 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
       getThickness,
       getEndpointOffsets,
       getColor,
-      data: [],
+      data: flows,
       opacity: 1,
       pickable: !highlighted,
       drawOutline: !dimmed,

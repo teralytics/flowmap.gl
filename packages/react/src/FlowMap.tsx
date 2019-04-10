@@ -161,7 +161,7 @@ export default class FlowMap extends React.Component<Props, State> {
 
     console.log('blah');
     const { highlight, selectedLocationIds } = this.state;
-    if (true) {
+    if (useDelaunay) {
       return new DelaunayFlowMapLayer({
         id: FLOW_MAP_LAYER_ID,
         animationCurrentTime: this.state.time,

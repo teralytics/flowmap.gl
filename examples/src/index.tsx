@@ -16,10 +16,8 @@
  */
 
 import FlowMapLayer from '@flowmap.gl/core';
-import DelaunayFlowMapLayer from '@flowmap.gl/core';
 import { Flow, Location } from '@flowmap.gl/core';
 import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
-import DelaunayFlowMap from '@flowmap.gl/react';
 
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
@@ -49,7 +47,7 @@ const delaunayFlow = pipe(
   withFetchJson('locations', './data/locations.json'),
   withFetchJson('flows', './data/flows-2016.json'),
 )(({ locations, flows }: any) => (
-  <DelaunayFlowMap
+  <FlowMap
     getLocationId={(loc: Location) => loc.properties.abbr}
     getFlowMagnitude={(flow: Flow) => flow.count * 2}
     flows={flows}
