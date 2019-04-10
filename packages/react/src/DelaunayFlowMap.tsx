@@ -106,13 +106,14 @@ export default class DelaunayFlowMap extends React.Component<Props, State> {
   }
 
   render() {
+    window.alert('JAMIE');
     const { mapboxAccessToken, mixBlendMode } = this.props;
     const flowMapLayer = this.getFlowMapLayer();
     return (
       <>
         <DeckGL
           style={{ mixBlendMode }}
-          layers={[flowMapLayer]}
+          layers={[]}
           viewState={this.state.viewState}
           controller={true}
           onViewStateChange={this.handleViewStateChange}

@@ -16,8 +16,13 @@
  */
 
 import { DeckGL } from '@deck.gl/react';
-import FlowMapLayer, { BasicProps, Flow, FlowLayerPickingInfo, PickingType } from '@flowmap.gl/core';
-import DelaunayFlowMapLayer from '@flowmap.gl/core';
+import FlowMapLayer, {
+  BasicProps,
+  DelaunayFlowMapLayer,
+  Flow,
+  FlowLayerPickingInfo,
+  PickingType,
+} from '@flowmap.gl/core';
 import { BlendMode } from 'csstype';
 import * as React from 'react';
 import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
@@ -107,6 +112,7 @@ export default class FlowMap extends React.Component<Props, State> {
   render() {
     const { mapboxAccessToken, mixBlendMode } = this.props;
     const flowMapLayer = this.getFlowMapLayer();
+    console.log('HUZZAH');
     return (
       <>
         <DeckGL
@@ -153,6 +159,7 @@ export default class FlowMap extends React.Component<Props, State> {
       ...flowMapLayerProps
     } = this.props;
 
+    console.log('blah');
     const { highlight, selectedLocationIds } = this.state;
     if (true) {
       return new DelaunayFlowMapLayer({

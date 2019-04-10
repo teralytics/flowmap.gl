@@ -49,7 +49,7 @@ const delaunayFlow = pipe(
   withFetchJson('locations', './data/locations.json'),
   withFetchJson('flows', './data/flows-2016.json'),
 )(({ locations, flows }: any) => (
-  <FlowMap
+  <DelaunayFlowMap
     getLocationId={(loc: Location) => loc.properties.abbr}
     getFlowMagnitude={(flow: Flow) => flow.count * 2}
     flows={flows}

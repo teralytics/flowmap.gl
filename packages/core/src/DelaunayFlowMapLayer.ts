@@ -40,7 +40,7 @@ import {
   PickingType,
 } from './types';
 
-export default class DelaunayFlowMapLayer extends FlowMapLayer {
+export class DelaunayFlowMapLayer extends FlowMapLayer {
   static layerName: string = 'DelaunayFlowMapLayer';
   static defaultProps = {
     getLocationId: { type: 'accessor', value: (l: Location) => l.id || l.properties.id },
@@ -209,7 +209,7 @@ export default class DelaunayFlowMapLayer extends FlowMapLayer {
       getThickness,
       getEndpointOffsets,
       getColor,
-      data: flows.slice(1, 10),
+      data: [],
       opacity: 1,
       pickable: !highlighted,
       drawOutline: !dimmed,
@@ -223,15 +223,13 @@ export default class DelaunayFlowMapLayer extends FlowMapLayer {
       ...(outlineThickness && { outlineThickness }),
     };
     const { animate } = this.props;
+    console.log('JAMIE');
     if (animate) {
       return new AnimatedFlowLinesLayer({
         ...baseProps,
         currentTime: this.props.animationCurrentTime,
       });
     } else {
-      {
-        console.log('JAMIE');
-      }
       return new FlowLinesLayer(baseProps);
     }
   }

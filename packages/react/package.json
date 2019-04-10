@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/teralytics/flowmap.gl#readme",
   "dependencies": {
-    "@flowmap.gl/core": "^5.2.0",
+    "@flowmap.gl/core": "../core",
     "@mapbox/geo-viewport": "^0.4.0",
     "d3-color": "^1.2.3",
     "d3-geo": "^1.11.3"
