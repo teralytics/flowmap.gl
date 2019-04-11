@@ -45,10 +45,10 @@ const DijkstraJS = require('dijkstrajs');
 // var Delaunator = require('dijkstrajs');
 const Delaunator = require('delaunator').default;
 
-function each_cons(arr, func){
-    for(let i=0; i < arr.length - 1; i++){
-        func(arr[i], arr[i + 1])
-    }
+function each_cons(arr, func) {
+  for (let i = 0; i < arr.length - 1; i++) {
+    func(arr[i], arr[i + 1]);
+  }
 }
 
 export class DelaunayFlowMapLayer extends FlowMapLayer {
@@ -68,17 +68,15 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
   props!: Props;
 
   constructor(props: Props) {
-    console.log(props);
-    const toAbbr = (x) => {
+    const toAbbr = x => {
       const o = props.locations.features[x[0]].properties.abbr;
       const d = props.locations.features[x[1]].properties.abbr;
       return { year: '2016', origin: o, dest: d, count: 0 };
     };
     const newFlows = this.buildNetwork(props.locations).map(toAbbr);
-      console.log(`There were ${newFlows.length}`)
-      const oldFlows = props.flows;
+    const oldFlows = props.flows;
     props.flows = newFlows;
-      this.buildGraph(newFlows, props.locations, oldFlows);
+    this.buildGraph(newFlows, props.locations, oldFlows);
     super(props);
   }
 
@@ -113,50 +111,51 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
     const points = locations.features.map(getXY);
     const delaunay = Delaunator.from(points);
     const triangles = _.chunk(delaunay.triangles, 3);
-    const edges = _.flatMap(triangles, (t) => {
-      const a = t[0], b = t[1], c = t[2];
-      return [[a,b], [b,a], [a,c], [c,a], [b,c], [c,b]];
+    const edges = _.flatMap(triangles, t => {
+      const a = t[0],
+        b = t[1],
+        c = t[2];
+      return [[a, b], [b, a], [a, c], [c, a], [b, c], [c, b]];
     });
-    return Array.from(new Set(edges))
+    return Array.from(new Set(edges));
   }
 
   buildGraph(edges, nodes, flows) {
     console.log('building Graph');
-    const graph_ = _.groupBy(edges, "origin");
-    let f = (xs) => {
-        const ff = (x) => x.dest
-        return xs.map(ff);
+    const graph_ = _.groupBy(edges, 'origin');
+    let f = xs => {
+      const ff = x => x.dest;
+      return xs.map(ff);
     };
     const graph = _.mapValues(graph_, f);
-    const graph__ = {}
-    Object.keys(graph).forEach(function (origin) {
+    const graph__ = {};
+    Object.keys(graph).forEach(function(origin) {
       const dests = graph[origin];
-      graph__[origin] = {}
-      const f = (d) => { graph__[origin][d] = 10 }
+      graph__[origin] = {};
+      const f = d => {
+        graph__[origin][d] = 10;
+      };
       dests.forEach(f);
     });
 
     const flowsByEdge = {};
-    const f = (flow) => {
+    const f = flow => {
       const o = flow.origin;
       const d = flow.dest;
-      flowsByEdge[[o,d]] = flow;
+      flowsByEdge[[o, d]] = flow;
     };
     edges.forEach(f);
 
-    flows.forEach((flow) => {
+    flows.forEach(flow => {
       const o = flow.origin;
       const d = flow.dest;
       const path = DijkstraJS.find_path(graph__, o, d);
-      const f = (a,b) => {
-        const flowObj = flowsByEdge[[a,b]];
-        flowObj.count += flow.count
-      }
+      const f = (a, b) => {
+        const flowObj = flowsByEdge[[a, b]];
+        flowObj.count += flow.count;
+      };
       each_cons(path, f);
-    }
-
-
-
+    });
   }
 
   updateState(params: any) {
@@ -299,7 +298,6 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
       ...(outlineThickness && { outlineThickness }),
     };
     const { animate } = this.props;
-    console.log('JAMIE');
     if (animate) {
       return new AnimatedFlowLinesLayer({
         ...baseProps,

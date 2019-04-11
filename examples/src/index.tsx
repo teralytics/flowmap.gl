@@ -58,8 +58,6 @@ const delaunayFlow = pipe(
   />
 ));
 
-console.log('about to story');
-
 storiesOf('DelaunayFlowMapLayer', module).add('basic', delaunayFlow);
 
 storiesOf('FlowMapLayer', module)

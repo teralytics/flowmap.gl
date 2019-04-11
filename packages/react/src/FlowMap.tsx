@@ -112,7 +112,6 @@ export default class FlowMap extends React.Component<Props, State> {
   render() {
     const { mapboxAccessToken, mixBlendMode } = this.props;
     const flowMapLayer = this.getFlowMapLayer();
-    console.log('HUZZAH');
     return (
       <>
         <DeckGL
@@ -159,7 +158,6 @@ export default class FlowMap extends React.Component<Props, State> {
       ...flowMapLayerProps
     } = this.props;
 
-    console.log('blah');
     const { highlight, selectedLocationIds } = this.state;
     if (useDelaunay) {
       return new DelaunayFlowMapLayer({
