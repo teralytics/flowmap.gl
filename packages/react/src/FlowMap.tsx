@@ -85,6 +85,13 @@ export default class FlowMap extends React.Component<Props, State> {
     if (animate) {
       this.animate();
     }
+    const { onViewStateChange } = this.props;
+    if (onViewStateChange) {
+      const { viewState } = this.state;
+      if (viewState) {
+        onViewStateChange(viewState);
+      }
+    }
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
