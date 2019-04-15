@@ -21,25 +21,16 @@ import {
 import FlowMapLayer, { Props } from './FlowMapLayer';
 import {
   Flow,
-  FlowAccessor,
+  FlowAccessors,
   isFeatureCollection,
   Location,
-  LocationAccessor,
+  LocationAccessors,
   LocationCircle,
   LocationCircleType,
   NumberScale,
 } from './types';
 
-export interface InputGetters {
-  getLocationId: LocationAccessor<string>;
-  getLocationTotalIn?: LocationAccessor<number>;
-  getLocationTotalOut?: LocationAccessor<number>;
-  getLocationTotalWithin?: LocationAccessor<number>;
-  getFlowOriginId: FlowAccessor<string>;
-  getFlowDestId: FlowAccessor<string>;
-  getFlowMagnitude: FlowAccessor<number>;
-  getFlowColor?: FlowAccessor<string | undefined>;
-}
+export type InputAccessors = LocationAccessors & FlowAccessors;
 
 export type PropsSelector<T> = (props: Props) => T;
 
@@ -71,7 +62,7 @@ const getOutlineThickness = (props: Props) =>
   props.outlineThickness != null ? props.outlineThickness : FlowMapLayer.defaultProps.outlineThickness;
 
 class Selectors {
-  constructor(private inputGetters: InputGetters) {}
+  constructor(private inputAccessors: InputAccessors) {}
 
   getColors: PropsSelector<ColorsRGBA | DiffColorsRGBA> = createSelector(
     [getColorsProp, getDiffMode],
@@ -87,7 +78,7 @@ class Selectors {
     [getLocationFeatures],
     locations => {
       const locationsById = nest<Location, Location | undefined>()
-        .key(this.inputGetters.getLocationId)
+        .key(this.inputAccessors.getLocationId)
         .rollup(([d]) => d)
         .object(locations);
       return (id: string) => {
@@ -103,7 +94,7 @@ class Selectors {
   private getFilteredFlows: PropsSelector<Flow[]> = createSelector(
     [getFlows, getSelectedLocationIds],
     (flows, selectedLocationIds) => {
-      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
 
       if (selectedLocationIds) {
         return flows.filter(
@@ -120,7 +111,7 @@ class Selectors {
   private getNonSelfFlows: PropsSelector<Flow[]> = createSelector(
     [this.getFilteredFlows],
     flows => {
-      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
       return flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow));
     },
   );
@@ -129,7 +120,7 @@ class Selectors {
     [this.getNonSelfFlows],
     flows => {
       const comparator = (f1: Flow, f2: Flow) =>
-        Math.abs(this.inputGetters.getFlowMagnitude(f1)) - Math.abs(this.inputGetters.getFlowMagnitude(f2));
+        Math.abs(this.inputAccessors.getFlowMagnitude(f1)) - Math.abs(this.inputAccessors.getFlowMagnitude(f2));
       return flows.slice().sort(comparator);
     },
   );
@@ -147,7 +138,7 @@ class Selectors {
   getHighlightedFlows: PropsSelector<Flow[] | undefined> = createSelector(
     [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId],
     (flows, highlightedFlow, highlightedLocationId) => {
-      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
 
       if (highlightedFlow) {
         return [highlightedFlow];
@@ -165,7 +156,7 @@ class Selectors {
 
   private getFlowMagnitudeExtent: PropsSelector<[number, number] | [undefined, undefined]> = createSelector(
     [this.getNonSelfFlows],
-    flows => extent(flows, this.inputGetters.getFlowMagnitude),
+    flows => extent(flows, this.inputAccessors.getFlowMagnitude),
   );
 
   getFlowThicknessScale: PropsSelector<NumberScale> = createSelector(
@@ -200,7 +191,7 @@ class Selectors {
     highlighted: boolean,
     dimmed: boolean,
   ) {
-    const { getFlowMagnitude, getFlowColor } = this.inputGetters;
+    const { getFlowMagnitude, getFlowColor } = this.inputAccessors;
     return (flow: Flow) => {
       if (getFlowColor) {
         const color = getFlowColor(flow);
@@ -231,7 +222,7 @@ class Selectors {
   private getLocationTotals: PropsSelector<LocationTotals> = createSelector(
     [getLocationFeatures, this.getFilteredFlows],
     (locations, flows) => {
-      const { getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.inputAccessors;
       return flows.reduce<LocationTotals>(
         (acc, curr) => {
           const originId = getFlowOriginId(curr);
@@ -269,7 +260,7 @@ class Selectors {
   );
 
   getLocationTotalInGetter = (props: Props) => {
-    const { getLocationTotalIn, getLocationId } = this.inputGetters;
+    const { getLocationTotalIn, getLocationId } = this.inputAccessors;
     if (getLocationTotalIn) {
       return getLocationTotalIn;
     }
@@ -279,7 +270,7 @@ class Selectors {
   };
 
   getLocationTotalOutGetter = (props: Props) => {
-    const { getLocationTotalOut, getLocationId } = this.inputGetters;
+    const { getLocationTotalOut, getLocationId } = this.inputAccessors;
     if (getLocationTotalOut) {
       return getLocationTotalOut;
     }
@@ -289,7 +280,7 @@ class Selectors {
   };
 
   getLocationTotalWithinGetter = (props: Props) => {
-    const { getLocationTotalWithin, getLocationId } = this.inputGetters;
+    const { getLocationTotalWithin, getLocationId } = this.inputAccessors;
     if (getLocationTotalWithin) {
       return getLocationTotalWithin;
     }
@@ -389,7 +380,7 @@ class Selectors {
       this.getLocationTotalWithinGetter,
     ],
     (colors, highlightedLocationId, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
-      const { getLocationId } = this.inputGetters;
+      const { getLocationId } = this.inputAccessors;
 
       return ({ location, type }: LocationCircle) => {
         const isHighlighted = highlightedLocationId && highlightedLocationId === getLocationId(location);
@@ -434,7 +425,7 @@ class Selectors {
   private isLocationConnectedGetter: PropsSelector<(id: string) => boolean> = createSelector(
     [this.getFilteredFlows, getHighlightedLocationId, getHighlightedFlow, getSelectedLocationIds],
     (flows, highlightedLocationId, highlightedFlow, selectedLocationIds) => {
-      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
 
       if (highlightedLocationId) {
         const isRelated = (flow: Flow) => {
@@ -467,7 +458,7 @@ class Selectors {
     [this.getColors, getSelectedLocationIds, getHighlightedLocationId, this.isLocationConnectedGetter],
     (colors, selectedLocationIds, highlightedLocationId, isLocationConnected) => {
       return (location: Location) => {
-        const locationId = this.inputGetters.getLocationId(location);
+        const locationId = this.inputAccessors.getLocationId(location);
         if (selectedLocationIds && selectedLocationIds.indexOf(locationId) >= 0) {
           return colors.locationAreas.selected;
         }
@@ -485,12 +476,12 @@ class Selectors {
     },
   );
 
-  setInputGetters(inputGetters: InputGetters) {
-    this.inputGetters = inputGetters;
+  setInputAccessors(inputAccessors: InputAccessors) {
+    this.inputAccessors = inputAccessors;
   }
 
-  getInputGetters() {
-    return this.inputGetters;
+  getInputAccessors() {
+    return this.inputAccessors;
   }
 }
 

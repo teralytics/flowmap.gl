@@ -159,7 +159,7 @@ export default class FlowMapLayer extends CompositeLayer {
         getFlowMagnitude,
         getFlowColor,
       } = props;
-      this.state.selectors.setInputGetters({
+      this.state.selectors.setInputAccessors({
         getLocationId,
         getLocationTotalIn,
         getLocationTotalOut,
@@ -185,7 +185,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const { selectors } = this.state;
     if (type === PickingType.FLOW) {
       const getLocationById = selectors.getLocationByIdGetter(this.props);
-      const { getFlowOriginId, getFlowDestId } = selectors.getInputGetters();
+      const { getFlowOriginId, getFlowDestId } = selectors.getInputAccessors();
       const flow = info.object as Flow;
       return {
         ...info,

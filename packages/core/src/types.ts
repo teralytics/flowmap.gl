@@ -42,6 +42,20 @@ export interface LocationCircle {
   type: LocationCircleType;
 }
 
+export interface FlowAccessors {
+  getFlowOriginId: FlowAccessor<string>;
+  getFlowDestId: FlowAccessor<string>;
+  getFlowMagnitude: FlowAccessor<number>;
+  getFlowColor?: FlowAccessor<string | undefined>;
+}
+
+export interface LocationAccessors {
+  getLocationId: LocationAccessor<string>;
+  getLocationTotalIn?: LocationAccessor<number>;
+  getLocationTotalOut?: LocationAccessor<number>;
+  getLocationTotalWithin?: LocationAccessor<number>;
+}
+
 export type Data = Flow | Location | LocationCircle;
 
 export enum PickingType {

@@ -47,6 +47,7 @@ export interface Props extends BasicProps {
   mixBlendMode?: BlendMode;
   onSelected?: (locationIds: string[] | undefined) => void;
   onHighlighted?: (highlight: Highlight | undefined, info: FlowLayerPickingInfo | undefined) => void;
+  onViewStateChange?: (viewState: ViewState) => void;
 }
 
 export interface State {
@@ -258,11 +259,16 @@ export default class FlowMap extends React.Component<Props, State> {
     }
   };
 
-  private handleViewStateChange = ({ viewState }: ViewStateChangeInfo) =>
+  private handleViewStateChange = ({ viewState }: ViewStateChangeInfo) => {
     this.setState({
       viewState,
       highlight: undefined,
     });
+    const { onViewStateChange } = this.props;
+    if (onViewStateChange) {
+      onViewStateChange(viewState);
+    }
+  };
 
   private handleKeyDown = (evt: Event) => {
     if (evt instanceof KeyboardEvent && evt.key === ESC_KEY) {

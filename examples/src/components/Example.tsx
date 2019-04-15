@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Teralytics
+ * Copyright 2019 Teralytics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,41 +17,29 @@
 
 import FlowMap, { getViewStateForLocations, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import * as React from 'react';
-import { mapboxAccessToken } from '.';
-import { pipe, withFetchCsv, withStats } from './hocs';
-
-interface Location {
-  id: string;
-  lon: string;
-  lat: string;
-  name: string;
-}
-
-interface Flow {
-  origin: string;
-  dest: string;
-  count: string;
-}
-
-const getFlowMagnitude = (flow: Flow) => +flow.count;
-const getFlowOriginId = (flow: Flow) => flow.origin;
-const getFlowDestId = (flow: Flow) => flow.dest;
-const getLocationId = (loc: Location) => loc.id;
-const getLocationCentroid = (location: Location): [number, number] => [+location.lon, +location.lat];
+import { ViewState } from 'react-map-gl';
+import { mapboxAccessToken } from '../index';
+import {
+  Flow,
+  getFlowDestId,
+  getFlowMagnitude,
+  getFlowOriginId,
+  getLocationCentroid,
+  getLocationId,
+  Location,
+} from '../types';
 
 const SHOW_TOP_FLOWS = 10000;
 
-const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
-  const Comp = pipe(
-    withStats,
-    withFetchCsv('locations', `https://docs.google.com/spreadsheets/d/${sheetKey}/gviz/tq?tqx=out:csv&sheet=locations`),
-    withFetchCsv('flows', `https://docs.google.com/spreadsheets/d/${sheetKey}/gviz/tq?tqx=out:csv&sheet=flows`),
-  )(({ locations, flows }: { locations: Location[]; flows: Flow[] }) => {
-    const centroidsById: { [key: string]: [number, number] } = {};
-    for (const loc of locations) {
-      centroidsById[getLocationId(loc)] = getLocationCentroid(loc);
-    }
+export interface Props {
+  locations: Location[];
+  flows: Flow[];
+  onViewStateChange?: (viewState: ViewState) => void;
+}
 
+export default class Example extends React.Component<Props> {
+  render() {
+    const { flows, locations, onViewStateChange } = this.props;
     return (
       <>
         <FlowMap
@@ -70,24 +58,15 @@ const GSheetsExample = ({ sheetKey }: { sheetKey: string }) => {
           getFlowDestId={getFlowDestId}
           getLocationCentroid={getLocationCentroid}
           getFlowMagnitude={getFlowMagnitude}
+          onViewStateChange={onViewStateChange}
         />
         <LegendBox bottom={35} left={10}>
           <LocationTotalsLegend />
         </LegendBox>
         <LegendBox bottom={35} right={10}>
           {`Showing ${flows.length > SHOW_TOP_FLOWS ? `top ${SHOW_TOP_FLOWS} of` : ''} ${flows.length} flows. `}
-          <a
-            href={`https://docs.google.com/spreadsheets/d/${sheetKey}/edit?usp=sharing`}
-            target="_blank"
-            rel="noopener"
-          >
-            Data source
-          </a>
         </LegendBox>
       </>
     );
-  });
-  return <Comp />;
-};
-
-export default GSheetsExample;
+  }
+}

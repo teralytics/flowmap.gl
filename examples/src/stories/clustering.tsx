@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Teralytics
+ * Copyright 2019 Teralytics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,17 @@
  *
  */
 
+import { storiesOf } from '@storybook/react';
 import * as React from 'react';
-import './stories/basic';
-import './stories/clustering';
-import './stories/datasets';
+import ClusteringExample from '../components/ClusteringExample';
+import pipe from '../utlis/pipe';
+import withSheetsFetch from '../utlis/withSheetsFetch';
+import withStats from '../utlis/withStats';
 
-export const mapboxAccessToken = process.env.MapboxAccessToken || '';
+storiesOf('Clustering', module).add(
+  'NL commuters',
+  pipe(
+    withStats,
+    withSheetsFetch('1Oe3zM219uSfJ3sjdRT90SAK2kU3xIvzdcCW6cwTsAuc'),
+  )(({ locations, flows }: any) => <ClusteringExample flows={flows} locations={locations} />),
+);

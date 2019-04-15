@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Teralytics
+ * Copyright 2019 Teralytics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,21 @@
  *
  */
 
-import * as React from 'react';
-import './stories/basic';
-import './stories/clustering';
-import './stories/datasets';
+export interface Location {
+  id: string;
+  lon: string;
+  lat: string;
+  name: string;
+}
 
-export const mapboxAccessToken = process.env.MapboxAccessToken || '';
+export interface Flow {
+  origin: string;
+  dest: string;
+  count: string;
+}
+
+export const getFlowMagnitude = (flow: Flow) => +flow.count;
+export const getFlowOriginId = (flow: Flow) => flow.origin;
+export const getFlowDestId = (flow: Flow) => flow.dest;
+export const getLocationId = (loc: Location) => loc.id;
+export const getLocationCentroid = (location: Location): [number, number] => [+location.lon, +location.lat];

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Teralytics
+ * Copyright 2019 Teralytics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,15 @@
  *
  */
 
-import * as React from 'react';
-import './stories/basic';
-import './stories/clustering';
-import './stories/datasets';
+import { Location } from '@flowmap.gl/core';
 
-export const mapboxAccessToken = process.env.MapboxAccessToken || '';
+export interface LocationCluster extends Location {
+  parentId: string | undefined;
+  zoom: number;
+  children: Array<Location | LocationCluster>;
+}
+
+export function isLocationCluster(l: Location): l is LocationCluster {
+  const { zoom } = l as LocationCluster;
+  return zoom !== undefined;
+}

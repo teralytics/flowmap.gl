@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Teralytics
+ * Copyright 2019 Teralytics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  *
  */
 
-import * as React from 'react';
-import './stories/basic';
-import './stories/clustering';
-import './stories/datasets';
+const pipe = (...args: Function[]): Function => (d: any) => args.reduce((m, f) => f(m), d);
 
-export const mapboxAccessToken = process.env.MapboxAccessToken || '';
+export default pipe;

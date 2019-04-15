@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true,
+    "lib": [
+      "es2015",
+      "dom",
+      "es2017.object"
+    ]
+  },
+  "include": [
+    "src/**/*",
+    "examples/**/*",
+    "../../typings/*",
+    "stories/**/*"
+  ]
+}
