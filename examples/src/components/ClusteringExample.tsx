@@ -24,6 +24,7 @@ import Example from './Example';
 export interface Props extends FlowAccessors, LocationAccessors {
   flows: Flow[];
   locations: Location[];
+  getLocationName: (loc: Location) => string;
 }
 
 interface State {
@@ -35,12 +36,19 @@ interface State {
 class ClusteringExample extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const { getLocationId, getLocationCentroid } = this.props;
+    const { getLocationId, getLocationCentroid, getLocationName } = this.props;
     const { locations, flows, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
+    const getLocationWeight = getLocationWeightGetter(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
     const clusterTree = new ClusterTree(
       isFeatureCollection(locations) ? locations.features : locations,
       { getLocationId, getLocationCentroid },
-      getLocationWeightGetter(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude }),
+      getLocationWeight,
+      (id, numPoints, children) => {
+        const sorted = children.slice().sort((a: Location, b: Location) => getLocationWeight(b) - getLocationWeight(a));
+        return `Cluster of ${getLocationName(sorted[0])} and ${children.length - 1} more location${
+          children.length > 1 ? 's' : ''
+        }`;
+      },
     );
     const clusteredFlows = clusterTree.aggregateFlows(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
     this.state = {

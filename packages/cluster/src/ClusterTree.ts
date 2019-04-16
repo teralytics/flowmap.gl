@@ -46,7 +46,8 @@ export function getLocationWeightGetter(
     locationTotals.outgoing.set(origin, (locationTotals.outgoing.get(dest) || 0) + count);
   }
 
-  return (id: string) => Math.max(locationTotals.incoming.get(id) || 0, locationTotals.outgoing.get(id) || 0);
+  return (id: string) =>
+    Math.max(Math.abs(locationTotals.incoming.get(id) || 0), Math.abs(locationTotals.outgoing.get(id) || 0));
 }
 
 /**
@@ -62,7 +63,12 @@ export default class ClusterTree {
   private readonly minZoomByLocationId: Map<string, number>;
   private readonly leavesToClustersByZoom: Map<number, Map<string, LocationItem>>;
 
-  constructor(locations: Location[], locationAccessors: LocationAccessors, getLocationWeight: LocationWeightGetter) {
+  constructor(
+    locations: Location[],
+    locationAccessors: LocationAccessors,
+    getLocationWeight: LocationWeightGetter,
+    makeClusterName: (id: string, numPoints: string, children: LocationItem[]) => string,
+  ) {
     const { getLocationCentroid, getLocationId } = locationAccessors;
     const index = new Supercluster({
       radius: 40,
@@ -93,10 +99,10 @@ export default class ClusterTree {
     const itemsById = new Map<string, LocationCluster>();
     const minZoomByLocationId = new Map();
     for (let zoom = maxZoom; zoom >= minZoom; zoom--) {
+      let childrenByParent: { [key: string]: LocationItem[] } | undefined;
       const tree = trees[zoom];
-      let childrenByParent;
       if (zoom < maxZoom) {
-        childrenByParent = nest<any, LocationItem[]>()
+        childrenByParent = nest<string, LocationItem[]>()
           .key((point: any) => point.parentId)
           .rollup((points: any[]) =>
             points.map((p: any) => (p.id ? itemsById.get(makeClusterId(p.id))! : locations[p.index])),
@@ -112,13 +118,14 @@ export default class ClusterTree {
           minZoomByLocationId.set(location.id, zoom);
           items.push(location);
         } else {
+          const children = childrenByParent![id];
           const cluster = {
             id: makeClusterId(id),
             parentId: parentId >= 0 ? makeClusterId(parentId) : undefined,
-            name: `Cluster #${id} (${numPoints} locations)`,
+            name: makeClusterName(id, numPoints, children),
             zoom,
             centroid: [xLng(x), yLat(y)] as [number, number],
-            children: childrenByParent ? childrenByParent[id] : undefined,
+            children,
           };
           items.push(cluster);
           itemsById.set(cluster.id, cluster);

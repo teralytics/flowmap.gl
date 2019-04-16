@@ -36,6 +36,7 @@ storiesOf('Clustering', module)
         locations={locations}
         flows={flows}
         getLocationId={(loc: Location) => (isLocationCluster(loc) ? loc.id : loc.properties.abbr)}
+        getLocationName={(loc: Location) => loc.name}
         getLocationCentroid={(loc: Location) => (isLocationCluster(loc) ? loc.centroid : loc.properties.centroid)}
         getFlowOriginId={(flow: Flow) => flow.origin}
         getFlowDestId={(flow: Flow) => flow.dest}
@@ -53,6 +54,7 @@ storiesOf('Clustering', module)
         locations={locations}
         flows={flows}
         getLocationId={(loc: Location) => loc.id}
+        getLocationName={(loc: Location) => loc.name}
         getLocationCentroid={(loc: Location): [number, number] =>
           isLocationCluster(loc) ? loc.centroid : [+loc.lon, +loc.lat]
         }
