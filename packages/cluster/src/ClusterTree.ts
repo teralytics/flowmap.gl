@@ -18,16 +18,16 @@
 import { Flow, FlowAccessors, Location, LocationAccessors } from '@flowmap.gl/core';
 import { nest } from 'd3-collection';
 import Supercluster from 'supercluster';
-import { isLocationCluster, LocationCluster } from './types';
+import { AggregateFlow, isLocationCluster, LocationCluster } from './types';
 
 const MAX_CLUSTER_ZOOM = 18;
 const CLUSTER_ID_PREFIX = 'cluster::';
 
 export const makeClusterId = (id: string | number) => `${CLUSTER_ID_PREFIX}${id}`;
-export const isClusterId = (id: string) => id.startsWith(CLUSTER_ID_PREFIX);
 
-export type Item = Location | LocationCluster;
-export type ClusteredFlowsByZoom = Map<number, Flow[]>;
+export type LocationItem = Location | LocationCluster;
+export type FlowItem = Flow | AggregateFlow;
+export type ClusteredFlowsByZoom = Map<number, FlowItem[]>;
 export type LocationWeightGetter = (id: string) => number;
 
 export function getLocationWeightGetter(
@@ -57,10 +57,10 @@ export default class ClusterTree {
   readonly maxZoom: number;
   private readonly locations: Location[];
   private readonly locationAccessors: LocationAccessors;
-  private readonly itemsByZoom: Map<number, Item[]>;
+  private readonly itemsByZoom: Map<number, LocationItem[]>;
   private readonly clustersById: Map<string, LocationCluster>;
   private readonly minZoomByLocationId: Map<string, number>;
-  private readonly leavesToClustersByZoom: Map<number, Map<string, Item>>;
+  private readonly leavesToClustersByZoom: Map<number, Map<string, LocationItem>>;
 
   constructor(locations: Location[], locationAccessors: LocationAccessors, getLocationWeight: LocationWeightGetter) {
     const { getLocationCentroid, getLocationId } = locationAccessors;
@@ -96,7 +96,7 @@ export default class ClusterTree {
       const tree = trees[zoom];
       let childrenByParent;
       if (zoom < maxZoom) {
-        childrenByParent = nest<any, Item[]>()
+        childrenByParent = nest<any, LocationItem[]>()
           .key((point: any) => point.parentId)
           .rollup((points: any[]) =>
             points.map((p: any) => (p.id ? itemsById.get(makeClusterId(p.id))! : locations[p.index])),
@@ -127,9 +127,9 @@ export default class ClusterTree {
       itemsByZoom.set(zoom, items);
     }
 
-    const leavesToClustersByZoom = new Map<number, Map<string, Item>>();
+    const leavesToClustersByZoom = new Map<number, Map<string, LocationItem>>();
     for (let zoom = maxZoom - 1; zoom >= minZoom; zoom--) {
-      const result = new Map<string, Item>();
+      const result = new Map<string, LocationItem>();
       const items = itemsByZoom.get(zoom);
       if (!items) {
         continue;
@@ -163,14 +163,14 @@ export default class ClusterTree {
     this.leavesToClustersByZoom = leavesToClustersByZoom;
   }
 
-  getItemsFor(zoom: number | undefined): Item[] | undefined {
+  getItemsFor(zoom: number | undefined): LocationItem[] | undefined {
     if (zoom === undefined) {
       return this.locations;
     }
     return this.itemsByZoom.get(zoom);
   }
 
-  getItemId = (item: Item) => {
+  getItemId = (item: LocationItem) => {
     if (isLocationCluster(item)) {
       return item.id;
     }
@@ -191,7 +191,7 @@ export default class ClusterTree {
    * Will mutate (append to) expandedIds.
    * Does not mutate ClusterTree
    */
-  pushExpandedClusterIds(item: Item, targetZoom: number, expandedIds: string[]) {
+  pushExpandedClusterIds(item: LocationItem, targetZoom: number, expandedIds: string[]) {
     if (isLocationCluster(item)) {
       if (targetZoom !== undefined) {
         if (targetZoom > item.zoom) {
@@ -240,7 +240,8 @@ export default class ClusterTree {
                 origin: originClusterId,
                 dest: destClusterId,
                 count: 0,
-              };
+                aggregate: true,
+              } as AggregateFlow;
             }
             // TODO: .count may not be in sync with getFlowMagnitude
             zoomFlows[key].count += getFlowMagnitude(f);
