@@ -51,6 +51,7 @@ export interface FlowAccessors {
 
 export interface LocationAccessors {
   getLocationId: LocationAccessor<string>;
+  getLocationCentroid: LocationAccessor<[number, number]>;
   getLocationTotalIn?: LocationAccessor<number>;
   getLocationTotalOut?: LocationAccessor<number>;
   getLocationTotalWithin?: LocationAccessor<number>;

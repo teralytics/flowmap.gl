@@ -18,8 +18,10 @@
 import { Location } from '@flowmap.gl/core';
 
 export interface LocationCluster extends Location {
+  id: string;
   parentId: string | undefined;
   zoom: number;
+  centroid: [number, number];
   children: Array<Location | LocationCluster>;
 }
 

@@ -26,6 +26,8 @@ import pipe from '../utlis/pipe';
 import { withFetchJson } from '../utlis/withFetch';
 import withStats from '../utlis/withStats';
 
+const getLocationId = (loc: Location) => loc.properties.abbr;
+
 storiesOf('Basic', module)
   .add(
     'basic',
@@ -35,8 +37,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
+        getLocationId={getLocationId}
         flows={flows}
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
@@ -57,8 +58,7 @@ storiesOf('Basic', module)
             scheme: d3scaleChromatic.schemeGnBu[d3scaleChromatic.schemeGnBu.length - 1] as string[],
           },
         }}
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
+        getLocationId={getLocationId}
         flows={flows}
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
@@ -75,8 +75,7 @@ storiesOf('Basic', module)
     )(({ locations, flows }: any) => (
       <FlowMap
         animate={true}
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
+        getLocationId={getLocationId}
         flows={flows}
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
@@ -92,8 +91,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
+        getLocationId={getLocationId}
         showTotals={true}
         showOnlyTopFlows={100}
         showLocationAreas={true}
@@ -113,8 +111,7 @@ storiesOf('Basic', module)
     )(({ locations, flows }: any) => (
       <FlowMap
         colors={{ outlineColor: '#fff' }}
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
+        getLocationId={getLocationId}
         showTotals={true}
         showLocationAreas={false}
         flows={flows}
@@ -132,8 +129,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
+        getLocationId={getLocationId}
         showTotals={false}
         showLocationAreas={true}
         flows={flows}
@@ -151,8 +147,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
+        getLocationId={getLocationId}
         flows={flows}
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
@@ -177,8 +172,7 @@ storiesOf('Basic', module)
         colors={{
           outlineColor: '#64e9f9',
         }}
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
+        getLocationId={getLocationId}
         showTotals={true}
         showLocationAreas={true}
         flows={flows}
@@ -197,8 +191,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
-        getLocationId={(loc: Location) => loc.properties.abbr}
-        getFlowMagnitude={(flow: Flow) => flow.count}
+        getLocationId={getLocationId}
         flows={flows}
         locations={locations}
         multiselect={true}
@@ -232,8 +225,7 @@ storiesOf('Basic', module)
       <>
         <FlowMap
           diffMode={true}
-          getLocationId={(loc: Location) => loc.properties.abbr}
-          getFlowMagnitude={(flow: Flow) => flow.count}
+          getLocationId={getLocationId}
           showTotals={true}
           showLocationAreas={true}
           flows={flows}

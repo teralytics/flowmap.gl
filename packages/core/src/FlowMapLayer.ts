@@ -110,7 +110,7 @@ export default class FlowMapLayer extends CompositeLayer {
     getLocationCentroid: { type: 'accessor', value: (l: Location) => l.properties.centroid },
     getFlowOriginId: { type: 'accessor', value: (f: Flow) => f.origin },
     getFlowDestId: { type: 'accessor', value: (f: Flow) => f.dest },
-    getFlowMagnitude: { type: 'accessor', value: (f: Flow) => f.magnitude },
+    getFlowMagnitude: { type: 'accessor', value: (f: Flow) => f.count },
     showTotals: true,
     locationCircleSize: 3,
     outlineThickness: 1,
@@ -127,6 +127,7 @@ export default class FlowMapLayer extends CompositeLayer {
       getLocationTotalIn,
       getLocationTotalOut,
       getLocationId,
+      getLocationCentroid,
       getFlowOriginId,
       getFlowDestId,
       getFlowMagnitude,
@@ -134,6 +135,7 @@ export default class FlowMapLayer extends CompositeLayer {
     } = this.props;
     const selectors = new Selectors({
       getLocationId: getLocationId!,
+      getLocationCentroid: getLocationCentroid!,
       getLocationTotalIn,
       getLocationTotalOut,
       getFlowOriginId: getFlowOriginId!,
@@ -154,6 +156,7 @@ export default class FlowMapLayer extends CompositeLayer {
         getLocationTotalIn,
         getLocationTotalOut,
         getLocationId,
+        getLocationCentroid,
         getFlowOriginId,
         getFlowDestId,
         getFlowMagnitude,
@@ -161,6 +164,7 @@ export default class FlowMapLayer extends CompositeLayer {
       } = props;
       this.state.selectors.setInputAccessors({
         getLocationId,
+        getLocationCentroid,
         getLocationTotalIn,
         getLocationTotalOut,
         getFlowOriginId,

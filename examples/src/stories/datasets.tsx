@@ -15,6 +15,7 @@
  *
  */
 
+import { Flow, Location } from '@flowmap.gl/core';
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
 import Example from '../components/Example';
@@ -28,26 +29,66 @@ storiesOf('Other datasets', module)
     pipe(
       withStats,
       withSheetsFetch('1Z6dVVFFrdooHIs8xnJ_O7eM5bhS5KscCi7G_k0jUNDI'),
-    )(({ locations, flows }: any) => <Example flows={flows} locations={locations} />),
+    )(({ locations, flows }: any) => (
+      <Example
+        flows={flows}
+        locations={locations}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(location: Location): [number, number] => [+location.lon, +location.lat]}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
   )
   .add(
     'NYC citibike',
     pipe(
       withStats,
       withSheetsFetch('1Aum0anWxPx6bHyfcFXWCCTE8u0xtfenIls_kPAJEDIA'),
-    )(({ locations, flows }: any) => <Example flows={flows} locations={locations} />),
+    )(({ locations, flows }: any) => (
+      <Example
+        flows={flows}
+        locations={locations}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(location: Location): [number, number] => [+location.lon, +location.lat]}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
   )
   .add(
     'Chicago taxis',
     pipe(
       withStats,
       withSheetsFetch('1fhX98NFv5gAkkjB2YFCm50-fplFpmWVAZby3dmm9cgQ'),
-    )(({ locations, flows }: any) => <Example flows={flows} locations={locations} />),
+    )(({ locations, flows }: any) => (
+      <Example
+        flows={flows}
+        locations={locations}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(location: Location): [number, number] => [+location.lon, +location.lat]}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
   )
   .add(
     'NL commuters',
     pipe(
       withStats,
       withSheetsFetch('1Oe3zM219uSfJ3sjdRT90SAK2kU3xIvzdcCW6cwTsAuc'),
-    )(({ locations, flows }: any) => <Example flows={flows} locations={locations} />),
+    )(({ locations, flows }: any) => (
+      <Example
+        flows={flows}
+        locations={locations}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(location: Location): [number, number] => [+location.lon, +location.lat]}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
   );

@@ -14,18 +14,51 @@
  * limitations under the License.
  *
  */
-
+import { isLocationCluster } from '@flowmap.gl/cluster';
+import { Flow, Location } from '@flowmap.gl/core';
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
 import ClusteringExample from '../components/ClusteringExample';
 import pipe from '../utlis/pipe';
+import { withFetchJson } from '../utlis/withFetch';
 import withSheetsFetch from '../utlis/withSheetsFetch';
 import withStats from '../utlis/withStats';
 
-storiesOf('Clustering', module).add(
-  'NL commuters',
-  pipe(
-    withStats,
-    withSheetsFetch('1Oe3zM219uSfJ3sjdRT90SAK2kU3xIvzdcCW6cwTsAuc'),
-  )(({ locations, flows }: any) => <ClusteringExample flows={flows} locations={locations} />),
-);
+storiesOf('Clustering', module)
+  .add(
+    'basic',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <ClusteringExample
+        locations={locations}
+        flows={flows}
+        getLocationId={(loc: Location) => (isLocationCluster(loc) ? loc.id : loc.properties.abbr)}
+        getLocationCentroid={(loc: Location) => (isLocationCluster(loc) ? loc.centroid : loc.properties.centroid)}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
+  )
+  .add(
+    'NL commuters',
+    pipe(
+      withStats,
+      withSheetsFetch('1Oe3zM219uSfJ3sjdRT90SAK2kU3xIvzdcCW6cwTsAuc'),
+    )(({ locations, flows }: any) => (
+      <ClusteringExample
+        locations={locations}
+        flows={flows}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(loc: Location): [number, number] =>
+          isLocationCluster(loc) ? loc.centroid : [+loc.lon, +loc.lat]
+        }
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
+  );

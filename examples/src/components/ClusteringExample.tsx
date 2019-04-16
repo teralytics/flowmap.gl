@@ -15,14 +15,13 @@
  *
  */
 
-import ClusterTree, { getLocationWeightGetter } from '@flowmap.gl/cluster';
-import { ClusteredFlowsByZoom } from '@flowmap.gl/cluster';
+import ClusterTree, { ClusteredFlowsByZoom, getLocationWeightGetter } from '@flowmap.gl/cluster';
+import { Flow, FlowAccessors, isFeatureCollection, Location, LocationAccessors } from '@flowmap.gl/core';
 import * as React from 'react';
 import { ViewState } from 'react-map-gl';
-import { Flow, getFlowDestId, getFlowMagnitude, getFlowOriginId, Location } from '../types';
 import Example from './Example';
 
-export interface Props {
+export interface Props extends FlowAccessors, LocationAccessors {
   flows: Flow[];
   locations: Location[];
 }
@@ -36,12 +35,14 @@ interface State {
 class ClusteringExample extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const { locations, flows } = this.props;
+    const { getLocationId, getLocationCentroid } = this.props;
+    const { locations, flows, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
     const clusterTree = new ClusterTree(
-      locations,
+      isFeatureCollection(locations) ? locations.features : locations,
+      { getLocationId, getLocationCentroid },
       getLocationWeightGetter(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude }),
     );
-    const clusteredFlows = clusterTree.clusterFlows(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
+    const clusteredFlows = clusterTree.aggregateFlows(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
     this.state = {
       clusterTree,
       clusteredFlows,
@@ -58,13 +59,21 @@ class ClusteringExample extends React.Component<Props, State> {
   };
 
   render() {
+    const { getLocationId, getLocationCentroid, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
     const { clusterTree, clusteredFlows, clusterZoom } = this.state;
     const locations = clusterTree.getItemsFor(clusterZoom) as Location[] | undefined;
     const flows = clusteredFlows.get(clusterZoom);
     if (!locations || !flows) {
       return null;
     }
-    return <Example locations={locations} flows={flows} onViewStateChange={this.handleViewStateChange} />;
+    return (
+      <Example
+        locations={locations}
+        flows={flows}
+        {...{ getLocationId, getLocationCentroid, getFlowOriginId, getFlowDestId, getFlowMagnitude }}
+        onViewStateChange={this.handleViewStateChange}
+      />
+    );
   }
 }
 

@@ -15,8 +15,8 @@
  *
  */
 
+import { Flow, Location } from '@flowmap.gl/core';
 import * as React from 'react';
-import { Flow } from '../types';
 import pipe from './pipe';
 import { withFetchCsv } from './withFetch';
 

@@ -15,38 +15,38 @@
  *
  */
 
+import { Flow, FlowAccessors, Location, LocationAccessors } from '@flowmap.gl/core';
 import FlowMap, { getViewStateForLocations, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import * as React from 'react';
 import { ViewState } from 'react-map-gl';
 import { mapboxAccessToken } from '../index';
-import {
-  Flow,
-  getFlowDestId,
-  getFlowMagnitude,
-  getFlowOriginId,
-  getLocationCentroid,
-  getLocationId,
-  Location,
-} from '../types';
 
 const SHOW_TOP_FLOWS = 10000;
 
-export interface Props {
+export interface Props extends FlowAccessors, LocationAccessors {
   locations: Location[];
   flows: Flow[];
   onViewStateChange?: (viewState: ViewState) => void;
 }
 
 export default class Example extends React.Component<Props> {
+  private readonly initialViewState: ViewState;
+
+  constructor(props: Props) {
+    super(props);
+    const { locations, getLocationCentroid } = props;
+    this.initialViewState = getViewStateForLocations(locations, getLocationCentroid, [
+      window.innerWidth,
+      window.innerHeight,
+    ]);
+  }
+
   render() {
-    const { flows, locations, onViewStateChange } = this.props;
+    const { flows, locations, getLocationId, getLocationCentroid, getFlowMagnitude, onViewStateChange } = this.props;
     return (
       <>
         <FlowMap
-          initialViewState={getViewStateForLocations(locations, getLocationCentroid, [
-            window.innerWidth,
-            window.innerHeight,
-          ])}
+          initialViewState={this.initialViewState}
           showTotals={true}
           showLocationAreas={false}
           showOnlyTopFlows={SHOW_TOP_FLOWS}
@@ -54,8 +54,6 @@ export default class Example extends React.Component<Props> {
           locations={locations}
           mapboxAccessToken={mapboxAccessToken}
           getLocationId={getLocationId}
-          getFlowOriginId={getFlowOriginId}
-          getFlowDestId={getFlowDestId}
           getLocationCentroid={getLocationCentroid}
           getFlowMagnitude={getFlowMagnitude}
           onViewStateChange={onViewStateChange}
