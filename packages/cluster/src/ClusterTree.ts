@@ -193,25 +193,10 @@ export default class ClusterTree {
     return this.minZoomByLocationId.get(locationId);
   }
 
-  /**
-   * Adds the list of loc/cluster IDs for targetZoom to idsToAddTo
-   * Will mutate (append to) expandedIds.
-   * Does not mutate ClusterTree
-   */
-  pushExpandedClusterIds(item: LocationItem, targetZoom: number, expandedIds: string[]) {
-    if (isLocationCluster(item)) {
-      if (targetZoom !== undefined) {
-        if (targetZoom > item.zoom) {
-          for (const child of item.children) {
-            this.pushExpandedClusterIds(child, targetZoom, expandedIds);
-          }
-        } else {
-          expandedIds.push(item.id);
-        }
-      }
-    } else {
-      expandedIds.push(this.getItemId(item));
-    }
+  expandCluster(cluster: LocationCluster, targetZoom?: number) {
+    const ids: string[] = [];
+    this.pushExpandedClusterIds(cluster, targetZoom !== undefined ? targetZoom : this.maxZoom, ids);
+    return ids;
   }
 
   findClusterFor = (locationId: string, zoom: number) => {
@@ -267,6 +252,27 @@ export default class ClusterTree {
       }
     }
     return flowsByZoom;
+  }
+
+  /**
+   * Adds the list of loc/cluster IDs for targetZoom to idsToAddTo
+   * Will mutate (append to) expandedIds.
+   * Does not mutate ClusterTree
+   */
+  private pushExpandedClusterIds(item: LocationItem, targetZoom: number, expandedIds: string[]) {
+    if (isLocationCluster(item)) {
+      if (targetZoom !== undefined) {
+        if (targetZoom > item.zoom) {
+          for (const child of item.children) {
+            this.pushExpandedClusterIds(child, targetZoom, expandedIds);
+          }
+        } else {
+          expandedIds.push(item.id);
+        }
+      }
+    } else {
+      expandedIds.push(this.getItemId(item));
+    }
   }
 }
 

@@ -15,8 +15,8 @@
  *
  */
 
-import { Flow, FlowAccessors, Location, LocationAccessors } from '@flowmap.gl/core';
-import FlowMap, { getViewStateForLocations, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
+import { Flow, FlowAccessors, FlowLayerPickingInfo, Location, LocationAccessors } from '@flowmap.gl/core';
+import FlowMap, { getViewStateForLocations, Highlight, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import * as React from 'react';
 import { ViewState } from 'react-map-gl';
 import { mapboxAccessToken } from '../index';
@@ -29,7 +29,29 @@ export interface Props extends FlowAccessors, LocationAccessors {
   onViewStateChange?: (viewState: ViewState) => void;
 }
 
-export default class Example extends React.Component<Props> {
+interface State {
+  tooltip: FlowLayerPickingInfo | undefined;
+}
+
+const tooltipStyle: React.CSSProperties = {
+  position: 'absolute',
+  pointerEvents: 'none',
+  zIndex: 1,
+  background: '#125',
+  color: '#fff',
+  fontSize: 9,
+  borderRadius: 4,
+  padding: 5,
+  maxWidth: 300,
+  maxHeight: 300,
+  overflow: 'hidden',
+  boxShadow: '2px 2px 4px #ccc',
+};
+
+export default class Example extends React.Component<Props, State> {
+  state = {
+    tooltip: undefined,
+  };
   private readonly initialViewState: ViewState;
 
   constructor(props: Props) {
@@ -41,8 +63,50 @@ export default class Example extends React.Component<Props> {
     ]);
   }
 
+  handleViewStateChange = (viewState: ViewState) => {
+    const { onViewStateChange } = this.props;
+    if (onViewStateChange) {
+      onViewStateChange(viewState);
+    }
+    const { tooltip } = this.state;
+    if (tooltip) {
+      this.setState({ tooltip: undefined });
+    }
+  };
+
+  handleHighlight = (highlight: Highlight | undefined, info: FlowLayerPickingInfo | undefined) => {
+    if (!info) {
+      this.setState({ tooltip: undefined });
+    }
+    this.setState({
+      tooltip: info,
+    });
+  };
+
+  renderTooltip() {
+    const { tooltip } = this.state;
+    if (!tooltip) {
+      return null;
+    }
+    const { object, x, y } = tooltip;
+    if (!object) {
+      return null;
+    }
+    return (
+      <pre
+        style={{
+          ...tooltipStyle,
+          left: x,
+          top: y,
+        }}
+      >
+        {JSON.stringify(object, null, 2)}
+      </pre>
+    );
+  }
+
   render() {
-    const { flows, locations, getLocationId, getLocationCentroid, getFlowMagnitude, onViewStateChange } = this.props;
+    const { flows, locations, getLocationId, getLocationCentroid, getFlowMagnitude } = this.props;
     return (
       <>
         <FlowMap
@@ -56,7 +120,8 @@ export default class Example extends React.Component<Props> {
           getLocationId={getLocationId}
           getLocationCentroid={getLocationCentroid}
           getFlowMagnitude={getFlowMagnitude}
-          onViewStateChange={onViewStateChange}
+          onViewStateChange={this.handleViewStateChange}
+          onHighlighted={this.handleHighlight}
         />
         <LegendBox bottom={35} left={10}>
           <LocationTotalsLegend />
@@ -64,6 +129,7 @@ export default class Example extends React.Component<Props> {
         <LegendBox bottom={35} right={10}>
           {`Showing ${flows.length > SHOW_TOP_FLOWS ? `top ${SHOW_TOP_FLOWS} of` : ''} ${flows.length} flows. `}
         </LegendBox>
+        {this.renderTooltip()}
       </>
     );
   }

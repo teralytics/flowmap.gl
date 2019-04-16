@@ -23,7 +23,7 @@ import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 
 const FLOW_MAP_LAYER_ID = 'flow-map-layer';
 
-const enum HighlightType {
+export const enum HighlightType {
   LOCATION = 'location',
   FLOW = 'flow',
 }
