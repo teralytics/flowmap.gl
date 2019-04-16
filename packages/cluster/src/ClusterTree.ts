@@ -223,28 +223,31 @@ export default class ClusterTree {
     for (let zoom = maxZoom; zoom >= minZoom; zoom--) {
       if (zoom < maxZoom) {
         const zoomFlows: { [key: string]: Flow } = {};
-        for (const f of flows) {
-          const originId = getFlowOriginId(f);
-          const destId = getFlowDestId(f);
+        for (const flow of flows) {
+          const originId = getFlowOriginId(flow);
+          const destId = getFlowDestId(flow);
           const originClusterId = this.findClusterFor(originId, zoom) || originId;
           const destClusterId = this.findClusterFor(destId, zoom) || destId;
           const key = `${originClusterId}:->:${destClusterId}`;
-          if (allZoomFlows[key]) {
-            if (!zoomFlows[key]) {
-              // reuse flow from a different zoom level
-              zoomFlows[key] = allZoomFlows[key];
-            }
+          if (originClusterId === originId && destClusterId === destId) {
+            zoomFlows[key] = flow;
           } else {
-            if (!zoomFlows[key]) {
-              zoomFlows[key] = {
-                origin: originClusterId,
-                dest: destClusterId,
-                count: 0,
-                aggregate: true,
-              } as AggregateFlow;
+            if (allZoomFlows[key]) {
+              if (!zoomFlows[key]) {
+                // reuse flow from a different zoom level
+                zoomFlows[key] = allZoomFlows[key];
+              }
+            } else {
+              if (!zoomFlows[key]) {
+                zoomFlows[key] = {
+                  origin: originClusterId,
+                  dest: destClusterId,
+                  count: 0,
+                  aggregate: true,
+                } as AggregateFlow;
+              }
+              zoomFlows[key].count += getFlowMagnitude(flow);
             }
-            // TODO: .count may not be in sync with getFlowMagnitude
-            zoomFlows[key].count += getFlowMagnitude(f);
           }
         }
         for (const [key, value] of Object.entries(zoomFlows)) {
