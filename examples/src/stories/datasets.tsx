@@ -19,9 +19,9 @@ import { Flow, Location } from '@flowmap.gl/core';
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
 import Example from '../components/Example';
-import pipe from '../utlis/pipe';
-import withSheetsFetch from '../utlis/withSheetsFetch';
-import withStats from '../utlis/withStats';
+import pipe from '../utils/pipe';
+import withSheetsFetch from '../utils/withSheetsFetch';
+import withStats from '../utils/withStats';
 
 storiesOf('Other datasets', module)
   .add(

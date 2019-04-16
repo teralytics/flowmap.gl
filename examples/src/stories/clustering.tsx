@@ -19,10 +19,10 @@ import { Flow, Location } from '@flowmap.gl/core';
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
 import ClusteringExample from '../components/ClusteringExample';
-import pipe from '../utlis/pipe';
-import { withFetchJson } from '../utlis/withFetch';
-import withSheetsFetch from '../utlis/withSheetsFetch';
-import withStats from '../utlis/withStats';
+import pipe from '../utils/pipe';
+import { withFetchJson } from '../utils/withFetch';
+import withSheetsFetch from '../utils/withSheetsFetch';
+import withStats from '../utils/withStats';
 
 storiesOf('Clustering', module)
   .add(

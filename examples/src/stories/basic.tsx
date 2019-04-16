@@ -22,9 +22,9 @@ import * as d3scaleChromatic from 'd3-scale-chromatic';
 import * as React from 'react';
 import NonInteractiveExample from '../components/NonInteractiveExample';
 import { mapboxAccessToken } from '../index';
-import pipe from '../utlis/pipe';
-import { withFetchJson } from '../utlis/withFetch';
-import withStats from '../utlis/withStats';
+import pipe from '../utils/pipe';
+import { withFetchJson } from '../utils/withFetch';
+import withStats from '../utils/withStats';
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 
