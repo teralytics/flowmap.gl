@@ -70,12 +70,12 @@ export default class ClusterTree {
     makeClusterName: (id: string, numPoints: string, children: LocationItem[]) => string,
   ) {
     const { getLocationCentroid, getLocationId } = locationAccessors;
-    const index = new Supercluster({
+    const supercluster = new Supercluster({
       radius: 40,
       maxZoom: MAX_CLUSTER_ZOOM,
     });
 
-    index.load(
+    supercluster.load(
       locations.map(location => ({
         type: 'Feature' as 'Feature',
         properties: {
@@ -89,7 +89,7 @@ export default class ClusterTree {
       })),
     );
 
-    const trees: any[] = (index as any).trees;
+    const trees: any[] = (supercluster as any).trees;
     // if (trees.length === 0) return undefined
     const numbersOfClusters = trees.map(d => d.points.length);
     const maxZoom = numbersOfClusters.indexOf(numbersOfClusters[numbersOfClusters.length - 1]);
