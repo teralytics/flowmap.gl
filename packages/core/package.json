@@ -38,6 +38,7 @@
   },
   "homepage": "https://github.com/teralytics/flowmap.gl#readme",
   "dependencies": {
+    "@types/lodash": "^4.14.123",
     "d3-array": "^2.0.3",
     "d3-collection": "^1.0.7",
     "d3-color": "^1.2.3",
