@@ -60,7 +60,7 @@ export type LocationByIdGetter = (id: string) => Location | undefined;
 const getDiffMode = (props: Props) => props.diffMode;
 const getColorsProp = (props: Props) => props.colors;
 const getAnimate = (props: Props) => props.animate;
-const getLocationFeatures = (props: Props) =>
+export const getLocationFeatures = (props: Props) =>
   isFeatureCollection(props.locations) ? props.locations.features : props.locations;
 const getFlows = (props: Props) => props.flows;
 const getHighlightedFlow = (props: Props) => props.highlightedFlow;

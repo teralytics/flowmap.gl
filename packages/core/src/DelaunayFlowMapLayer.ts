@@ -23,7 +23,7 @@ import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import FlowMapLayer from './FlowMapLayer';
 import { getLayerId, getPickType, LayerKind, Props } from './FlowMapLayer';
-import Selectors from './Selectors';
+import Selectors, { getLocationFeatures } from './Selectors';
 import {
   DeckGLLayer,
   Flow,
@@ -41,11 +41,13 @@ import {
 } from './types';
 
 import * as _ from 'lodash';
+
 const DijkstraJS = require('dijkstrajs');
-// var Delaunator = require('dijkstrajs');
 const Delaunator = require('delaunator').default;
 
-function each_cons(arr, func) {
+type ProcessPair<A> = (x: A, y: A) => void;
+
+function each_cons<A>(arr: A[], func: ProcessPair<A>): void {
   for (let i = 0; i < arr.length - 1; i++) {
     func(arr[i], arr[i + 1]);
   }
@@ -73,9 +75,10 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
       const d = props.locations.features[x[1]].properties.abbr;
       return { year: '2016', origin: o, dest: d, count: 0 };
     };
-    const newFlows = this.buildNetwork(props.locations).map(toAbbr);
+    const newFlows = this.buildNetwork(props).map(toAbbr);
     const oldFlows = props.flows;
     props.flows = newFlows;
+
     this.buildGraph(newFlows, props.locations, oldFlows);
     super(props);
   }
@@ -103,12 +106,18 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
     this.setState({ selectors });
   }
 
-  buildNetwork(locations) {
+  buildNetwork(props: Props) {
+    // }locations: Array<Location>, selectors: Selectors) {
     console.log('building Network');
-    const getXY = function(f) {
-      return f.properties.centroid;
-    };
-    const points = locations.features.map(getXY);
+    const locations: Location[] = getLocationFeatures(props);
+
+    const getXY = props.getLocationCentroid
+      ? props.getLocationCentroid
+      : function(f: Location) {
+          return f.properties.centroid;
+        };
+
+    const points = locations.map(getXY);
     const delaunay = Delaunator.from(points);
     const triangles = _.chunk(delaunay.triangles, 3);
     const edges = _.flatMap(triangles, t => {
@@ -159,6 +168,7 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
   }
 
   updateState(params: any) {
+    console.log('updating state');
     super.updateState(params);
 
     const { props, changeFlags } = params;
@@ -309,6 +319,7 @@ export class DelaunayFlowMapLayer extends FlowMapLayer {
   }
 
   renderLayers() {
+    console.log('Rendering');
     const { showLocationAreas, locations, highlightedLocationId } = this.props;
     const { selectors } = this.state;
 
