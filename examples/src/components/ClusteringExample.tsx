@@ -38,11 +38,11 @@ class ClusteringExample extends React.Component<Props, State> {
     const { getLocationId, getLocationCentroid } = this.props;
     const { locations, flows, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
     const getLocationWeight = getLocationWeightGetter(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
-    const clusterTree = new ClusterTree(
+    const clusterTree = ClusterTree.buildFor(
       isFeatureCollection(locations) ? locations.features : locations,
       { getLocationId, getLocationCentroid },
       getLocationWeight,
-      (id, numPoints) => `Cluster #${id} of ${numPoints} locations`,
+      (id: string, numPoints: number) => `Cluster #${id} of ${numPoints} locations`,
     );
     const clusteredFlows = clusterTree.aggregateFlows(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
     this.state = {
