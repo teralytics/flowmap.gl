@@ -15,7 +15,11 @@
  *
  */
 
-import ClusterTree, { ClusteredFlowsByZoom, getLocationWeightGetter } from '@flowmap.gl/cluster';
+import ClusterTree, {
+  ClusteredFlowsByZoom,
+  clusterLocationsByCentroidDistance,
+  getLocationWeightGetter,
+} from '@flowmap.gl/cluster';
 import { Flow, FlowAccessors, isFeatureCollection, Location, LocationAccessors } from '@flowmap.gl/core';
 import * as React from 'react';
 import { ViewState } from 'react-map-gl';
@@ -38,7 +42,7 @@ class ClusteringExample extends React.Component<Props, State> {
     const { getLocationId, getLocationCentroid } = this.props;
     const { locations, flows, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
     const getLocationWeight = getLocationWeightGetter(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
-    const clusterTree = ClusterTree.buildFor(
+    const clusterTree = clusterLocationsByCentroidDistance(
       isFeatureCollection(locations) ? locations.features : locations,
       { getLocationId, getLocationCentroid },
       getLocationWeight,
