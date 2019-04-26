@@ -22,7 +22,7 @@ export interface LocationCluster extends Location {
   name: string;
   zoom: number;
   centroid: [number, number];
-  children: Array<Location | LocationCluster>;
+  children: string[];
 }
 
 export function isLocationCluster(l: Location): l is LocationCluster {

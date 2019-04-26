@@ -28,7 +28,7 @@ export interface Props extends FlowAccessors, LocationAccessors {
 }
 
 interface State {
-  clusterTree: Cluster.ClusterIndex;
+  clusterIndex: Cluster.ClusterIndex;
   clusteredFlows: Cluster.ClusteredFlowsByZoom;
   clusterZoom: number;
 }
@@ -36,46 +36,38 @@ interface State {
 class ClusteringExample extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const {
-      clusterLevels,
-      locations,
-      flows,
-      getLocationId,
-      getLocationCentroid,
-      getFlowOriginId,
-      getFlowDestId,
-      getFlowMagnitude,
-    } = this.props;
-    const getLocationWeight = Cluster.getLocationWeightGetter(flows, {
-      getFlowOriginId,
-      getFlowDestId,
-      getFlowMagnitude,
-    });
-    let clusterTree;
-    if (clusterLevels) {
-      clusterTree = Cluster.buildForPredefinedClusters(
-        clusterLevels,
-        isFeatureCollection(locations) ? locations.features : locations,
-        { getLocationId, getLocationCentroid },
-      );
+    const { flows, getLocationId, getLocationCentroid, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
+    let clusterLevels;
+    const locations = isFeatureCollection(this.props.locations) ? this.props.locations.features : this.props.locations;
+    if (this.props.clusterLevels) {
+      clusterLevels = this.props.clusterLevels;
     } else {
-      clusterTree = Cluster.buildForLocationsByCentroidDistance(
-        isFeatureCollection(locations) ? locations.features : locations,
+      const getLocationWeight = Cluster.getLocationWeightGetter(flows, {
+        getFlowOriginId,
+        getFlowDestId,
+        getFlowMagnitude,
+      });
+      clusterLevels = Cluster.clusterLocations(
+        locations,
         { getLocationId, getLocationCentroid },
         getLocationWeight,
         (id: string, numPoints: number) => `Cluster #${id} of ${numPoints} locations`,
       );
     }
-    const clusteredFlows = clusterTree.aggregateFlows(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
+    const clusterIndex = Cluster.buildIndex(clusterLevels, locations, {
+      getLocationId,
+      getLocationCentroid,
+    });
+    const clusteredFlows = clusterIndex.aggregateFlows(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
     this.state = {
-      clusterTree,
+      clusterIndex,
       clusteredFlows,
-      clusterZoom: Math.max.apply(null, clusterTree.availableZoomLevels),
+      clusterZoom: Math.max.apply(null, clusterIndex.availableZoomLevels),
     };
   }
 
   handleViewStateChange = (viewState: ViewState) => {
-    const { availableZoomLevels } = this.state.clusterTree;
+    const { availableZoomLevels } = this.state.clusterIndex;
     const { zoom } = viewState;
     const clusterZoom = Cluster.findAppropriateZoomLevel(availableZoomLevels, zoom);
     this.setState({
@@ -85,8 +77,8 @@ class ClusteringExample extends React.Component<Props, State> {
 
   render() {
     const { getLocationId, getLocationCentroid, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
-    const { clusterTree, clusteredFlows, clusterZoom } = this.state;
-    const locations = clusterTree.getLocationItemsFor(clusterZoom) as Location[] | undefined;
+    const { clusterIndex, clusteredFlows, clusterZoom } = this.state;
+    const locations = clusterIndex.getLocationItemsFor(clusterZoom) as Location[] | undefined;
     const flows = clusteredFlows.get(clusterZoom);
     if (!locations || !flows) {
       return null;
