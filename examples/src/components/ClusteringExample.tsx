@@ -28,12 +28,14 @@ export interface Props extends FlowAccessors, LocationAccessors {
 }
 
 interface State {
-  clusterIndex: Cluster.ClusterIndex;
-  clusteredFlows: Cluster.ClusteredFlowsByZoom;
-  clusterZoom: number;
+  clusteredLocations: Location[];
+  aggregateFlows: Flow[];
 }
 
 class ClusteringExample extends React.Component<Props, State> {
+  private readonly clusterIndex: Cluster.ClusterIndex;
+  private readonly aggregateFlowsByZoom: Map<number, Flow[]>;
+
   constructor(props: Props) {
     super(props);
     const { flows, getLocationId, getLocationCentroid, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
@@ -58,35 +60,42 @@ class ClusteringExample extends React.Component<Props, State> {
       getLocationId,
       getLocationCentroid,
     });
-    const clusteredFlows = clusterIndex.aggregateFlows(flows, { getFlowOriginId, getFlowDestId, getFlowMagnitude });
+    const aggregateFlowsByZoom = new Map<number, Flow[]>();
+    for (const zoom of clusterIndex.availableZoomLevels) {
+      aggregateFlowsByZoom.set(
+        zoom,
+        clusterIndex.aggregateFlows(flows, zoom, { getFlowOriginId, getFlowDestId, getFlowMagnitude }),
+      );
+    }
+    this.clusterIndex = clusterIndex;
+    this.aggregateFlowsByZoom = aggregateFlowsByZoom;
     this.state = {
-      clusterIndex,
-      clusteredFlows,
-      clusterZoom: Math.max.apply(null, clusterIndex.availableZoomLevels),
+      clusteredLocations: locations,
+      aggregateFlows: flows,
     };
   }
 
   handleViewStateChange = (viewState: ViewState) => {
-    const { availableZoomLevels } = this.state.clusterIndex;
+    const { locations, flows } = this.props;
+    const { availableZoomLevels } = this.clusterIndex;
     const { zoom } = viewState;
     const clusterZoom = Cluster.findAppropriateZoomLevel(availableZoomLevels, zoom);
     this.setState({
-      clusterZoom,
+      clusteredLocations: this.clusterIndex.getLocationItemsFor(clusterZoom) || locations,
+      aggregateFlows: this.aggregateFlowsByZoom.get(clusterZoom) || flows,
     });
   };
 
   render() {
     const { getLocationId, getLocationCentroid, getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.props;
-    const { clusterIndex, clusteredFlows, clusterZoom } = this.state;
-    const locations = clusterIndex.getLocationItemsFor(clusterZoom) as Location[] | undefined;
-    const flows = clusteredFlows.get(clusterZoom);
-    if (!locations || !flows) {
+    const { clusteredLocations, aggregateFlows } = this.state;
+    if (!clusteredLocations || !aggregateFlows) {
       return null;
     }
     return (
       <Example
-        locations={locations}
-        flows={flows}
+        locations={clusteredLocations}
+        flows={aggregateFlows}
         {...{ getLocationId, getLocationCentroid, getFlowOriginId, getFlowDestId, getFlowMagnitude }}
         onViewStateChange={this.handleViewStateChange}
       />
