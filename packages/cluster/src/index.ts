@@ -15,9 +15,5 @@
  *
  */
 
-import ClusterTree from './ClusterTree';
-
-export * from './ClusterTree';
+export * from './ClusterIndex';
 export * from './types';
-
-export default ClusterTree;

@@ -16,7 +16,7 @@
  */
 
 import { Flow, FlowAccessors, Location, LocationAccessors } from '@flowmap.gl/core';
-import { nest } from 'd3-collection';
+import { extent, range, rollup } from 'd3-array';
 import Supercluster from 'supercluster';
 import { AggregateFlow, isLocationCluster, LocationCluster } from './types';
 
@@ -30,11 +30,10 @@ export type FlowItem = Flow | AggregateFlow;
 export type ClusteredFlowsByZoom = Map<number, FlowItem[]>;
 export type LocationWeightGetter = (id: string) => number;
 
-export default interface ClusterTree {
-  readonly minZoom: number;
-  readonly maxZoom: number;
-  getItemsFor: (zoom: number | undefined) => LocationItem[] | undefined;
-  getItemId: (item: LocationItem) => string;
+export interface ClusterIndex {
+  availableZoomLevels: number[];
+  getLocationItemsFor: (zoom: number | undefined) => LocationItem[] | undefined;
+  getLocationItemId: (item: LocationItem) => string;
   getClusterById: (clusterId: string) => LocationCluster | undefined;
   getMinZoomForLocation: (locationId: string) => number;
   expandCluster: (cluster: LocationCluster, targetZoom?: number) => string[];
@@ -45,12 +44,55 @@ export default interface ClusterTree {
   ) => ClusteredFlowsByZoom;
 }
 
-export function clusterLocationsByCentroidDistance(
+export interface ClusterLevel {
+  zoom: number;
+  clusters: Array<{
+    id: string;
+    name: string;
+    centroid: [number, number];
+    children: string[];
+  }>;
+}
+
+export function buildForPredefinedClusters(
+  clusterLevels: ClusterLevel[],
+  locations: Location[],
+  locationAccessors: LocationAccessors,
+) {
+  const itemsByZoom = new Map<number, LocationItem[]>();
+  const clustersById = new Map<string, LocationCluster>();
+  const minZoomByLocationId = new Map<string, number>();
+  const leavesToClustersByZoom = new Map<number, Map<string, LocationItem>>();
+
+  for (const { zoom, clusters } of clusterLevels) {
+    for (const cluster of clusters) {
+      clustersById.set(cluster.id, {
+        id: cluster.id,
+        name: cluster.name,
+        centroid: cluster.centroid,
+        zoom,
+        children: cluster.children,
+      });
+    }
+  }
+
+  return buildClusterTree(
+    clusterLevels.map(cl => cl.zoom).sort(),
+    locations,
+    locationAccessors,
+    itemsByZoom,
+    clustersById,
+    minZoomByLocationId,
+    leavesToClustersByZoom,
+  );
+}
+
+export function buildForLocationsByCentroidDistance(
   locations: Location[],
   locationAccessors: LocationAccessors,
   getLocationWeight: LocationWeightGetter,
   makeClusterName: (id: string, numPoints: number, children: LocationItem[]) => string,
-): ClusterTree {
+): ClusterIndex {
   const { getLocationCentroid, getLocationId } = locationAccessors;
   const supercluster = new Supercluster({
     radius: 40,
@@ -79,31 +121,32 @@ export function clusterLocationsByCentroidDistance(
 
   const itemsByZoom = new Map();
   const clustersById = new Map<string, LocationCluster>();
-  const minZoomByLocationId = new Map();
+  const minZoomByLocationId = new Map<string, number>();
   for (let zoom = maxZoom; zoom >= minZoom; zoom--) {
-    let childrenByParent: { [key: string]: LocationItem[] } | undefined;
+    let childrenByParent: Map<string, LocationItem[]> | undefined;
     const tree = trees[zoom];
     if (zoom < maxZoom) {
-      childrenByParent = nest<string, LocationItem[]>()
-        .key((point: any) => point.parentId)
-        .rollup((points: any[]) =>
-          points.map((p: any) => (p.id ? clustersById.get(makeClusterId(p.id))! : locations[p.index])),
-        )
-        .object(trees[zoom + 1].points);
+      childrenByParent = rollup<any[], string, LocationItem[]>(
+        trees[zoom + 1].points,
+        (points: any[]) => points.map((p: any) => (p.id ? clustersById.get(makeClusterId(p.id))! : locations[p.index])),
+        (point: any) => point.parentId,
+      );
     }
 
     const items: Array<LocationCluster | Location> = [];
     for (const point of tree.points) {
-      const { id, x, y, index, numPoints, parentId } = point;
+      const { id, x, y, index, numPoints } = point;
       if (id === undefined) {
         const location = locations[index];
         minZoomByLocationId.set(location.id, zoom);
         items.push(location);
       } else {
-        const children = childrenByParent![id];
-        const cluster = {
+        const children = childrenByParent && childrenByParent.get(id);
+        if (!children) {
+          throw new Error(`Cluster ${id} doesn't have children`);
+        }
+        const cluster: LocationCluster = {
           id: makeClusterId(id),
-          parentId: parentId >= 0 ? makeClusterId(parentId) : undefined,
           name: makeClusterName(id, numPoints, children),
           zoom,
           centroid: [xLng(x), yLat(y)] as [number, number],
@@ -143,8 +186,7 @@ export function clusterLocationsByCentroidDistance(
   }
 
   return buildClusterTree(
-    minZoom,
-    maxZoom,
+    range(minZoom, maxZoom + 1),
     locations,
     locationAccessors,
     itemsByZoom,
@@ -174,17 +216,37 @@ export function getLocationWeightGetter(
     Math.max(Math.abs(locationTotals.incoming.get(id) || 0), Math.abs(locationTotals.outgoing.get(id) || 0));
 }
 
+/**
+ * @param availableZoomLevels Must be sorted
+ * @param targetZoom
+ */
+export function findAppropriateZoomLevel(availableZoomLevels: number[], targetZoom: number) {
+  if (!availableZoomLevels.length) {
+    throw new Error('No available zoom levels');
+  }
+
+  let i = availableZoomLevels.length - 1;
+  let zoom = availableZoomLevels[0];
+  while (i > 0) {
+    if (availableZoomLevels[i] < Math.floor(targetZoom)) {
+      return zoom;
+    }
+    zoom = availableZoomLevels[i];
+    i--;
+  }
+  return zoom;
+}
+
 function buildClusterTree(
-  minZoom: number,
-  maxZoom: number,
+  availableZoomLevels: number[],
   locations: Location[],
   locationAccessors: LocationAccessors,
   itemsByZoom: Map<number, LocationItem[]>,
   clustersById: Map<string, LocationCluster>,
   minZoomByLocationId: Map<string, number>,
   leavesToClustersByZoom: Map<number, Map<string, LocationItem>>,
-): ClusterTree {
-  function getItemId(item: LocationItem) {
+): ClusterIndex {
+  function getLocationItemId(item: LocationItem) {
     if (isLocationCluster(item)) {
       return item.id;
     }
@@ -209,22 +271,26 @@ function buildClusterTree(
         }
       }
     } else {
-      expandedIds.push(getItemId(item));
+      expandedIds.push(getLocationItemId(item));
     }
   }
 
-  return {
-    minZoom,
-    maxZoom,
+  const [minZoom, maxZoom] = extent(availableZoomLevels);
+  if (minZoom == null || maxZoom == null) {
+    throw new Error('No zoom levels available');
+  }
 
-    getItemsFor: zoom => {
+  return {
+    availableZoomLevels,
+
+    getLocationItemsFor: zoom => {
       if (zoom === undefined) {
         return locations;
       }
       return itemsByZoom.get(zoom);
     },
 
-    getItemId,
+    getLocationItemId,
 
     getClusterById: clusterId => clustersById.get(clusterId),
 
@@ -237,7 +303,11 @@ function buildClusterTree(
     },
 
     findClusterFor(locationId: string, zoom: number) {
-      const cluster = leavesToClustersByZoom.get(zoom)!.get(locationId);
+      const clustersForZoom = leavesToClustersByZoom.get(zoom);
+      if (!clustersForZoom) {
+        return undefined;
+      }
+      const cluster = clustersForZoom.get(locationId);
       return cluster ? cluster.id : undefined;
     },
 
