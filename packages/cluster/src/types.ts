@@ -17,7 +17,7 @@
 
 import { Flow, Location } from '@flowmap.gl/core';
 
-export interface LocationCluster extends Location {
+export interface Cluster {
   id: string;
   name: string;
   zoom: number;
@@ -25,12 +25,12 @@ export interface LocationCluster extends Location {
   children: string[];
 }
 
-export function isLocationCluster(l: Location): l is LocationCluster {
-  const { zoom } = l as LocationCluster;
+export function isCluster(l: Location): l is Cluster {
+  const { zoom } = l as Cluster;
   return zoom !== undefined;
 }
 
-export interface AggregateFlow extends Flow {
+export interface AggregateFlow {
   origin: string;
   dest: string;
   count: number;
