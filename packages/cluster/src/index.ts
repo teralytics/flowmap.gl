@@ -17,3 +17,4 @@
 
 export * from './ClusterIndex';
 export * from './types';
+export { clusterLocations } from './cluster';

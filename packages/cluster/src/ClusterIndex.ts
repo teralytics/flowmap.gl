@@ -17,11 +17,9 @@
 
 import { Flow, FlowAccessors, Location, LocationAccessors } from '@flowmap.gl/core';
 import { ascending, bisectLeft, extent, rollup } from 'd3-array';
-import Supercluster from 'supercluster';
 import { AggregateFlow, Cluster, isCluster } from './types';
 
 const CLUSTER_ID_PREFIX = '__cluster::';
-const DEFAULT_MAX_CLUSTER_ZOOM = 18;
 
 export const makeClusterId = (id: string | number) => `${CLUSTER_ID_PREFIX}${id}`;
 
@@ -50,87 +48,6 @@ export interface ClusterIndex {
 export interface ClusterLevel {
   zoom: number;
   nodes: ClusterNode[];
-}
-
-export function clusterLocations(
-  locations: Location[],
-  locationAccessors: LocationAccessors,
-  getLocationWeight: LocationWeightGetter,
-  makeClusterName: (id: string, numPoints: number) => string,
-  maxClusterZoom: number = DEFAULT_MAX_CLUSTER_ZOOM,
-): ClusterLevel[] {
-  const { getLocationCentroid, getLocationId } = locationAccessors;
-  const supercluster = new Supercluster({
-    radius: 40,
-    maxZoom: maxClusterZoom,
-  });
-
-  supercluster.load(
-    locations.map(location => ({
-      type: 'Feature' as 'Feature',
-      properties: {
-        location,
-        weight: getLocationWeight(getLocationId(location)),
-      },
-      geometry: {
-        type: 'Point' as 'Point',
-        coordinates: getLocationCentroid(location),
-      },
-    })),
-  );
-
-  const trees: any[] = (supercluster as any).trees;
-  if (trees.length === 0) {
-    return [];
-  }
-  const numbersOfClusters = trees.map(d => d.points.length);
-  const maxZoom = numbersOfClusters.indexOf(numbersOfClusters[numbersOfClusters.length - 1]);
-  const minZoom = Math.min(maxZoom, numbersOfClusters.lastIndexOf(numbersOfClusters[0]));
-
-  const clusterLevels = new Array<ClusterLevel>();
-  for (let zoom = minZoom; zoom <= maxZoom; zoom++) {
-    let childrenByParent: Map<string, string[]> | undefined;
-    const tree = trees[zoom];
-    if (zoom < maxZoom) {
-      childrenByParent = rollup<any[], string, string[]>(
-        trees[zoom + 1].points,
-        (points: any[]) => points.map((p: any) => (p.id ? makeClusterId(p.id) : getLocationId(locations[p.index]))),
-        (point: any) => point.parentId,
-      );
-    }
-
-    let nodes: ClusterNode[];
-    if (tree.points.length === locations.length) {
-      nodes = locations;
-    } else {
-      nodes = [];
-      for (const point of tree.points) {
-        const { id, x, y, index, numPoints } = point;
-        if (id === undefined) {
-          const location = locations[index];
-          nodes.push(location);
-        } else {
-          const children = childrenByParent && childrenByParent.get(id);
-          if (!children) {
-            throw new Error(`Cluster ${id} doesn't have children`);
-          }
-          const cluster: Cluster = {
-            id: makeClusterId(id),
-            name: makeClusterName(id, numPoints),
-            zoom,
-            centroid: [xLng(x), yLat(y)] as [number, number],
-            children,
-          };
-          nodes.push(cluster);
-        }
-      }
-    }
-    clusterLevels.push({
-      zoom,
-      nodes,
-    });
-  }
-  return clusterLevels;
 }
 
 export function getLocationWeightGetter(
@@ -316,13 +233,4 @@ export function findAppropriateZoomLevel(availableZoomLevels: number[], targetZo
   return availableZoomLevels[
     Math.min(bisectLeft(availableZoomLevels, Math.floor(targetZoom)), availableZoomLevels.length - 1)
   ];
-}
-
-// spherical mercator to longitude/latitude
-function xLng(x: number) {
-  return (x - 0.5) * 360;
-}
-function yLat(y: number) {
-  const y2 = ((180 - y * 360) * Math.PI) / 180;
-  return (360 * Math.atan(Math.exp(y2))) / Math.PI - 90;
 }

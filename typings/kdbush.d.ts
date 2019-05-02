@@ -15,4 +15,4 @@
  *
  */
 
-declare module 'supercluster';
+declare module 'kdbush';

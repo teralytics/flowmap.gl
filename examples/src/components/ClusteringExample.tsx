@@ -53,7 +53,7 @@ class ClusteringExample extends React.Component<Props, State> {
         locations,
         { getLocationId, getLocationCentroid },
         getLocationWeight,
-        (id: string, numPoints: number) => `Cluster #${id} of ${numPoints} locations`,
+        (id: number, numPoints: number) => `Cluster #${id} of ${numPoints} locations`,
       );
     }
     const clusterIndex = Cluster.buildIndex(clusterLevels, locations, {
