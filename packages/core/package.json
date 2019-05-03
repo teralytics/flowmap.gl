@@ -46,10 +46,10 @@
     "reselect": "^4.0.0"
   },
   "devDependencies": {
-    "@deck.gl/core": "^7.0.0-rc.1",
-    "@deck.gl/layers": "^7.0.0-rc.1",
-    "@luma.gl/constants": "^7.0.0-rc.1",
-    "@luma.gl/core": "^7.0.0-rc.1",
+    "@deck.gl/core": "^7.0.4",
+    "@deck.gl/layers": "^7.0.4",
+    "@luma.gl/constants": "^7.0.1",
+    "@luma.gl/core": "^7.0.1",
     "@types/d3-array": "^1.2.4",
     "@types/d3-collection": "^1.0.7",
     "@types/d3-color": "^1.2.1",
