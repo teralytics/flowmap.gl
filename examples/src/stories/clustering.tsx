@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-import { isCluster } from '@flowmap.gl/cluster';
 import { Flow, Location } from '@flowmap.gl/core';
 import { storiesOf } from '@storybook/react';
 import * as React from 'react';
@@ -35,8 +34,8 @@ storiesOf('Clustering', module)
       <ClusteringExample
         locations={locations}
         flows={flows}
-        getLocationId={(loc: Location) => (isCluster(loc) ? loc.id : loc.properties.abbr)}
-        getLocationCentroid={(loc: Location) => (isCluster(loc) ? loc.centroid : loc.properties.centroid)}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getLocationCentroid={(loc: Location) => loc.properties.centroid}
         getFlowOriginId={(flow: Flow) => flow.origin}
         getFlowDestId={(flow: Flow) => flow.dest}
         getFlowMagnitude={(flow: Flow) => +flow.count}
@@ -53,9 +52,7 @@ storiesOf('Clustering', module)
         locations={locations}
         flows={flows}
         getLocationId={(loc: Location) => loc.id}
-        getLocationCentroid={(loc: Location): [number, number] =>
-          isCluster(loc) ? loc.centroid : [+loc.lon, +loc.lat]
-        }
+        getLocationCentroid={(loc: Location): [number, number] => [+loc.lon, +loc.lat]}
         getFlowOriginId={(flow: Flow) => flow.origin}
         getFlowDestId={(flow: Flow) => flow.dest}
         getFlowMagnitude={(flow: Flow) => +flow.count}

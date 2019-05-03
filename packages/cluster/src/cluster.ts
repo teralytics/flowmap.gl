@@ -38,8 +38,8 @@
 import { Location, LocationAccessors } from '@flowmap.gl/core';
 import { rollup } from 'd3-array';
 import KDBush from 'kdbush';
-import { ClusterLevel, ClusterNode, LocationWeightGetter, makeClusterId } from './ClusterIndex';
-import { Cluster } from './types';
+import { LocationWeightGetter, makeClusterId } from './ClusterIndex';
+import { Cluster, ClusterLevel, ClusterNode } from './types';
 
 export interface Options {
   minZoom: number; // min zoom to generate clusters on
@@ -146,31 +146,30 @@ export function clusterLocations(
       );
     }
 
-    let nodes: ClusterNode[];
-    if (tree.points.length === locations.length) {
-      nodes = locations;
-    } else {
-      nodes = [];
-      for (const point of tree.points) {
-        const { x, y, numPoints } = point;
-        if (isLeafPoint(point)) {
-          const location = locations[point.index];
-          nodes.push(location);
-        } else if (isClusterPoint(point)) {
-          const { id } = point;
-          const children = childrenByParent && childrenByParent.get(id);
-          if (!children) {
-            throw new Error(`Cluster ${id} doesn't have children`);
-          }
-          const cluster: Cluster = {
-            id: makeClusterId(id),
-            name: makeClusterName(id, numPoints),
-            zoom,
-            centroid: [xLng(x), yLat(y)] as [number, number],
-            children,
-          };
-          nodes.push(cluster);
+    const nodes = new Array<ClusterNode>();
+    for (const point of tree.points) {
+      const { x, y, numPoints } = point;
+      if (isLeafPoint(point)) {
+        const location = locations[point.index];
+        nodes.push({
+          id: getLocationId(location),
+          zoom,
+          centroid: getLocationCentroid(location),
+        });
+      } else if (isClusterPoint(point)) {
+        const { id } = point;
+        const children = childrenByParent && childrenByParent.get(id);
+        if (!children) {
+          throw new Error(`Cluster ${id} doesn't have children`);
         }
+        const cluster: Cluster = {
+          id: makeClusterId(id),
+          name: makeClusterName(id, numPoints),
+          zoom,
+          centroid: [xLng(x), yLat(y)] as [number, number],
+          children,
+        };
+        nodes.push(cluster);
       }
     }
     clusterLevels.push({

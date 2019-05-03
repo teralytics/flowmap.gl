@@ -16,28 +16,38 @@
  */
 
 import { Flow, FlowAccessors, Location, LocationAccessors } from '@flowmap.gl/core';
-import { ascending, bisectLeft, extent, rollup } from 'd3-array';
-import { AggregateFlow, Cluster, isCluster } from './types';
+import { ascending, bisectLeft, extent } from 'd3-array';
+import { AggregateFlow, Cluster, ClusterLevels, ClusterNode, isCluster } from './types';
 
-const CLUSTER_ID_PREFIX = '__cluster::';
-
-export const makeClusterId = (id: string | number) => `${CLUSTER_ID_PREFIX}${id}`;
-
-export type ClusterNode = Location | Cluster;
+export const makeClusterId = (id: string | number) => `{[${id}]}`;
 export type FlowItem = Flow | AggregateFlow;
 export type LocationWeightGetter = (id: string) => number;
 
+/**
+ * A data structure representing the cluster levels for efficient flow aggregation.
+ */
 export interface ClusterIndex {
   availableZoomLevels: number[];
-  getClusterNodesFor: (zoom: number | undefined) => ClusterNode[] | undefined;
-  getClusterNodeId: (node: ClusterNode) => string;
   getClusterById: (clusterId: string) => Cluster | undefined;
   /**
-   * Returns the min zoom level on which the location is not clustered
+   * List the nodes on the given zoom level.
+   */
+  getClusterNodesFor: (zoom: number | undefined) => ClusterNode[] | undefined;
+  /**
+   * Get the min zoom level on which the location is not clustered.
    */
   getMinZoomForLocation: (locationId: string) => number;
+  /**
+   * List the IDs of all locations in the cluster (leaves of the subtree starting in the cluster).
+   */
   expandCluster: (cluster: Cluster, targetZoom?: number) => string[];
+  /**
+   * Find the cluster the given location is residing in on the specified zoom level.
+   */
   findClusterFor: (locationId: string, zoom: number) => string | undefined;
+  /**
+   * Aggregate flows for the specified zoom level.
+   */
   aggregateFlows: (
     flows: Flow[],
     zoom: number,
@@ -45,42 +55,14 @@ export interface ClusterIndex {
   ) => FlowItem[];
 }
 
-export interface ClusterLevel {
-  zoom: number;
-  nodes: ClusterNode[];
-}
-
-export function getLocationWeightGetter(
-  flows: Flow[],
-  { getFlowOriginId, getFlowDestId, getFlowMagnitude }: FlowAccessors,
-) {
-  const locationTotals = {
-    incoming: new Map<string, number>(),
-    outgoing: new Map<string, number>(),
-  };
-  for (const flow of flows) {
-    const origin = getFlowOriginId(flow);
-    const dest = getFlowDestId(flow);
-    const count = getFlowMagnitude(flow);
-    locationTotals.incoming.set(dest, (locationTotals.incoming.get(dest) || 0) + count);
-    locationTotals.outgoing.set(origin, (locationTotals.outgoing.get(dest) || 0) + count);
-  }
-
-  return (id: string) =>
-    Math.max(Math.abs(locationTotals.incoming.get(id) || 0), Math.abs(locationTotals.outgoing.get(id) || 0));
-}
-
 /**
- * @param clusterLevels Must be sorted by zoom in ascending order
- * @param locations
- * @param locationAccessors
+ * Build ClusterIndex from the given cluster hierarchy
  */
 export function buildIndex(
-  clusterLevels: ClusterLevel[],
+  clusterLevels: ClusterLevels,
   locations: Location[],
   locationAccessors: LocationAccessors,
 ): ClusterIndex {
-  const { getLocationId } = locationAccessors;
   const nodesByZoom = new Map<number, ClusterNode[]>();
   const clustersById = new Map<string, Cluster>();
   const minZoomByLocationId = new Map<string, number>();
@@ -90,7 +72,7 @@ export function buildIndex(
       if (isCluster(node)) {
         clustersById.set(node.id, node);
       } else {
-        const id = getLocationId(node);
+        const { id } = node;
         const mz = minZoomByLocationId.get(id);
         if (mz != null && mz > zoom) {
           minZoomByLocationId.set(id, zoom);
@@ -110,19 +92,12 @@ export function buildIndex(
     const { zoom } = cluster;
     let leavesToClusters = leavesToClustersByZoom.get(zoom);
     if (!leavesToClusters) {
-      leavesToClusters = new Map<string, ClusterNode>();
+      leavesToClusters = new Map<string, Cluster>();
       leavesToClustersByZoom.set(zoom, leavesToClusters);
     }
     visitClusterLeaves(cluster, leafId => {
       leavesToClusters!.set(leafId, cluster);
     });
-  }
-
-  function getClusterNodeId(node: ClusterNode) {
-    if (isCluster(node)) {
-      return node.id;
-    }
-    return getLocationId(node);
   }
 
   function visitClusterLeaves(cluster: Cluster, visit: (id: string) => void) {
@@ -138,12 +113,12 @@ export function buildIndex(
 
   const expandCluster = (cluster: Cluster, targetZoom: number = maxZoom) => {
     const ids: string[] = [];
-    const pushExpandedClusterIds = (c: Cluster, expandedIds: string[]) => {
+    const visit = (c: Cluster, expandedIds: string[]) => {
       if (targetZoom > c.zoom) {
         for (const childId of c.children) {
           const child = clustersById.get(childId);
           if (child) {
-            pushExpandedClusterIds(child, expandedIds);
+            visit(child, expandedIds);
           } else {
             expandedIds.push(childId);
           }
@@ -152,7 +127,7 @@ export function buildIndex(
         expandedIds.push(c.id);
       }
     };
-    pushExpandedClusterIds(cluster, ids);
+    visit(cluster, ids);
     return ids;
   };
 
@@ -172,12 +147,10 @@ export function buildIndex(
 
     getClusterNodesFor: zoom => {
       if (zoom === undefined) {
-        return locations;
+        return undefined;
       }
       return nodesByZoom.get(zoom);
     },
-
-    getClusterNodeId,
 
     getClusterById: clusterId => clustersById.get(clusterId),
 
@@ -192,27 +165,27 @@ export function buildIndex(
         return flows;
       }
       const result = new Array<Flow>();
-      const aggregateFlowsByKey = new Map<string, AggregateFlow>();
-      const makeAggregateFlowKey = (originId: string, destId: string) => `${originId}:${destId}`;
+      const aggFlowsByKey = new Map<string, AggregateFlow>();
+      const makeKey = (origin: string, dest: string) => `${origin}:${dest}`;
       for (const flow of flows) {
-        const originId = getFlowOriginId(flow);
-        const destId = getFlowDestId(flow);
-        const originClusterId = findClusterFor(originId, zoom) || originId;
-        const destClusterId = findClusterFor(destId, zoom) || destId;
-        const key = makeAggregateFlowKey(originClusterId, destClusterId);
-        if (originClusterId === originId && destClusterId === destId) {
+        const origin = getFlowOriginId(flow);
+        const dest = getFlowDestId(flow);
+        const originCluster = findClusterFor(origin, zoom) || origin;
+        const destCluster = findClusterFor(dest, zoom) || dest;
+        const key = makeKey(originCluster, destCluster);
+        if (originCluster === origin && destCluster === dest) {
           result.push(flow);
         } else {
-          let aggregateFlow = aggregateFlowsByKey.get(key);
+          let aggregateFlow = aggFlowsByKey.get(key);
           if (!aggregateFlow) {
             aggregateFlow = {
-              origin: originClusterId,
-              dest: destClusterId,
+              origin: originCluster,
+              dest: destCluster,
               count: 0,
               aggregate: true,
             };
             result.push(aggregateFlow);
-            aggregateFlowsByKey.set(key, aggregateFlow);
+            aggFlowsByKey.set(key, aggregateFlow);
           }
           aggregateFlow.count += getFlowMagnitude(flow);
         }
@@ -220,6 +193,25 @@ export function buildIndex(
       return result;
     },
   };
+}
+
+export function makeLocationWeightGetter(
+  flows: Flow[],
+  { getFlowOriginId, getFlowDestId, getFlowMagnitude }: FlowAccessors,
+): LocationWeightGetter {
+  const locationTotals = {
+    incoming: new Map<string, number>(),
+    outgoing: new Map<string, number>(),
+  };
+  for (const flow of flows) {
+    const origin = getFlowOriginId(flow);
+    const dest = getFlowDestId(flow);
+    const count = getFlowMagnitude(flow);
+    locationTotals.incoming.set(dest, (locationTotals.incoming.get(dest) || 0) + count);
+    locationTotals.outgoing.set(origin, (locationTotals.outgoing.get(dest) || 0) + count);
+  }
+  return (id: string) =>
+    Math.max(Math.abs(locationTotals.incoming.get(id) || 0), Math.abs(locationTotals.outgoing.get(id) || 0));
 }
 
 /**

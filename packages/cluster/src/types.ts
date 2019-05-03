@@ -15,19 +15,29 @@
  *
  */
 
-import { Flow, Location } from '@flowmap.gl/core';
+import { Flow } from '@flowmap.gl/core';
 
-export interface Cluster {
+export interface ClusterNode {
   id: string;
-  name: string;
   zoom: number;
   centroid: [number, number];
+}
+
+export interface ClusterLevel {
+  zoom: number;
+  nodes: ClusterNode[];
+}
+
+export type ClusterLevels = ClusterLevel[];
+
+export interface Cluster extends ClusterNode {
+  name: string;
   children: string[];
 }
 
-export function isCluster(l: Location): l is Cluster {
-  const { zoom } = l as Cluster;
-  return zoom !== undefined;
+export function isCluster(c: ClusterNode): c is Cluster {
+  const { children } = c as Cluster;
+  return children && children.length > 0;
 }
 
 export interface AggregateFlow {
@@ -38,6 +48,6 @@ export interface AggregateFlow {
 }
 
 export function isAggregateFlow(flow: Flow): flow is AggregateFlow {
-  const { aggregate } = flow as Flow;
-  return flow ? true : false;
+  const { aggregate } = flow as AggregateFlow;
+  return aggregate ? true : false;
 }
