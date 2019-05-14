@@ -21,6 +21,8 @@ import Disc from './Disc';
 
 export interface Props {
   colors?: DiffColors;
+  positiveText?: string;
+  negativeText?: string;
 }
 
 const styles = {
@@ -44,21 +46,21 @@ const styles = {
   },
 };
 
-const DiffColorsLegend = ({ colors }: Props) => {
+const DiffColorsLegend = (props: Props) => {
   const size = 20;
-  const colorsRGBA = getDiffColorsRGBA(colors);
+  const colorsRGBA = getDiffColorsRGBA(props.colors);
   const pos = colorsRGBA.positive.locationCircles;
   const neg = colorsRGBA.negative.locationCircles;
   return (
     <div style={styles.outer}>
       <div style={styles.item.outer}>
         <Disc size={size} inner={pos.inner} outer={pos.inner} />
-        <div style={styles.item.caption}>positive difference</div>
+        <div style={styles.item.caption}>{props.positiveText || 'positive difference'}</div>
       </div>
 
       <div style={styles.item.outer}>
         <Disc size={size} inner={neg.inner} outer={neg.inner} />
-        <div style={styles.item.caption}>negative difference</div>
+        <div style={styles.item.caption}>{props.negativeText || 'negative difference'}</div>
       </div>
     </div>
   );
