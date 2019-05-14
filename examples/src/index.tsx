@@ -253,7 +253,7 @@ storiesOf('FlowMapLayer', module)
         <hr />
         <LocationTotalsLegend
           diff={true}
-          aboutEqualText="unequal"
+          aboutEqualText="equal"
           moreOutgoingText="outgoing"
           moreIncomingText="incoming"
         />
