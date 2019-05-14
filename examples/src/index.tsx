@@ -251,7 +251,12 @@ storiesOf('FlowMapLayer', module)
       <LegendBox bottom={35} left={10}>
         <DiffColorsLegend positiveText="+ diff" negativeText="- diff" />
         <hr />
-        <LocationTotalsLegend diff={true} unequalText="unequal" outgoingText="outgoing" incomingText="incoming" />
+        <LocationTotalsLegend
+          diff={true}
+          aboutEqualText="unequal"
+          moreOutgoingText="outgoing"
+          moreIncomingText="incoming"
+        />
       </LegendBox>
     </>
   ));
