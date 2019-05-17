@@ -53,10 +53,7 @@ class ClusteringExample extends React.Component<Props, State> {
         makeClusterName: (id: number, numPoints: number) => `Cluster #${id} of ${numPoints} locations`,
       });
     }
-    const clusterIndex = Cluster.buildIndex(clusterLevels, locations, {
-      getLocationId,
-      getLocationCentroid,
-    });
+    const clusterIndex = Cluster.buildIndex(clusterLevels);
     const aggregateFlowsByZoom = new Map<number, Flow[]>();
     for (const zoom of clusterIndex.availableZoomLevels) {
       aggregateFlowsByZoom.set(

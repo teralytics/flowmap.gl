@@ -57,11 +57,7 @@ export interface ClusterIndex {
 /**
  * Build ClusterIndex from the given cluster hierarchy
  */
-export function buildIndex(
-  clusterLevels: ClusterLevels,
-  locations: Location[],
-  locationAccessors: LocationAccessors,
-): ClusterIndex {
+export function buildIndex(clusterLevels: ClusterLevels): ClusterIndex {
   const nodesByZoom = new Map<number, ClusterNode[]>();
   const clustersById = new Map<string, Cluster>();
   const minZoomByLocationId = new Map<string, number>();
