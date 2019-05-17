@@ -38,7 +38,7 @@
 import { Location, LocationAccessors } from '@flowmap.gl/core';
 import { rollup } from 'd3-array';
 import KDBush from 'kdbush';
-import { LocationWeightGetter, makeClusterId } from './ClusterIndex';
+import { LocationWeightGetter } from './ClusterIndex';
 import { Cluster, ClusterLevel, ClusterNode } from './types';
 
 export interface Options {
@@ -47,6 +47,8 @@ export interface Options {
   radius: number; // cluster radius in pixels
   extent: number; // tile extent (radius is calculated relative to it)
   nodeSize: number; // size of the KD-tree leaf node, affects performance
+  makeClusterName: (id: number, numPoints: number) => string;
+  makeClusterId: (id: number) => string;
 }
 
 const defaultOptions: Options = {
@@ -55,6 +57,8 @@ const defaultOptions: Options = {
   radius: 40,
   extent: 512,
   nodeSize: 64,
+  makeClusterName: (id: number, numPoints: number) => `Cluster #${id} of ${numPoints} locations`,
+  makeClusterId: (id: number) => `{[${id}]}`,
 };
 
 interface BasePoint {
@@ -92,7 +96,6 @@ export function clusterLocations(
   locations: Location[],
   locationAccessors: LocationAccessors,
   getLocationWeight: LocationWeightGetter,
-  makeClusterName: (id: number, numPoints: number) => string,
   options?: Partial<Options>,
 ): ClusterLevel[] {
   const { getLocationCentroid, getLocationId } = locationAccessors;
@@ -100,7 +103,7 @@ export function clusterLocations(
     ...defaultOptions,
     ...options,
   };
-  const { minZoom, maxZoom, nodeSize } = opts;
+  const { minZoom, maxZoom, nodeSize, makeClusterName, makeClusterId } = opts;
 
   const trees = new Array<ZoomLevelKDBush>(maxZoom + 1);
 

@@ -19,7 +19,6 @@ import { Flow, FlowAccessors, Location, LocationAccessors } from '@flowmap.gl/co
 import { ascending, bisectLeft, extent } from 'd3-array';
 import { AggregateFlow, Cluster, ClusterLevels, ClusterNode, isCluster } from './types';
 
-export const makeClusterId = (id: string | number) => `{[${id}]}`;
 export type FlowItem = Flow | AggregateFlow;
 export type LocationWeightGetter = (id: string) => number;
 
@@ -164,7 +163,7 @@ export function buildIndex(
       if (zoom > maxZoom) {
         return flows;
       }
-      const result = new Array<Flow>();
+      const result: Flow[] = [];
       const aggFlowsByKey = new Map<string, AggregateFlow>();
       const makeKey = (origin: string, dest: string) => `${origin}:${dest}`;
       for (const flow of flows) {

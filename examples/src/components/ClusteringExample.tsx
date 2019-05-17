@@ -49,12 +49,9 @@ class ClusteringExample extends React.Component<Props, State> {
         getFlowDestId,
         getFlowMagnitude,
       });
-      clusterLevels = Cluster.clusterLocations(
-        locations,
-        { getLocationId, getLocationCentroid },
-        getLocationWeight,
-        (id: number, numPoints: number) => `Cluster #${id} of ${numPoints} locations`,
-      );
+      clusterLevels = Cluster.clusterLocations(locations, { getLocationId, getLocationCentroid }, getLocationWeight, {
+        makeClusterName: (id: number, numPoints: number) => `Cluster #${id} of ${numPoints} locations`,
+      });
     }
     const clusterIndex = Cluster.buildIndex(clusterLevels, locations, {
       getLocationId,
