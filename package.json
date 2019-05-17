@@ -34,6 +34,7 @@
     "storybook:build": "cd examples && npm run storybook:build",
     "storybook:deploy": "cd examples && npm run storybook:deploy",
     "version": "lerna version --no-push",
+    "publish-prerelease": "lerna publish --dist-tag next from-package",
     "lint": "tslint --fix '{examples,packages/*}/{src,test,stories}/**/*.{ts,tsx}'",
     "typecheck": "lerna run --stream typecheck"
   },
