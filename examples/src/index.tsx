@@ -155,7 +155,9 @@ storiesOf('FlowMapLayer', module)
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
         getFlowColor={(f: Flow) => {
-          if (f.origin === 'ZH' && f.dest === 'AG') { return 'orange'; }
+          if (f.origin === 'ZH' && f.dest === 'AG') {
+            return 'orange';
+          }
           return undefined;
         }}
       />
@@ -243,7 +245,21 @@ storiesOf('FlowMapLayer', module)
         </LegendBox>
       </>
     )),
-  );
+  )
+  .add('custom legend', () => (
+    <>
+      <LegendBox bottom={35} left={10}>
+        <DiffColorsLegend positiveText="+ diff" negativeText="- diff" />
+        <hr />
+        <LocationTotalsLegend
+          diff={true}
+          aboutEqualText="equal"
+          moreOutgoingText="> outgoing"
+          moreIncomingText="> incoming"
+        />
+      </LegendBox>
+    </>
+  ));
 
 storiesOf('Other datasets', module)
   .add('London bicycle hire', () => <GSheetsExample sheetKey="1Z6dVVFFrdooHIs8xnJ_O7eM5bhS5KscCi7G_k0jUNDI" />)
