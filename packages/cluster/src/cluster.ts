@@ -47,7 +47,7 @@ export interface Options {
   radius: number; // cluster radius in pixels
   extent: number; // tile extent (radius is calculated relative to it)
   nodeSize: number; // size of the KD-tree leaf node, affects performance
-  makeClusterName: (id: number, numPoints: number) => string;
+  makeClusterName: (id: number, numPoints: number) => string | undefined;
   makeClusterId: (id: number) => string;
 }
 
@@ -57,7 +57,7 @@ const defaultOptions: Options = {
   radius: 40,
   extent: 512,
   nodeSize: 64,
-  makeClusterName: (id: number, numPoints: number) => `Cluster #${id} of ${numPoints} locations`,
+  makeClusterName: (id: number, numPoints: number) => undefined,
   makeClusterId: (id: number) => `{[${id}]}`,
 };
 

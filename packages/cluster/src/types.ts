@@ -31,7 +31,7 @@ export interface ClusterLevel {
 export type ClusterLevels = ClusterLevel[];
 
 export interface Cluster extends ClusterNode {
-  name: string;
+  name?: string;
   children: string[];
 }
 
