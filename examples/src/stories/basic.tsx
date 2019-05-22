@@ -240,4 +240,18 @@ storiesOf('Basic', module)
         </LegendBox>
       </>
     )),
-  );
+  )
+  .add('custom legend', () => (
+    <>
+      <LegendBox bottom={35} left={10}>
+        <DiffColorsLegend positiveText="+ diff" negativeText="- diff" />
+        <hr />
+        <LocationTotalsLegend
+          diff={true}
+          aboutEqualText="equal"
+          moreOutgoingText="> outgoing"
+          moreIncomingText="> incoming"
+        />
+      </LegendBox>
+    </>
+  ));

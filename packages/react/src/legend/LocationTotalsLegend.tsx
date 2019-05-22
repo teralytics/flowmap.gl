@@ -22,6 +22,9 @@ import Disc from './Disc';
 export interface Props {
   diff?: boolean;
   colors?: Colors | DiffColors;
+  aboutEqualText?: string;
+  moreOutgoingText?: string;
+  moreIncomingText?: string;
 }
 
 const styles = {
@@ -42,7 +45,7 @@ const styles = {
   },
 };
 
-const LocationTotalsLegend = ({ diff, colors }: Props) => {
+const LocationTotalsLegend = ({ diff, colors, aboutEqualText, moreOutgoingText, moreIncomingText }: Props) => {
   const size = 20;
   const colorsRGBA = diff ? getDiffColorsRGBA(colors) : getColorsRGBA(colors);
   const pos = isDiffColorsRGBA(colorsRGBA) ? colorsRGBA.positive.locationCircles : colorsRGBA.locationCircles;
@@ -53,19 +56,19 @@ const LocationTotalsLegend = ({ diff, colors }: Props) => {
         <div style={styles.item.outer}>
           <Disc size={size} inner={pos.inner} outer={pos.inner} />
           {neg && <Disc size={size} inner={neg.inner} outer={neg.inner} />}
-          <div style={styles.item.caption}>outgoing ≅ incoming</div>
+          <div style={styles.item.caption}>{aboutEqualText || 'outgoing ≅ incoming'}</div>
         </div>
 
         <div style={styles.item.outer}>
           <Disc size={size} inner={pos.inner} outer={pos.outgoing} />
           {neg && <Disc size={size} inner={neg.inner} outer={neg.outgoing} />}
-          <div style={styles.item.caption}>more outgoing</div>
+          <div style={styles.item.caption}>{moreOutgoingText || 'more outgoing'}</div>
         </div>
 
         <div style={styles.item.outer}>
           <Disc size={size} inner={pos.inner} outer={pos.incoming} />
           {neg && <Disc size={size} inner={neg.inner} outer={neg.incoming} />}
-          <div style={styles.item.caption}>more incoming</div>
+          <div style={styles.item.caption}>{moreIncomingText || 'more incoming'}</div>
         </div>
       </div>
     </div>

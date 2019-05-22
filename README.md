@@ -150,8 +150,14 @@ containing one line:
 Then, run:
 
     npm install
+    npm run bootstrap
     npm start
-    open http://localhost:6006 to open storybook
+    open http://localhost:6006
+    
+If you want to make changes to the `core` and `react` packages and have them automatically recompiled, run the following: 
+
+    npm run core-dev
+    npm run react-dev
 
 ## Acknowledgements
 
