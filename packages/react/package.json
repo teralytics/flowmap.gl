@@ -1,6 +1,6 @@
 {
   "name": "@flowmap.gl/react",
-  "version": "6.0.0-alpha.5",
+  "version": "6.0.0-alpha.6",
   "description": "React components for @flowmap.gl/core",
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
