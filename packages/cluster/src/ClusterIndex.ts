@@ -69,7 +69,7 @@ export function buildIndex(clusterLevels: ClusterLevels): ClusterIndex {
       } else {
         const { id } = node;
         const mz = minZoomByLocationId.get(id);
-        if (mz != null && mz > zoom) {
+        if (mz == null || mz > zoom) {
           minZoomByLocationId.set(id, zoom);
         }
       }
