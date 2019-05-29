@@ -17,7 +17,7 @@
 
 import { Flow, FlowAccessors, Location, LocationAccessors } from '@flowmap.gl/core';
 import { ascending, bisectLeft, extent } from 'd3-array';
-import { AggregateFlow, Cluster, ClusterLevels, ClusterNode, isCluster } from './types';
+import { AggregateFlow, Cluster, ClusterLevels, ClusterNode, FlowCountsMapReduce, isCluster } from './types';
 
 export type FlowItem = Flow | AggregateFlow;
 export type LocationWeightGetter = (id: string) => number;
@@ -51,6 +51,9 @@ export interface ClusterIndex {
     flows: Flow[],
     zoom: number,
     { getFlowOriginId, getFlowDestId, getFlowMagnitude }: FlowAccessors,
+    options?: {
+      flowCountsMapReduce?: FlowCountsMapReduce;
+    },
   ) => FlowItem[];
 }
 
@@ -155,13 +158,19 @@ export function buildIndex(clusterLevels: ClusterLevels): ClusterIndex {
 
     findClusterFor,
 
-    aggregateFlows: (flows, zoom, { getFlowOriginId, getFlowDestId, getFlowMagnitude }) => {
+    aggregateFlows: (flows, zoom, { getFlowOriginId, getFlowDestId, getFlowMagnitude }, options = {}) => {
       if (zoom > maxZoom) {
         return flows;
       }
       const result: Flow[] = [];
       const aggFlowsByKey = new Map<string, AggregateFlow>();
       const makeKey = (origin: string, dest: string) => `${origin}:${dest}`;
+      const {
+        flowCountsMapReduce = {
+          map: getFlowMagnitude,
+          reduce: (acc: any, count: number) => (acc || 0) + count,
+        },
+      } = options;
       for (const flow of flows) {
         const origin = getFlowOriginId(flow);
         const dest = getFlowDestId(flow);
@@ -176,13 +185,13 @@ export function buildIndex(clusterLevels: ClusterLevels): ClusterIndex {
             aggregateFlow = {
               origin: originCluster,
               dest: destCluster,
-              count: 0,
+              count: flowCountsMapReduce.map(flow),
               aggregate: true,
             };
             result.push(aggregateFlow);
             aggFlowsByKey.set(key, aggregateFlow);
           }
-          aggregateFlow.count += getFlowMagnitude(flow);
+          aggregateFlow.count = flowCountsMapReduce.reduce(aggregateFlow.count, flowCountsMapReduce.map(flow));
         }
       }
       return result;

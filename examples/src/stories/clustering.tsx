@@ -23,7 +23,7 @@ import { withFetchJson } from '../utils/withFetch';
 import withSheetsFetch from '../utils/withSheetsFetch';
 import withStats from '../utils/withStats';
 
-storiesOf('Clustering', module)
+storiesOf('Cluster on zoom', module)
   .add(
     'basic',
     pipe(

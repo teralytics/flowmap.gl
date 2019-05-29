@@ -51,3 +51,8 @@ export function isAggregateFlow(flow: Flow): flow is AggregateFlow {
   const { aggregate } = flow as AggregateFlow;
   return aggregate ? true : false;
 }
+
+export interface FlowCountsMapReduce<T = any> {
+  map: (flow: Flow) => T;
+  reduce: (accumulated: T, val: T) => T;
+}
