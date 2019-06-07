@@ -175,7 +175,7 @@ class Selectors {
     (colors, [minMagnitude, maxMagnitude], animate) => {
       if (isDiffColorsRGBA(colors)) {
         const posScale = createFlowColorScale([0, maxMagnitude || 0], colors.positive.flows.scheme, animate);
-        const negScale = createFlowColorScale([minMagnitude || 0, 0], colors.negative.flows.scheme, animate);
+        const negScale = createFlowColorScale([0, minMagnitude || 0], colors.negative.flows.scheme, animate);
 
         return (magnitude: number) => (magnitude >= 0 ? posScale(magnitude) : negScale(magnitude));
       }
