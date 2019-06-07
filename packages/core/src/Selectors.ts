@@ -46,6 +46,7 @@ export interface LocationTotals {
   };
 }
 
+const CIRCLE_OUTLINE_THICKNESS = 1;
 export type LocationByIdGetter = (id: string) => Location | undefined;
 
 const getDiffMode = (props: Props) => props.diffMode;
@@ -350,13 +351,12 @@ class Selectors {
 
   getLocationCircleRadiusGetter: PropsSelector<(locCircle: LocationCircle) => number> = createSelector(
     [
-      getOutlineThickness,
       this.getSizeScale,
       this.getLocationTotalInGetter,
       this.getLocationTotalOutGetter,
       this.getLocationTotalWithinGetter,
     ],
-    (outlineThickness, sizeScale, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
+    (sizeScale, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
       return ({ location, type }: LocationCircle) => {
         const getSide = type === LocationCircleType.INNER ? Math.min : Math.max;
         const totalIn = getLocationTotalIn(location);
@@ -364,7 +364,7 @@ class Selectors {
         const totalWithin = getLocationTotalWithin(location);
         const r = sizeScale(getSide(totalIn + totalWithin, totalOut + totalWithin));
         if (type === LocationCircleType.OUTLINE) {
-          return r + outlineThickness;
+          return r + CIRCLE_OUTLINE_THICKNESS;
         }
         return r;
       };
@@ -406,7 +406,7 @@ class Selectors {
         }
 
         if (type === LocationCircleType.OUTLINE) {
-          return colors.outlineColor;
+          return isIncoming ? circleColors.incoming : circleColors.inner;
         }
 
         if (type === LocationCircleType.INNER) {
