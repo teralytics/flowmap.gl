@@ -59,8 +59,6 @@ const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getShowOnlyTopFlows = (props: Props) => props.showOnlyTopFlows;
-const getOutlineThickness = (props: Props) =>
-  props.outlineThickness != null ? props.outlineThickness : FlowMapLayer.defaultProps.outlineThickness;
 
 class Selectors {
   constructor(private inputAccessors: InputAccessors) {}
