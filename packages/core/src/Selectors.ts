@@ -360,7 +360,7 @@ class Selectors {
         const totalIn = getLocationTotalIn(location);
         const totalOut = getLocationTotalOut(location);
         const totalWithin = getLocationTotalWithin(location);
-        const r = sizeScale(getSide(totalIn + totalWithin, totalOut + totalWithin));
+        const r = sizeScale(getSide(Math.abs(totalIn + totalWithin), Math.abs(totalOut + totalWithin)));
         if (type === LocationCircleType.OUTLINE) {
           return r + CIRCLE_OUTLINE_THICKNESS;
         }
