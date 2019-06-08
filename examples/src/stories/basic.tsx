@@ -56,20 +56,28 @@ storiesOf('Basic', module)
       withStats,
       withFetchJson('locations', './data/locations.json'),
       withFetchJson('flows', './data/flows-2016.json'),
-    )(({ locations, flows }: any) => (
-      <FlowMap
-        colors={{
-          flows: {
-            scheme: d3scaleChromatic.schemeGnBu[d3scaleChromatic.schemeGnBu.length - 1] as string[],
-          },
-        }}
-        getLocationId={getLocationId}
-        flows={flows}
-        locations={locations}
-        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-        mapboxAccessToken={mapboxAccessToken}
-      />
-    )),
+    )(({ locations, flows }: any) => {
+      const colors = {
+        flows: {
+          scheme: d3scaleChromatic.schemeGnBu[d3scaleChromatic.schemeGnBu.length - 1] as string[],
+        },
+      };
+      return (
+        <>
+          <FlowMap
+            colors={colors}
+            getLocationId={getLocationId}
+            flows={flows}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend colors={colors} />
+          </LegendBox>
+        </>
+      );
+    }),
   )
   .add(
     'animated',
