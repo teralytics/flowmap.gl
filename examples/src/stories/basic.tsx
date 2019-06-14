@@ -80,6 +80,45 @@ storiesOf('Basic', module)
     }),
   )
   .add(
+    'custom dark mode color scheme',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const scheme = (d3scaleChromatic.schemeGnBu[d3scaleChromatic.schemeGnBu.length - 1] as string[])
+        .slice()
+        .reverse();
+      const colors = {
+        darkMode: true,
+        flows: {
+          scheme,
+        },
+        locationAreas: {
+          normal: '#334',
+        },
+        outlineColor: '#000',
+      };
+      return (
+        <>
+          <FlowMap
+            colors={colors}
+            mapStyle="mapbox://styles/mapbox/dark-v10"
+            mixBlendMode="screen"
+            getLocationId={getLocationId}
+            flows={flows}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10} style={{ backgroundColor: '#000', color: '#fff' }}>
+            <LocationTotalsLegend colors={colors} />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
     'animated',
     pipe(
       withStats,

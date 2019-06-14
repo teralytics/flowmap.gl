@@ -55,6 +55,7 @@ export interface LocationAreaColors {
 }
 
 export interface BaseColors {
+  darkMode?: boolean;
   locationAreas?: LocationAreaColors;
   dimmedOpacity?: number;
   outlineColor?: string;
@@ -99,6 +100,7 @@ export interface LocationAreaColorsRGBA {
 }
 
 export interface BaseColorsRGBA {
+  darkMode: boolean;
   locationAreas: LocationAreaColorsRGBA;
   dimmedOpacity: number;
   outlineColor: RGBA;
@@ -128,29 +130,41 @@ export function isDiffColorsRGBA(colors: DiffColorsRGBA | ColorsRGBA): colors is
 }
 
 function getBaseColorsRGBA(colors: Colors | DiffColors | undefined): BaseColorsRGBA {
+  const darkMode = colors && colors.darkMode ? true : false;
   return {
-    locationAreas: getLocationAreaColorsRGBA(colors && colors.locationAreas),
+    darkMode,
+    locationAreas: getLocationAreaColorsRGBA(colors && colors.locationAreas, darkMode),
     outlineColor: colorAsRgba((colors && colors.outlineColor) || DEFAULT_OUTLINE_COLOR),
     dimmedOpacity: colors && colors.dimmedOpacity != null ? colors.dimmedOpacity : DEFAULT_DIMMED_OPACITY,
   };
 }
 
 export function getColorsRGBA(colors: Colors | undefined): ColorsRGBA {
+  const baseColorsRGBA = getBaseColorsRGBA(colors);
   return {
-    ...getBaseColorsRGBA(colors),
-    ...getFlowAndCircleColors(colors, DEFAULT_FLOW_COLOR_SCHEME),
+    ...baseColorsRGBA,
+    ...getFlowAndCircleColors(colors, DEFAULT_FLOW_COLOR_SCHEME, baseColorsRGBA.darkMode),
   };
 }
 
 export function getDiffColorsRGBA(colors: DiffColors | undefined): DiffColorsRGBA {
+  const baseColorsRGBA = getBaseColorsRGBA(colors);
   return {
-    ...getBaseColorsRGBA(colors),
-    positive: getFlowAndCircleColors(colors && colors.positive, DEFAULT_FLOW_COLOR_SCHEME_POSITIVE),
-    negative: getFlowAndCircleColors(colors && colors.negative, DEFAULT_FLOW_COLOR_SCHEME_NEGATIVE),
+    ...baseColorsRGBA,
+    positive: getFlowAndCircleColors(
+      colors && colors.positive,
+      DEFAULT_FLOW_COLOR_SCHEME_POSITIVE,
+      baseColorsRGBA.darkMode,
+    ),
+    negative: getFlowAndCircleColors(
+      colors && colors.negative,
+      DEFAULT_FLOW_COLOR_SCHEME_NEGATIVE,
+      baseColorsRGBA.darkMode,
+    ),
   };
 }
 
-function getLocationAreaColorsRGBA(colors: LocationAreaColors | undefined): LocationAreaColorsRGBA {
+function getLocationAreaColorsRGBA(colors: LocationAreaColors | undefined, darkMode: boolean): LocationAreaColorsRGBA {
   const normalColor = (colors && colors.normal) || DEFAULT_LOCATION_AREA_COLOR;
   const normalColorHcl = hcl(normalColor);
   const locationAreasNormal = colorAsRgba(normalColor);
@@ -158,7 +172,10 @@ function getLocationAreaColorsRGBA(colors: LocationAreaColors | undefined): Loca
     normal: locationAreasNormal,
     connected: colorAsRgbaOr(colors && colors.connected, locationAreasNormal),
     highlighted: colorAsRgbaOr(colors && colors.highlighted, locationAreasNormal),
-    outline: colorAsRgbaOr(colors && colors.outline, colorAsRgba(normalColorHcl.darker().toString())),
+    outline: colorAsRgbaOr(
+      colors && colors.outline,
+      colorAsRgba(normalColorHcl[darkMode ? 'brighter' : 'darker']().toString()),
+    ),
     selected: colorAsRgbaOr(colors && colors.selected, locationAreasNormal),
   };
 }
@@ -166,13 +183,14 @@ function getLocationAreaColorsRGBA(colors: LocationAreaColors | undefined): Loca
 function getFlowAndCircleColors(
   inputColors: FlowAndCircleColors | undefined,
   defaultFlowColorScheme: string[],
+  darkMode: boolean,
 ): FlowAndCircleColorsRGBA {
   const flowColorScheme = (inputColors && inputColors.flows && inputColors.flows.scheme) || defaultFlowColorScheme;
   const maxFlowColorHcl = hcl(flowColorScheme[flowColorScheme.length - 1]);
   const maxFlowColorRGBA = colorAsRgba(flowColorScheme[flowColorScheme.length - 1]);
   const flowColorHighlighted = colorAsRgbaOr(
     inputColors && inputColors.flows && inputColors.flows.highlighted,
-    colorAsRgba(maxFlowColorHcl.darker(0.7).toString()),
+    colorAsRgba(maxFlowColorHcl[darkMode ? 'brighter' : 'darker'](0.7).toString()),
   );
 
   return {
@@ -184,11 +202,11 @@ function getFlowAndCircleColors(
       inner: maxFlowColorRGBA,
       outgoing: colorAsRgbaOr(
         inputColors && inputColors.locationCircles && inputColors.locationCircles.outgoing,
-        maxFlowColorHcl.brighter(3).toString(),
+        maxFlowColorHcl[darkMode ? 'darker' : 'brighter'](3).toString(),
       ),
       incoming: colorAsRgbaOr(
         inputColors && inputColors.locationCircles && inputColors.locationCircles.incoming,
-        maxFlowColorHcl.darker(1.25).toString(),
+        maxFlowColorHcl[darkMode ? 'brighter' : 'darker'](1.25).toString(),
       ),
       highlighted: colorAsRgbaOr(
         inputColors && inputColors.locationCircles && inputColors.locationCircles.highlighted,

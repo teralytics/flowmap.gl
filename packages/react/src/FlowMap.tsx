@@ -43,6 +43,7 @@ export type Highlight = LocationHighlight | FlowHighlight;
 export interface Props extends BasicProps {
   initialViewState: ViewState;
   mapboxAccessToken: string;
+  mapStyle?: string;
   multiselect?: boolean;
   mixBlendMode?: BlendMode;
   onSelected?: (locationIds: string[] | undefined) => void;
@@ -111,7 +112,7 @@ export default class FlowMap extends React.Component<Props, State> {
   }
 
   render() {
-    const { mapboxAccessToken, mixBlendMode } = this.props;
+    const { mapboxAccessToken, mapStyle, mixBlendMode } = this.props;
     const flowMapLayer = this.getFlowMapLayer();
     return (
       <>
@@ -122,7 +123,13 @@ export default class FlowMap extends React.Component<Props, State> {
           controller={true}
           onViewStateChange={this.handleViewStateChange}
           children={({ width, height, viewState }: any) => (
-            <StaticMap width={width} height={height} mapboxApiAccessToken={mapboxAccessToken} viewState={viewState} />
+            <StaticMap
+              width={width}
+              height={height}
+              mapboxApiAccessToken={mapboxAccessToken}
+              mapStyle={mapStyle}
+              viewState={viewState}
+            />
           )}
         />
       </>

@@ -18,6 +18,7 @@
 import * as React from 'react';
 
 export interface LegendBoxProps {
+  style?: React.CSSProperties;
   top?: number;
   left?: number;
   right?: number;
@@ -35,10 +36,11 @@ const styles = {
   },
 };
 
-const LegendBox: React.SFC<LegendBoxProps> = ({ top, left, right, bottom, children }) => (
+const LegendBox: React.SFC<LegendBoxProps> = ({ style, top, left, right, bottom, children }) => (
   <div
     style={{
       ...styles.outer,
+      ...style,
       top,
       left,
       right,
