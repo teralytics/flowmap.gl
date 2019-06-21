@@ -190,8 +190,9 @@ export function buildIndex(clusterLevels: ClusterLevels): ClusterIndex {
             };
             result.push(aggregateFlow);
             aggFlowsByKey.set(key, aggregateFlow);
+          } else {
+            aggregateFlow.count = flowCountsMapReduce.reduce(aggregateFlow.count, flowCountsMapReduce.map(flow));
           }
-          aggregateFlow.count = flowCountsMapReduce.reduce(aggregateFlow.count, flowCountsMapReduce.map(flow));
         }
       }
       return result;
