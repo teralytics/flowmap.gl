@@ -1,6 +1,6 @@
 {
   "name": "@flowmap.gl/cluster",
-  "version": "6.0.0-alpha.10",
+  "version": "6.0.0-alpha.11",
   "description": "Location/flow clustering for @flowmap.gl/core",
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
