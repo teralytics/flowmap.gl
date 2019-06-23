@@ -40,9 +40,6 @@
     "react": "^16.7.0",
     "typescript": "^3.2.2"
   },
-  "peerDependencies": {
-    "@deck.gl/core": ">= 7.0.0"
-  },
   "publishConfig": {
     "access": "public"
   },
