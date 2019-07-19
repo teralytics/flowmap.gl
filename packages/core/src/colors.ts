@@ -187,7 +187,6 @@ function getFlowAndCircleColors(
 ): FlowAndCircleColorsRGBA {
   const flowColorScheme = (inputColors && inputColors.flows && inputColors.flows.scheme) || defaultFlowColorScheme;
   const maxFlowColorHcl = hcl(flowColorScheme[flowColorScheme.length - 1]);
-  const maxFlowColorRGBA = colorAsRgba(flowColorScheme[flowColorScheme.length - 1]);
   const flowColorHighlighted = colorAsRgbaOr(
     inputColors && inputColors.flows && inputColors.flows.highlighted,
     colorAsRgba(maxFlowColorHcl[darkMode ? 'brighter' : 'darker'](0.7).toString()),
@@ -199,10 +198,13 @@ function getFlowAndCircleColors(
       highlighted: flowColorHighlighted,
     },
     locationCircles: {
-      inner: maxFlowColorRGBA,
+      inner: colorAsRgbaOr(
+        inputColors && inputColors.locationCircles && inputColors.locationCircles.inner,
+        maxFlowColorHcl.toString(),
+      ),
       outgoing: colorAsRgbaOr(
         inputColors && inputColors.locationCircles && inputColors.locationCircles.outgoing,
-        maxFlowColorHcl[darkMode ? 'darker' : 'brighter'](3).toString(),
+        darkMode ? '#000' : '#fff',
       ),
       incoming: colorAsRgbaOr(
         inputColors && inputColors.locationCircles && inputColors.locationCircles.incoming,
