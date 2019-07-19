@@ -114,7 +114,7 @@ export function clusterLocations(
     clusters.push({
       x: lngX(x), // projected point coordinates
       y: latY(y),
-      weight: getLocationWeight(locations[i]),
+      weight: getLocationWeight(getLocationId(locations[i])),
       zoom: Infinity, // the last zoom the point was processed at
       index: i, // index of the source feature in the original input array,
       parentId: -1, // parent cluster id
