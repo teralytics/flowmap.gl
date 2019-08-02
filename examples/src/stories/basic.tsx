@@ -192,6 +192,34 @@ storiesOf('Basic', module)
     )),
   )
   .add(
+    'custom zone totals',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const locationIds = locations.features.map(getLocationId).reverse();
+      const getTotal = (location: Location) => 0; // Math.pow(locationIds.indexOf(getLocationId(location)), 10);
+      return (
+        <>
+          <FlowMap
+            getLocationId={getLocationId}
+            flows={[]}
+            locations={locations}
+            getLocationTotalIn={getTotal}
+            getLocationTotalOut={getTotal}
+            getLocationTotalWithin={getTotal}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
     'flow color override',
     pipe(
       withStats,

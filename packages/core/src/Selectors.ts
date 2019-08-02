@@ -341,7 +341,7 @@ class Selectors {
       const scale = scalePow()
         .exponent(1 / 2)
         .domain([0, maxTotal])
-        .range([0, 15]);
+        .range([0, maxTotal > 0 ? 15 : 1]);
 
       return (v: number) => scale(Math.abs(v));
     },

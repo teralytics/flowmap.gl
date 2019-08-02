@@ -49,6 +49,7 @@ export interface BasicProps {
   getLocationCentroid?: LocationAccessor<[number, number]>;
   getLocationTotalIn?: LocationAccessor<number>;
   getLocationTotalOut?: LocationAccessor<number>;
+  getLocationTotalWithin?: LocationAccessor<number>;
   getFlowOriginId?: FlowAccessor<string>;
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
@@ -126,6 +127,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const {
       getLocationTotalIn,
       getLocationTotalOut,
+      getLocationTotalWithin,
       getLocationId,
       getLocationCentroid,
       getFlowOriginId,
@@ -138,6 +140,7 @@ export default class FlowMapLayer extends CompositeLayer {
       getLocationCentroid: getLocationCentroid!,
       getLocationTotalIn,
       getLocationTotalOut,
+      getLocationTotalWithin,
       getFlowOriginId: getFlowOriginId!,
       getFlowDestId: getFlowDestId!,
       getFlowMagnitude: getFlowMagnitude!,
@@ -155,6 +158,7 @@ export default class FlowMapLayer extends CompositeLayer {
       const {
         getLocationTotalIn,
         getLocationTotalOut,
+        getLocationTotalWithin,
         getLocationId,
         getLocationCentroid,
         getFlowOriginId,
@@ -167,6 +171,7 @@ export default class FlowMapLayer extends CompositeLayer {
         getLocationCentroid,
         getLocationTotalIn,
         getLocationTotalOut,
+        getLocationTotalWithin,
         getFlowOriginId,
         getFlowDestId,
         getFlowMagnitude,
