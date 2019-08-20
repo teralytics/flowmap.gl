@@ -196,7 +196,7 @@ function createCluster(x: number, y: number, id: number, numPoints: number, weig
 }
 
 function cluster(points: Point[], zoom: number, tree: ZoomLevelKDBush, options: Options) {
-  const clusters = new Array<Point>();
+  const clusters: Point[] = [];
   const { radius, extent } = options;
   const r = radius / (extent * Math.pow(2, zoom));
 
