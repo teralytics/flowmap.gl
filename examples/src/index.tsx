@@ -15,7 +15,7 @@
  *
  */
 
-import * as React from 'react';
+import React from 'react';
 import './stories/basic';
 import './stories/clustering';
 import './stories/datasets';
