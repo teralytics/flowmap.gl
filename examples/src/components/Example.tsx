@@ -17,7 +17,7 @@
 
 import { Flow, FlowAccessors, FlowLayerPickingInfo, Location, LocationAccessors } from '@flowmap.gl/core';
 import FlowMap, { getViewStateForLocations, Highlight, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
-import * as React from 'react';
+import React from 'react';
 import { ViewState } from 'react-map-gl';
 import { mapboxAccessToken } from '../index';
 
