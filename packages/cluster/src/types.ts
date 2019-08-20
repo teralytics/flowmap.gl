@@ -48,8 +48,8 @@ export interface AggregateFlow {
 }
 
 export function isAggregateFlow(flow: Flow): flow is AggregateFlow {
-  const { aggregate } = flow as AggregateFlow;
-  return aggregate ? true : false;
+  const { origin, dest, count, aggregate } = flow as AggregateFlow;
+  return origin !== undefined && dest !== undefined && count !== undefined && (aggregate ? true : false);
 }
 
 export interface FlowCountsMapReduce<T = any> {
