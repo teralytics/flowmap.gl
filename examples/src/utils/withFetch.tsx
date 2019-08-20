@@ -16,7 +16,7 @@
  */
 
 import { csvParse } from 'd3-dsv';
-import * as React from 'react';
+import React from 'react';
 
 export const Message = ({ children }: { children: string }) => <div style={{ padding: '1em' }}>{children}</div>;
 
