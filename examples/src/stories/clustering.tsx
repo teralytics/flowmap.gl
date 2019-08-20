@@ -16,7 +16,7 @@
  */
 import { Flow, Location } from '@flowmap.gl/core';
 import { storiesOf } from '@storybook/react';
-import * as React from 'react';
+import React from 'react';
 import ClusteringExample from '../components/ClusteringExample';
 import pipe from '../utils/pipe';
 import { withFetchJson } from '../utils/withFetch';
