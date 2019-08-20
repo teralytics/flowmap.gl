@@ -54,12 +54,12 @@ const DiffColorsLegend = (props: Props) => {
   return (
     <div style={styles.outer}>
       <div style={styles.item.outer}>
-        <Disc size={size} inner={pos.inner} outer={pos.inner} />
+        <Disc size={size} inner={pos.inner} outer={pos.inner} outline={pos.inner} />
         <div style={styles.item.caption}>{props.positiveText || 'positive difference'}</div>
       </div>
 
       <div style={styles.item.outer}>
-        <Disc size={size} inner={neg.inner} outer={neg.inner} />
+        <Disc size={size} inner={neg.inner} outer={neg.inner} outline={neg.inner} />
         <div style={styles.item.caption}>{props.negativeText || 'negative difference'}</div>
       </div>
     </div>

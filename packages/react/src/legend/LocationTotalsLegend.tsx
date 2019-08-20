@@ -54,20 +54,20 @@ const LocationTotalsLegend = ({ diff, colors, aboutEqualText, moreOutgoingText, 
     <div style={styles.outer}>
       <div>
         <div style={styles.item.outer}>
-          <Disc size={size} inner={pos.inner} outer={pos.inner} />
-          {neg && <Disc size={size} inner={neg.inner} outer={neg.inner} />}
+          <Disc size={size} inner={pos.inner} outer={pos.inner} outline={pos.inner} />
+          {neg && <Disc size={size} inner={neg.inner} outer={neg.inner} outline={neg.inner} />}
           <div style={styles.item.caption}>{aboutEqualText || 'outgoing ≅ incoming'}</div>
         </div>
 
         <div style={styles.item.outer}>
-          <Disc size={size} inner={pos.inner} outer={pos.outgoing} />
-          {neg && <Disc size={size} inner={neg.inner} outer={neg.outgoing} />}
+          <Disc size={size} inner={pos.inner} outer={pos.outgoing} outline={pos.inner} />
+          {neg && <Disc size={size} inner={neg.inner} outer={neg.outgoing} outline={neg.inner} />}
           <div style={styles.item.caption}>{moreOutgoingText || 'more outgoing'}</div>
         </div>
 
         <div style={styles.item.outer}>
-          <Disc size={size} inner={pos.inner} outer={pos.incoming} />
-          {neg && <Disc size={size} inner={neg.inner} outer={neg.incoming} />}
+          <Disc size={size} inner={pos.inner} outer={pos.incoming} outline={pos.incoming} />
+          {neg && <Disc size={size} inner={neg.inner} outer={neg.incoming} outline={neg.incoming} />}
           <div style={styles.item.caption}>{moreIncomingText || 'more incoming'}</div>
         </div>
       </div>

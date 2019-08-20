@@ -23,7 +23,7 @@ import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
 
 const FLOW_MAP_LAYER_ID = 'flow-map-layer';
 
-const enum HighlightType {
+export const enum HighlightType {
   LOCATION = 'location',
   FLOW = 'flow',
 }
@@ -43,10 +43,12 @@ export type Highlight = LocationHighlight | FlowHighlight;
 export interface Props extends BasicProps {
   initialViewState: ViewState;
   mapboxAccessToken: string;
+  mapStyle?: string;
   multiselect?: boolean;
   mixBlendMode?: BlendMode;
   onSelected?: (locationIds: string[] | undefined) => void;
   onHighlighted?: (highlight: Highlight | undefined, info: FlowLayerPickingInfo | undefined) => void;
+  onViewStateChange?: (viewState: ViewState) => void;
 }
 
 export interface State {
@@ -84,6 +86,13 @@ export default class FlowMap extends React.Component<Props, State> {
     if (animate) {
       this.animate();
     }
+    const { onViewStateChange } = this.props;
+    if (onViewStateChange) {
+      const { viewState } = this.state;
+      if (viewState) {
+        onViewStateChange(viewState);
+      }
+    }
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
@@ -103,7 +112,7 @@ export default class FlowMap extends React.Component<Props, State> {
   }
 
   render() {
-    const { mapboxAccessToken, mixBlendMode } = this.props;
+    const { mapboxAccessToken, mapStyle, mixBlendMode } = this.props;
     const flowMapLayer = this.getFlowMapLayer();
     return (
       <>
@@ -114,7 +123,13 @@ export default class FlowMap extends React.Component<Props, State> {
           controller={true}
           onViewStateChange={this.handleViewStateChange}
           children={({ width, height, viewState }: any) => (
-            <StaticMap width={width} height={height} mapboxApiAccessToken={mapboxAccessToken} viewState={viewState} />
+            <StaticMap
+              width={width}
+              height={height}
+              mapboxApiAccessToken={mapboxAccessToken}
+              mapStyle={mapStyle}
+              viewState={viewState}
+            />
           )}
         />
       </>
@@ -258,11 +273,16 @@ export default class FlowMap extends React.Component<Props, State> {
     }
   };
 
-  private handleViewStateChange = ({ viewState }: ViewStateChangeInfo) =>
+  private handleViewStateChange = ({ viewState }: ViewStateChangeInfo) => {
     this.setState({
       viewState,
       highlight: undefined,
     });
+    const { onViewStateChange } = this.props;
+    if (onViewStateChange) {
+      onViewStateChange(viewState);
+    }
+  };
 
   private handleKeyDown = (evt: Event) => {
     if (evt instanceof KeyboardEvent && evt.key === ESC_KEY) {

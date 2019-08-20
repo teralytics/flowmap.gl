@@ -1,11 +1,11 @@
 // tslint:disable:member-ordering
 
-import { extent, max } from 'd3-array';
+import { ascending, extent, max } from 'd3-array';
 import { nest } from 'd3-collection';
 import { scaleLinear, scalePow } from 'd3-scale';
 import { createSelector } from 'reselect';
 import {
-  colorAsRGBA,
+  colorAsRgba,
   ColorScale,
   ColorsRGBA,
   createFlowColorScale,
@@ -21,25 +21,16 @@ import {
 import FlowMapLayer, { Props } from './FlowMapLayer';
 import {
   Flow,
-  FlowAccessor,
+  FlowAccessors,
   isFeatureCollection,
   Location,
-  LocationAccessor,
+  LocationAccessors,
   LocationCircle,
   LocationCircleType,
   NumberScale,
 } from './types';
 
-export interface InputGetters {
-  getLocationId: LocationAccessor<string>;
-  getLocationTotalIn?: LocationAccessor<number>;
-  getLocationTotalOut?: LocationAccessor<number>;
-  getLocationTotalWithin?: LocationAccessor<number>;
-  getFlowOriginId: FlowAccessor<string>;
-  getFlowDestId: FlowAccessor<string>;
-  getFlowMagnitude: FlowAccessor<number>;
-  getFlowColor?: FlowAccessor<string | undefined>;
-}
+export type InputAccessors = LocationAccessors & FlowAccessors;
 
 export type PropsSelector<T> = (props: Props) => T;
 
@@ -55,6 +46,7 @@ export interface LocationTotals {
   };
 }
 
+const CIRCLE_OUTLINE_THICKNESS = 1;
 export type LocationByIdGetter = (id: string) => Location | undefined;
 
 const getDiffMode = (props: Props) => props.diffMode;
@@ -66,15 +58,10 @@ const getFlows = (props: Props) => props.flows;
 const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
-const getVaryFlowColorByMagnitude = (props: Props) => props.varyFlowColorByMagnitude;
 const getShowOnlyTopFlows = (props: Props) => props.showOnlyTopFlows;
-const getOutlineThickness = (props: Props) =>
-  props.outlineThickness != null ? props.outlineThickness : FlowMapLayer.defaultProps.outlineThickness;
-
-const MIN_OUTLINE_CIRCLE_RADIUS = 3;
 
 class Selectors {
-  constructor(private inputGetters: InputGetters) {}
+  constructor(private inputAccessors: InputAccessors) {}
 
   getColors: PropsSelector<ColorsRGBA | DiffColorsRGBA> = createSelector(
     [getColorsProp, getDiffMode],
@@ -90,7 +77,7 @@ class Selectors {
     [getLocationFeatures],
     locations => {
       const locationsById = nest<Location, Location | undefined>()
-        .key(this.inputGetters.getLocationId)
+        .key(this.inputAccessors.getLocationId)
         .rollup(([d]) => d)
         .object(locations);
       return (id: string) => {
@@ -106,7 +93,7 @@ class Selectors {
   private getFilteredFlows: PropsSelector<Flow[]> = createSelector(
     [getFlows, getSelectedLocationIds],
     (flows, selectedLocationIds) => {
-      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
 
       if (selectedLocationIds) {
         return flows.filter(
@@ -123,7 +110,7 @@ class Selectors {
   private getNonSelfFlows: PropsSelector<Flow[]> = createSelector(
     [this.getFilteredFlows],
     flows => {
-      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
       return flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow));
     },
   );
@@ -132,7 +119,7 @@ class Selectors {
     [this.getNonSelfFlows],
     flows => {
       const comparator = (f1: Flow, f2: Flow) =>
-        Math.abs(this.inputGetters.getFlowMagnitude(f1)) - Math.abs(this.inputGetters.getFlowMagnitude(f2));
+        Math.abs(this.inputAccessors.getFlowMagnitude(f1)) - Math.abs(this.inputAccessors.getFlowMagnitude(f2));
       return flows.slice().sort(comparator);
     },
   );
@@ -150,7 +137,7 @@ class Selectors {
   getHighlightedFlows: PropsSelector<Flow[] | undefined> = createSelector(
     [this.getSortedNonSelfFlows, getHighlightedFlow, getHighlightedLocationId],
     (flows, highlightedFlow, highlightedLocationId) => {
-      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
 
       if (highlightedFlow) {
         return [highlightedFlow];
@@ -168,7 +155,7 @@ class Selectors {
 
   private getFlowMagnitudeExtent: PropsSelector<[number, number] | [undefined, undefined]> = createSelector(
     [this.getNonSelfFlows],
-    flows => extent(flows, this.inputGetters.getFlowMagnitude),
+    flows => extent(flows, this.inputAccessors.getFlowMagnitude),
   );
 
   getFlowThicknessScale: PropsSelector<NumberScale> = createSelector(
@@ -183,33 +170,16 @@ class Selectors {
   );
 
   private getFlowColorScale: PropsSelector<ColorScale> = createSelector(
-    [this.getColors, this.getFlowMagnitudeExtent, getVaryFlowColorByMagnitude, getAnimate],
-    (colors, [minMagnitude, maxMagnitude], varyFlowColorByMagnitude, animate) => {
-      if (!varyFlowColorByMagnitude) {
-        if (isDiffColorsRGBA(colors)) {
-          return (v: number) => (v >= 0 ? colors.positive.flows.max : colors.negative.flows.max);
-        }
-
-        return () => colors.flows.max;
-      }
-
+    [this.getColors, this.getFlowMagnitudeExtent, getAnimate],
+    (colors, [minMagnitude, maxMagnitude], animate) => {
       if (isDiffColorsRGBA(colors)) {
-        const posScale = createFlowColorScale(
-          [0, maxMagnitude || 0],
-          [colors.positive.flows.min, colors.positive.flows.max],
-          animate,
-        );
-        const negScale = createFlowColorScale(
-          [minMagnitude || 0, 0],
-          [colors.negative.flows.max, colors.negative.flows.min],
-          animate,
-        );
+        const posScale = createFlowColorScale([0, maxMagnitude || 0], colors.positive.flows.scheme, animate);
+        const negScale = createFlowColorScale([0, minMagnitude || 0], colors.negative.flows.scheme, animate);
 
         return (magnitude: number) => (magnitude >= 0 ? posScale(magnitude) : negScale(magnitude));
       }
 
-      const { max, min } = colors.flows;
-      const scale = createFlowColorScale([0, maxMagnitude || 0], [min, max], animate);
+      const scale = createFlowColorScale([0, maxMagnitude || 0], colors.flows.scheme, animate);
       return (magnitude: number) => scale(magnitude);
     },
   );
@@ -220,12 +190,12 @@ class Selectors {
     highlighted: boolean,
     dimmed: boolean,
   ) {
-    const { getFlowMagnitude, getFlowColor } = this.inputGetters;
+    const { getFlowMagnitude, getFlowColor } = this.inputAccessors;
     return (flow: Flow) => {
       if (getFlowColor) {
         const color = getFlowColor(flow);
         if (color) {
-          return colorAsRGBA(color);
+          return colorAsRgba(color);
         }
       }
       if (highlighted) {
@@ -251,7 +221,7 @@ class Selectors {
   private getLocationTotals: PropsSelector<LocationTotals> = createSelector(
     [getLocationFeatures, this.getFilteredFlows],
     (locations, flows) => {
-      const { getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.inputAccessors;
       return flows.reduce<LocationTotals>(
         (acc, curr) => {
           const originId = getFlowOriginId(curr);
@@ -267,28 +237,6 @@ class Selectors {
         },
         { incoming: {}, outgoing: {}, within: {} },
       );
-    },
-  );
-
-  getLocationCircles: PropsSelector<LocationCircle[]> = createSelector(
-    [getLocationFeatures],
-    locations => {
-      const circles = [];
-      for (const location of locations) {
-        circles.push({
-          location,
-          type: LocationCircleType.OUTLINE,
-        });
-        circles.push({
-          location,
-          type: LocationCircleType.OUTER,
-        });
-        circles.push({
-          location,
-          type: LocationCircleType.INNER,
-        });
-      }
-      return circles;
     },
   );
 
@@ -311,7 +259,7 @@ class Selectors {
   );
 
   getLocationTotalInGetter = (props: Props) => {
-    const { getLocationTotalIn, getLocationId } = this.inputGetters;
+    const { getLocationTotalIn, getLocationId } = this.inputAccessors;
     if (getLocationTotalIn) {
       return getLocationTotalIn;
     }
@@ -321,7 +269,7 @@ class Selectors {
   };
 
   getLocationTotalOutGetter = (props: Props) => {
-    const { getLocationTotalOut, getLocationId } = this.inputGetters;
+    const { getLocationTotalOut, getLocationId } = this.inputAccessors;
     if (getLocationTotalOut) {
       return getLocationTotalOut;
     }
@@ -331,7 +279,7 @@ class Selectors {
   };
 
   getLocationTotalWithinGetter = (props: Props) => {
-    const { getLocationTotalWithin, getLocationId } = this.inputGetters;
+    const { getLocationTotalWithin, getLocationId } = this.inputAccessors;
     if (getLocationTotalWithin) {
       return getLocationTotalWithin;
     }
@@ -340,7 +288,7 @@ class Selectors {
     return (location: Location) => within[getLocationId(location)] || 0;
   };
 
-  private getLocationMaxAbsTotal: PropsSelector<number> = createSelector(
+  private getLocationMaxAbsTotalGetter: PropsSelector<(location: Location) => number> = createSelector(
     [
       getLocationFeatures,
       this.getLocationTotalInGetter,
@@ -348,23 +296,52 @@ class Selectors {
       this.getLocationTotalWithinGetter,
     ],
     (locations, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
-      const maxTotal = max(locations, (location: Location) =>
+      return (location: Location) =>
         Math.max(
           Math.abs(getLocationTotalIn(location) + getLocationTotalWithin(location)),
           Math.abs(getLocationTotalOut(location) + getLocationTotalWithin(location)),
-        ),
-      );
-      return maxTotal || 0;
+        );
+    },
+  );
+
+  private getMaxLocationMaxAbsTotal: PropsSelector<number> = createSelector(
+    [getLocationFeatures, this.getLocationMaxAbsTotalGetter],
+    (locations, getLocationMaxAbsTotal) => max(locations, getLocationMaxAbsTotal) || 0,
+  );
+
+  getLocationCircles: PropsSelector<LocationCircle[]> = createSelector(
+    [getLocationFeatures, this.getLocationMaxAbsTotalGetter],
+    (locations, getLocationMaxAbsTotalGetter) => {
+      const circles = [];
+      const sorted = locations
+        .slice()
+        .sort((a, b) => ascending(getLocationMaxAbsTotalGetter(a), getLocationMaxAbsTotalGetter(b)));
+
+      for (const location of sorted) {
+        circles.push({
+          location,
+          type: LocationCircleType.OUTLINE,
+        });
+        circles.push({
+          location,
+          type: LocationCircleType.OUTER,
+        });
+        circles.push({
+          location,
+          type: LocationCircleType.INNER,
+        });
+      }
+      return circles;
     },
   );
 
   private getSizeScale: PropsSelector<NumberScale> = createSelector(
-    [this.getLocationMaxAbsTotal],
+    [this.getMaxLocationMaxAbsTotal],
     maxTotal => {
       const scale = scalePow()
         .exponent(1 / 2)
         .domain([0, maxTotal])
-        .range([0, 15]);
+        .range([0, maxTotal > 0 ? 15 : 1]);
 
       return (v: number) => scale(Math.abs(v));
     },
@@ -372,21 +349,20 @@ class Selectors {
 
   getLocationCircleRadiusGetter: PropsSelector<(locCircle: LocationCircle) => number> = createSelector(
     [
-      getOutlineThickness,
       this.getSizeScale,
       this.getLocationTotalInGetter,
       this.getLocationTotalOutGetter,
       this.getLocationTotalWithinGetter,
     ],
-    (outlineThickness, sizeScale, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
+    (sizeScale, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
       return ({ location, type }: LocationCircle) => {
         const getSide = type === LocationCircleType.INNER ? Math.min : Math.max;
         const totalIn = getLocationTotalIn(location);
         const totalOut = getLocationTotalOut(location);
         const totalWithin = getLocationTotalWithin(location);
-        const r = sizeScale(getSide(totalIn + totalWithin, totalOut + totalWithin));
+        const r = sizeScale(getSide(Math.abs(totalIn + totalWithin), Math.abs(totalOut + totalWithin)));
         if (type === LocationCircleType.OUTLINE) {
-          return Math.max(r + outlineThickness, MIN_OUTLINE_CIRCLE_RADIUS);
+          return r + CIRCLE_OUTLINE_THICKNESS;
         }
         return r;
       };
@@ -402,7 +378,7 @@ class Selectors {
       this.getLocationTotalWithinGetter,
     ],
     (colors, highlightedLocationId, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
-      const { getLocationId } = this.inputGetters;
+      const { getLocationId } = this.inputAccessors;
 
       return ({ location, type }: LocationCircle) => {
         const isHighlighted = highlightedLocationId && highlightedLocationId === getLocationId(location);
@@ -428,7 +404,7 @@ class Selectors {
         }
 
         if (type === LocationCircleType.OUTLINE) {
-          return colors.outlineColor;
+          return isIncoming ? circleColors.incoming : circleColors.inner;
         }
 
         if (type === LocationCircleType.INNER) {
@@ -447,7 +423,7 @@ class Selectors {
   private isLocationConnectedGetter: PropsSelector<(id: string) => boolean> = createSelector(
     [this.getFilteredFlows, getHighlightedLocationId, getHighlightedFlow, getSelectedLocationIds],
     (flows, highlightedLocationId, highlightedFlow, selectedLocationIds) => {
-      const { getFlowOriginId, getFlowDestId } = this.inputGetters;
+      const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
 
       if (highlightedLocationId) {
         const isRelated = (flow: Flow) => {
@@ -480,7 +456,7 @@ class Selectors {
     [this.getColors, getSelectedLocationIds, getHighlightedLocationId, this.isLocationConnectedGetter],
     (colors, selectedLocationIds, highlightedLocationId, isLocationConnected) => {
       return (location: Location) => {
-        const locationId = this.inputGetters.getLocationId(location);
+        const locationId = this.inputAccessors.getLocationId(location);
         if (selectedLocationIds && selectedLocationIds.indexOf(locationId) >= 0) {
           return colors.locationAreas.selected;
         }
@@ -489,7 +465,7 @@ class Selectors {
           return colors.locationAreas.highlighted;
         }
 
-        if (isLocationConnected(locationId) === true) {
+        if (isLocationConnected(locationId)) {
           return colors.locationAreas.connected;
         }
 
@@ -498,12 +474,12 @@ class Selectors {
     },
   );
 
-  setInputGetters(inputGetters: InputGetters) {
-    this.inputGetters = inputGetters;
+  setInputAccessors(inputAccessors: InputAccessors) {
+    this.inputAccessors = inputAccessors;
   }
 
-  getInputGetters() {
-    return this.inputGetters;
+  getInputAccessors() {
+    return this.inputAccessors;
   }
 }
 

@@ -16,23 +16,22 @@
  */
 export default `\
 #define SHADER_NAME flow-circles-layer-fragment-shader
-
+#define SOFT_OUTLINE 0.1
 precision highp float;
 
 varying vec4 vColor;
 varying vec2 unitPosition;
-varying float innerUnitRadius;
+// varying float innerUnitRadius;
 
 void main(void) {
 
   float distToCenter = length(unitPosition);
 
-  if (distToCenter > 1.0 || distToCenter < innerUnitRadius) {
+  if (distToCenter > 1.0 /* || distToCenter < innerUnitRadius*/) {
     discard;
   }
   gl_FragColor = vColor;
   
-  const float SOFT_OUTLINE = 0.1;
   float soften = smoothstep(0.0, SOFT_OUTLINE, 1.0 - distToCenter);
   gl_FragColor = vec4(vColor.rgb, vColor.a * soften);
 
