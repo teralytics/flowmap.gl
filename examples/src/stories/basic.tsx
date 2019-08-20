@@ -19,7 +19,7 @@ import { Flow, Location } from '@flowmap.gl/core';
 import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import { storiesOf } from '@storybook/react';
 import * as d3scaleChromatic from 'd3-scale-chromatic';
-import * as React from 'react';
+import React from 'react';
 import NonInteractiveExample from '../components/NonInteractiveExample';
 import { mapboxAccessToken } from '../index';
 import pipe from '../utils/pipe';
