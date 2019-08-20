@@ -15,5 +15,5 @@
  *
  */
 
-declare module 'luma.gl';
-declare module 'luma.gl/constants';
+declare module '@luma.gl/core';
+declare module '@luma.gl/constants';

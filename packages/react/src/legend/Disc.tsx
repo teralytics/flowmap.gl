@@ -22,13 +22,15 @@ export interface DiscProps {
   size: number;
   inner: RGBA;
   outer: RGBA;
+  outline: RGBA;
 }
 
-const Disc: React.SFC<DiscProps> = ({ size, inner, outer }) => {
+const Disc: React.SFC<DiscProps> = ({ size, inner, outer, outline }) => {
   return (
     <svg width={size} height={size} style={{ marginRight: 5 }}>
-      <circle cx={size / 2} cy={size / 2} r={size * 0.5} fill={rgbaAsString(outer)} />
-      <circle cx={size / 2} cy={size / 2} r={size * 0.5 * 0.75} fill={rgbaAsString(inner)} />
+      <circle cx={size / 2} cy={size / 2} r={size * 0.5} fill={rgbaAsString(outline)} />
+      <circle cx={size / 2} cy={size / 2} r={size * 0.5 - 1} fill={rgbaAsString(outer)} />
+      <circle cx={size / 2} cy={size / 2} r={size * 0.5 * 0.6 - 1} fill={rgbaAsString(inner)} />
     </svg>
   );
 };

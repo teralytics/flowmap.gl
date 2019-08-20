@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Teralytics
+ * Copyright 2019 Teralytics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,4 @@
  *
  */
 
-import React from 'react';
-import './stories/basic';
-import './stories/clustering';
-import './stories/datasets';
-
-export const mapboxAccessToken = process.env.MapboxAccessToken || '';
+declare module 'kdbush';

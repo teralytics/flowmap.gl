@@ -68,7 +68,7 @@ vec2 getExtrusionOffset(vec2 line_clipspace, float offset_direction) {
   dir_screenspace = vec2(-dir_screenspace.y, dir_screenspace.x);
 
   vec2 offset_screenspace = dir_screenspace * offset_direction * instanceWidths * thicknessUnit;
-  vec2 offset_clipspace = project_pixel_to_clipspace(offset_screenspace).xy;
+  vec2 offset_clipspace = project_pixel_size_to_clipspace(offset_screenspace).xy;
 
   return offset_clipspace;
 }

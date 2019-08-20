@@ -90,7 +90,7 @@ void main(void) {
   vertex_pos_modelspace[3] = 1.0;
 
 
-  gl_Position = project_to_clipspace(vertex_pos_modelspace);
+  gl_Position = project_common_position_to_clipspace(vertex_pos_modelspace);
   
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
   vColor = mix(fillColor, vec4(outlineColor.xyz, outlineColor.w * fillColor.w), normals.z);

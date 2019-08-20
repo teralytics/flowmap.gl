@@ -16,12 +16,9 @@
  */
 
 import { csvParse } from 'd3-dsv';
-import * as React from 'react';
-import Stats from 'stats.js';
+import React from 'react';
 
-export const pipe = (...args: Function[]): Function => (d: any) => args.reduce((m, f) => f(m), d);
-
-const Message = ({ children }: { children: string }) => <div style={{ padding: '1em' }}>{children}</div>;
+export const Message = ({ children }: { children: string }) => <div style={{ padding: '1em' }}>{children}</div>;
 
 const withFetch = (mode: 'csv' | 'json', propName: string, url: string) => (Comp: React.ComponentType<any>) => (
   props: any,
@@ -66,41 +63,3 @@ const withFetch = (mode: 'csv' | 'json', propName: string, url: string) => (Comp
 
 export const withFetchCsv = (propName: string, url: string) => withFetch('csv', propName, url);
 export const withFetchJson = (propName: string, url: string) => withFetch('json', propName, url);
-
-export function withStats<P>(Comp: React.ComponentType<P>) {
-  return (props: P) => {
-    class WithStats extends React.Component {
-      private stats: Stats = new Stats();
-      private statsContainer = React.createRef<HTMLDivElement>();
-      private animateRef: number = 0;
-
-      componentDidMount() {
-        if (this.statsContainer.current) {
-          this.stats.showPanel(0);
-          this.statsContainer.current.appendChild(this.stats.dom);
-        }
-        const calcFPS = () => {
-          this.stats.begin();
-          this.stats.end();
-          this.animateRef = window.requestAnimationFrame(calcFPS);
-        };
-        this.animateRef = window.requestAnimationFrame(calcFPS);
-      }
-
-      componentWillUnmount() {
-        window.cancelAnimationFrame(this.animateRef);
-      }
-
-      render() {
-        return (
-          <>
-            <Comp {...props} />
-            <div ref={this.statsContainer} />
-          </>
-        );
-      }
-    }
-
-    return <WithStats />;
-  };
-}

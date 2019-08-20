@@ -25,7 +25,8 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
     alias: {
-      'luma.gl': resolve(LIB_DIR, './node_modules/luma.gl'),
+      '@luma.gl/core': resolve(LIB_DIR, './node_modules/@luma.gl/core'),
+      '@luma.gl/constants': resolve(LIB_DIR, './node_modules/@luma.gl/constants'),
       '@deck.gl/core': resolve(LIB_DIR, './node_modules/@deck.gl/core'),
       '@deck.gl/layers': resolve(LIB_DIR, './node_modules/@deck.gl/layers'),
       '@deck.gl/react': resolve(LIB_DIR, './node_modules/@deck.gl/react'),
