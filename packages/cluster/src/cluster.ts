@@ -149,7 +149,7 @@ export function clusterLocations(
       );
     }
 
-    const nodes = new Array<ClusterNode>();
+    const nodes: ClusterNode[] = [];
     for (const point of tree.points) {
       const { x, y, numPoints } = point;
       if (isLeafPoint(point)) {
