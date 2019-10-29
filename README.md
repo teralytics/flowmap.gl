@@ -149,15 +149,14 @@ containing one line:
 
 Then, run:
 
-    npm install
-    npm run bootstrap
-    npm start
+    yarn install
+    yarn
     open http://localhost:6006
     
 If you want to make changes to the `core` and `react` packages and have them automatically recompiled, run the following: 
 
-    npm run core-dev
-    npm run react-dev
+    yarn core-dev
+    yarn react-dev
 
 ## Acknowledgements
 
