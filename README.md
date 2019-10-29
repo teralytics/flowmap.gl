@@ -150,7 +150,7 @@ containing one line:
 Then, run:
 
     yarn install
-    yarn
+    yarn start
     open http://localhost:6006
     
 If you want to make changes to the `core` and `react` packages and have them automatically recompiled, run the following: 

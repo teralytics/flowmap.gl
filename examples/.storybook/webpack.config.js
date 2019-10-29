@@ -16,46 +16,33 @@
  */
 
 const Dotenv = require('dotenv-webpack');
-const { resolve } = require('path');
 
-const LIB_DIR = resolve(__dirname, '..');
-
-
-module.exports = {
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
-    alias: {
-      '@luma.gl/core': resolve(LIB_DIR, './node_modules/@luma.gl/core'),
-      '@luma.gl/constants': resolve(LIB_DIR, './node_modules/@luma.gl/constants'),
-      '@deck.gl/core': resolve(LIB_DIR, './node_modules/@deck.gl/core'),
-      '@deck.gl/layers': resolve(LIB_DIR, './node_modules/@deck.gl/layers'),
-      '@deck.gl/react': resolve(LIB_DIR, './node_modules/@deck.gl/react'),
-    }
-  },
-  plugins: [
+module.exports = async ({ config, mode }) => {
+  config.resolve.extensions = ['.ts', '.tsx', '.js', '.jsx', '.json'];
+  config.plugins.push(
     new Dotenv({
       path: '../.env',
     })
-  ],
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        loader: 'awesome-typescript-loader',
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.(png|jpg|gif)$/,
-        loader: 'url-loader',
-        exclude: /node_modules/,
-        options: {
-          limit: 8192,
-        },
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
-    ],
-  },
+  );
+  config.module.rules = [
+    {
+      test: /\.tsx?$/,
+      loader: 'awesome-typescript-loader',
+      exclude: /node_modules/,
+    },
+    {
+      test: /\.(png|jpg|gif)$/,
+      loader: 'url-loader',
+      exclude: /node_modules/,
+      options: {
+        limit: 8192,
+      }
+    },
+    {
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
+    }
+  ];
+
+  return config;
 };
