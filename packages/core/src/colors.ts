@@ -171,12 +171,18 @@ function getLocationAreaColorsRGBA(colors: LocationAreaColors | undefined, darkM
   return {
     normal: locationAreasNormal,
     connected: colorAsRgbaOr(colors && colors.connected, locationAreasNormal),
-    highlighted: colorAsRgbaOr(colors && colors.highlighted, locationAreasNormal),
+    highlighted: colorAsRgbaOr(
+      colors && colors.highlighted,
+      normalColorHcl[darkMode ? 'brighter' : 'darker'](2).toString(),
+    ),
     outline: colorAsRgbaOr(
       colors && colors.outline,
-      colorAsRgba(normalColorHcl[darkMode ? 'brighter' : 'darker']().toString()),
+      colorAsRgba(normalColorHcl[darkMode ? 'brighter' : 'darker'](4).toString()),
     ),
-    selected: colorAsRgbaOr(colors && colors.selected, locationAreasNormal),
+    selected: colorAsRgbaOr(
+      colors && colors.selected,
+      colorAsRgba(normalColorHcl[darkMode ? 'brighter' : 'darker'](3).toString()),
+    ),
   };
 }
 

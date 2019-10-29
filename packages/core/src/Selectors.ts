@@ -169,7 +169,7 @@ class Selectors {
     },
   );
 
-  private getFlowColorScale: PropsSelector<ColorScale> = createSelector(
+  getFlowColorScale: PropsSelector<ColorScale> = createSelector(
     [this.getColors, this.getFlowMagnitudeExtent, getAnimate],
     (colors, [minMagnitude, maxMagnitude], animate) => {
       if (isDiffColorsRGBA(colors)) {
@@ -453,16 +453,12 @@ class Selectors {
   );
 
   getLocationAreaFillColorGetter: PropsSelector<(location: Location) => RGBA> = createSelector(
-    [this.getColors, getSelectedLocationIds, getHighlightedLocationId, this.isLocationConnectedGetter],
-    (colors, selectedLocationIds, highlightedLocationId, isLocationConnected) => {
+    [this.getColors, getSelectedLocationIds, this.isLocationConnectedGetter],
+    (colors, selectedLocationIds, isLocationConnected) => {
       return (location: Location) => {
         const locationId = this.inputAccessors.getLocationId(location);
         if (selectedLocationIds && selectedLocationIds.indexOf(locationId) >= 0) {
           return colors.locationAreas.selected;
-        }
-
-        if (locationId === highlightedLocationId) {
-          return colors.locationAreas.highlighted;
         }
 
         if (isLocationConnected(locationId)) {
