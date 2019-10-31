@@ -50,7 +50,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.2.0",
-    "@storybook/addon-options": "^5.2.5",
     "@storybook/react": "^5.2.5",
     "@types/d3-color": "^1.2.1",
     "@types/d3-dsv": "^1.0.34",

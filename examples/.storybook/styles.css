@@ -15,4 +15,6 @@
  *
  */
 
-import '@storybook/addon-options/register';
+body {
+  font-family: sans-serif;
+}

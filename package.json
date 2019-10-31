@@ -26,7 +26,6 @@
     "dist-esm"
   ],
   "scripts": {
-    "bootstrap": "lerna bootstrap",
     "start": "cd examples && yarn start",
     "core-dev": "cd packages/core && yarn dev",
     "react-dev": "cd packages/react && yarn dev",

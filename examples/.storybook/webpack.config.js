@@ -15,10 +15,10 @@
  *
  */
 
+
 const Dotenv = require('dotenv-webpack');
 
 module.exports = async ({ config, mode }) => {
-  config.resolve.extensions = ['.ts', '.tsx', '.js', '.jsx', '.json'];
   config.plugins.push(
     new Dotenv({
       path: '../.env',
@@ -43,6 +43,6 @@ module.exports = async ({ config, mode }) => {
       use: ['style-loader', 'css-loader'],
     }
   ];
-
+  config.resolve.extensions = ['.ts', '.tsx', '.js', '.jsx', '.json'];
   return config;
 };
