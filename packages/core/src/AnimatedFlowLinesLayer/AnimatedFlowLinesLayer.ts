@@ -71,6 +71,7 @@ export default class AnimatedFlowLinesLayer extends Layer {
     currentTime: 0,
     getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
+    getIndex: { type: 'accessor', value: (d: Flow, { index }: { index: number }) => index },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: 1 },
     parameters: {
@@ -106,6 +107,11 @@ export default class AnimatedFlowLinesLayer extends Layer {
 
     /* eslint-disable max-len */
     attributeManager.addInstanced({
+      instanceIndex: {
+        accessor: 'getIndex',
+        size: 1,
+        transition: false,
+      },
       instanceSourcePositions: {
         size: 3,
         transition: true,
