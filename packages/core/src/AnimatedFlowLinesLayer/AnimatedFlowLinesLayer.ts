@@ -59,6 +59,7 @@ export interface Props {
   currentTime?: number;
   getSourcePosition?: (d: Flow) => [number, number];
   getTargetPosition?: (d: Flow) => [number, number];
+  getStaggering?: (d: Flow, { index }: { index: number }) => number;
   getColor?: (d: Flow) => RGBA;
   getThickness?: (d: Flow) => number;
   getEndpointOffsets?: (d: Flow) => [number, number];
@@ -71,7 +72,7 @@ export default class AnimatedFlowLinesLayer extends Layer {
     currentTime: 0,
     getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
-    getIndex: { type: 'accessor', value: (d: Flow, { index }: { index: number }) => index },
+    getStaggering: { type: 'accessor', value: (d: Flow, { index }: { index: number }) => Math.random() },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: 1 },
     parameters: {
@@ -107,11 +108,6 @@ export default class AnimatedFlowLinesLayer extends Layer {
 
     /* eslint-disable max-len */
     attributeManager.addInstanced({
-      instanceIndex: {
-        accessor: 'getIndex',
-        size: 1,
-        transition: false,
-      },
       instanceSourcePositions: {
         size: 3,
         transition: true,
@@ -134,6 +130,11 @@ export default class AnimatedFlowLinesLayer extends Layer {
         transition: true,
         accessor: 'getThickness',
         defaultValue: 1,
+      },
+      instanceStaggering: {
+        accessor: 'getStaggering',
+        size: 1,
+        transition: false,
       },
     });
     /* eslint-enable max-len */
