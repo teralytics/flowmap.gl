@@ -1,5 +1,14 @@
 # Change log
 
+## [6.1.0] - 2019-11-05
+### Added
+- Yarn for building
+- Upgraded deck.gl
+- Added staggering to animated flow lines
+- Added pickingOnlyTopFlows for specifying the number of top flows which are pickable 
+- Added highlightedLocationAreaId for pre-hovering
+
+
 ## [6.0.0] - 2019-08-20
 ### Added
 - Automated clustering
