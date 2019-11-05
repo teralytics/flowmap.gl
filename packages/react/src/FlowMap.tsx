@@ -214,6 +214,7 @@ export default class FlowMap extends React.Component<Props, State> {
         }
         break;
       }
+      case PickingType.LOCATION_AREA:
       case PickingType.LOCATION: {
         const { getLocationId } = this.props;
         if (!object) {
@@ -229,15 +230,12 @@ export default class FlowMap extends React.Component<Props, State> {
         }
         break;
       }
-      case PickingType.LOCATION_AREA: {
-        this.highlight(undefined);
-        break;
-      }
     }
   };
 
   private handleFlowMapClick = ({ type, object }: FlowLayerPickingInfo) => {
     switch (type) {
+      case PickingType.LOCATION_AREA:
       case PickingType.LOCATION: {
         if (object) {
           const { getLocationId, multiselect } = this.props;
@@ -267,9 +265,6 @@ export default class FlowMap extends React.Component<Props, State> {
         }
         break;
       }
-      case PickingType.LOCATION_AREA:
-        // do nothing
-        break;
     }
   };
 

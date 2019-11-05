@@ -58,6 +58,7 @@ export interface BasicProps {
   locationCircleSize?: number;
   showLocationAreas?: boolean;
   showOnlyTopFlows?: number;
+  pickingOnlyTopFlows?: number;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedFlow?: Flow;
@@ -290,7 +291,7 @@ export default class FlowMapLayer extends CompositeLayer {
       data: locations,
       stroked: outline,
       filled: !outline,
-      pickable: false,
+      pickable: !outline,
       opacity: 1,
       lineWidthMinPixels: 1,
       pointRadiusMinPixels: 1,
@@ -336,6 +337,7 @@ export default class FlowMapLayer extends CompositeLayer {
       showTotals,
       locationCircleSize,
       outlineThickness,
+      pickingOnlyTopFlows,
     } = this.props;
     const { selectors } = this.state;
 
@@ -387,6 +389,10 @@ export default class FlowMapLayer extends CompositeLayer {
       },
       outlineColor: colors.outlineColor,
       ...(outlineThickness && { outlineThickness }),
+      ...(pickingOnlyTopFlows && {
+        getPickable: (d: Flow, { index }: { index: number }) =>
+          index >= flows.length - pickingOnlyTopFlows ? 1.0 : 0.0,
+      }),
     };
     const { animate } = this.props;
     if (animate) {

@@ -51,6 +51,28 @@ storiesOf('Basic', module)
     )),
   )
   .add(
+    'top 100 pickable',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <>
+        <FlowMap
+          getLocationId={getLocationId}
+          pickingOnlyTopFlows={100}
+          flows={flows}
+          locations={locations}
+          initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+          mapboxAccessToken={mapboxAccessToken}
+        />
+        <LegendBox bottom={35} left={10}>
+          <LocationTotalsLegend />
+        </LegendBox>
+      </>
+    )),
+  )
+  .add(
     'custom flow color scheme',
     pipe(
       withStats,
