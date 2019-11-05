@@ -61,6 +61,7 @@ export interface BasicProps {
   pickingOnlyTopFlows?: number;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
+  highlightedLocationAreaId?: string;
   highlightedFlow?: Flow;
   outlineThickness?: number;
 }
@@ -305,7 +306,7 @@ export default class FlowMapLayer extends CompositeLayer {
 
   private getSelectedAndHighlightedLocationAreasLayer(id: string): DeckGLLayer {
     const { selectors } = this.state;
-    const { highlightedLocationId } = this.props;
+    const { highlightedLocationId, highlightedLocationAreaId } = this.props;
     const colors = selectors.getColors(this.props);
     const getLocationById = selectors.getLocationByIdGetter(this.props);
 
@@ -314,7 +315,11 @@ export default class FlowMapLayer extends CompositeLayer {
       getFillColor: () => colors.locationAreas.highlighted,
       getLineColor: colors.locationAreas.outline,
       lineJointRounded: true,
-      data: highlightedLocationId ? getLocationById(highlightedLocationId) : undefined,
+      data: highlightedLocationId
+        ? getLocationById(highlightedLocationId)
+        : highlightedLocationAreaId
+        ? getLocationById(highlightedLocationAreaId)
+        : undefined,
       stroked: false,
       filled: true,
       pickable: false,
