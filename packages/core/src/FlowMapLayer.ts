@@ -251,7 +251,7 @@ export default class FlowMapLayer extends CompositeLayer {
 
     if (showLocationAreas && isFeatureCollection(locations)) {
       layers.push(
-        this.getSelectedAndHighlightedLocationAreasLayer(
+        this.getHighlightedLocationAreasLayer(
           getLayerId(this.props.id, LayerKind.LOCATION_AREAS_SELECTED_AND_HIGHLIGHTED),
         ),
       );
@@ -304,7 +304,7 @@ export default class FlowMapLayer extends CompositeLayer {
     });
   }
 
-  private getSelectedAndHighlightedLocationAreasLayer(id: string): DeckGLLayer {
+  private getHighlightedLocationAreasLayer(id: string): DeckGLLayer {
     const { selectors } = this.state;
     const { highlightedLocationId, highlightedLocationAreaId } = this.props;
     const colors = selectors.getColors(this.props);
