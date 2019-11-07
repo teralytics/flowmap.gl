@@ -116,7 +116,7 @@ class FlowLinesLayer extends Layer {
 
   draw({ uniforms }: any) {
     const { gl } = this.context;
-    const { outlineColor, data } = this.props;
+    const { outlineColor } = this.props;
     gl.lineWidth(1);
     this.state.model
       .setUniforms({
@@ -124,7 +124,6 @@ class FlowLinesLayer extends Layer {
         outlineColor: outlineColor!.map((x: number) => x / 255),
         thicknessUnit: 16,
         gap: 0.75,
-        numInstances: data.length,
       })
       .draw();
   }
