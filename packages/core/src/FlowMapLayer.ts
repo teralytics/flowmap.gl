@@ -54,11 +54,11 @@ export interface BasicProps {
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;
+  getFlowPickable?: FlowAccessor<boolean>;
   showTotals?: boolean;
   locationCircleSize?: number;
   showLocationAreas?: boolean;
   showOnlyTopFlows?: number;
-  pickingOnlyTopFlows?: number;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedLocationAreaId?: string;
@@ -342,7 +342,7 @@ export default class FlowMapLayer extends CompositeLayer {
       showTotals,
       locationCircleSize,
       outlineThickness,
-      pickingOnlyTopFlows,
+      getFlowPickable,
     } = this.props;
     const { selectors } = this.state;
 
@@ -394,9 +394,8 @@ export default class FlowMapLayer extends CompositeLayer {
       },
       outlineColor: colors.outlineColor,
       ...(outlineThickness && { outlineThickness }),
-      ...(pickingOnlyTopFlows && {
-        getPickable: (d: Flow, { index }: { index: number }) =>
-          index >= flows.length - pickingOnlyTopFlows ? 1.0 : 0.0,
+      ...(getFlowPickable && {
+        getPickable: (f: Flow) => (getFlowPickable(f) ? 1.0 : 0.0),
       }),
     };
     const { animate } = this.props;

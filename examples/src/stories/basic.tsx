@@ -18,6 +18,7 @@
 import { Flow, Location } from '@flowmap.gl/core';
 import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import { storiesOf } from '@storybook/react';
+import { quantile } from 'd3-array';
 import * as d3scaleChromatic from 'd3-scale-chromatic';
 import React from 'react';
 import NonInteractiveExample from '../components/NonInteractiveExample';
@@ -51,26 +52,29 @@ storiesOf('Basic', module)
     )),
   )
   .add(
-    'top 100 pickable',
+    '75 percentile pickable',
     pipe(
       withStats,
       withFetchJson('locations', './data/locations.json'),
       withFetchJson('flows', './data/flows-2016.json'),
-    )(({ locations, flows }: any) => (
-      <>
-        <FlowMap
-          getLocationId={getLocationId}
-          pickingOnlyTopFlows={100}
-          flows={flows}
-          locations={locations}
-          initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-          mapboxAccessToken={mapboxAccessToken}
-        />
-        <LegendBox bottom={35} left={10}>
-          <LocationTotalsLegend />
-        </LegendBox>
-      </>
-    )),
+    )(({ locations, flows }: any) => {
+      const q = quantile(flows, 0.75, (f: Flow) => Math.abs(f.count));
+      return (
+        <>
+          <FlowMap
+            getLocationId={getLocationId}
+            getFlowPickable={q != null ? (f: Flow) => f.count >= q : undefined}
+            flows={flows}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+        </>
+      );
+    }),
   )
   .add(
     'custom flow color scheme',

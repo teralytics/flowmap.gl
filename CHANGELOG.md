@@ -6,7 +6,7 @@
 - Upgraded deck.gl
 - Improved highlighted location area coloring; drawing location areas outline above arrows
 - Added staggering to animated flow lines
-- Added pickingOnlyTopFlows for specifying the number of top flows which are pickable 
+- Added getFlowPickable 
 - Added highlightedLocationAreaId for pre-hovering
 
 
