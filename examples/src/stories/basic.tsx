@@ -334,4 +334,102 @@ storiesOf('Basic', module)
         />
       </LegendBox>
     </>
-  ));
+  ))
+  .add(
+    'maxFlowThickness',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      return (
+        <>
+          <FlowMap
+            getLocationId={getLocationId}
+            maxFlowThickness={15}
+            flows={flows}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
+    'maxFlowThickness animated',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      return (
+        <>
+          <FlowMap
+            getLocationId={getLocationId}
+            maxFlowThickness={15}
+            flows={flows}
+            animate={true}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
+    'minPickableFlowThickness',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      return (
+        <>
+          <FlowMap
+            getLocationId={getLocationId}
+            minPickableFlowThickness={1}
+            flows={flows}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
+    'minPickableFlowThickness animated',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      return (
+        <>
+          <FlowMap
+            getLocationId={getLocationId}
+            minPickableFlowThickness={1}
+            animate={true}
+            flows={flows}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+        </>
+      );
+    }),
+  );

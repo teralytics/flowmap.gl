@@ -126,14 +126,17 @@ interface Props {
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;  // can be used to override the color of some of the flows
+  maxFlowThickness?: number;
+  minPickableFlowThickness?: number;
   showTotals?: boolean;
   showOnlyTopFlows?: number;
   locationCircleSize?: number;
   showLocationAreas?: boolean;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
+  highlightedLocationAreaId?: string;
   highlightedFlow?: Flow;
-  outlineThickness: number;
+  outlineThickness: number;    
   onClick?: PickingHandler<FlowLayerPickingInfo>;
   onHover?: PickingHandler<FlowLayerPickingInfo>;
 }
@@ -149,15 +152,14 @@ containing one line:
 
 Then, run:
 
-    npm install
-    npm run bootstrap
-    npm start
+    yarn install
+    yarn start
     open http://localhost:6006
     
 If you want to make changes to the `core` and `react` packages and have them automatically recompiled, run the following: 
 
-    npm run core-dev
-    npm run react-dev
+    yarn core-dev
+    yarn react-dev
 
 ## Acknowledgements
 

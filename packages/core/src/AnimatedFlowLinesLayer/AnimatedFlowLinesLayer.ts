@@ -57,8 +57,11 @@ export interface Props {
   outlineColor?: RGBA;
   outlineThickness?: number;
   currentTime?: number;
+  thicknessUnit?: number;
   getSourcePosition?: (d: Flow) => [number, number];
   getTargetPosition?: (d: Flow) => [number, number];
+  getStaggering?: (d: Flow, { index }: { index: number }) => number;
+  getPickable?: (d: Flow, { index }: { index: number }) => number; // >= 1.0 -> true
   getColor?: (d: Flow) => RGBA;
   getThickness?: (d: Flow) => number;
   getEndpointOffsets?: (d: Flow) => [number, number];
@@ -71,8 +74,11 @@ export default class AnimatedFlowLinesLayer extends Layer {
     currentTime: 0,
     getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
+    getPickable: { type: 'accessor', value: (d: Flow) => 1.0 },
+    getStaggering: { type: 'accessor', value: (d: Flow, { index }: { index: number }) => Math.random() },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: 1 },
+    thicknessUnit: 15 * 2,
     parameters: {
       depthTest: false,
     },
@@ -88,11 +94,11 @@ export default class AnimatedFlowLinesLayer extends Layer {
   }
 
   draw({ uniforms }: any) {
-    const { currentTime } = this.props;
+    const { currentTime, thicknessUnit } = this.props;
     this.state.model
       .setUniforms({
         ...uniforms,
-        thicknessUnit: 15 * 2,
+        thicknessUnit: thicknessUnit! * 3,
         currentTime,
       })
       .draw();
@@ -128,6 +134,16 @@ export default class AnimatedFlowLinesLayer extends Layer {
         transition: true,
         accessor: 'getThickness',
         defaultValue: 1,
+      },
+      instanceStaggering: {
+        accessor: 'getStaggering',
+        size: 1,
+        transition: false,
+      },
+      instancePickable: {
+        accessor: 'getPickable',
+        size: 1,
+        transition: false,
       },
     });
     /* eslint-enable max-len */

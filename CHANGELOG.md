@@ -1,5 +1,16 @@
 # Change log
 
+## [6.1.0] - 2019-11-05
+### Added
+- Yarn for building
+- Upgraded deck.gl
+- Improved highlighted location area coloring; drawing location areas outline above arrows
+- Added staggering to animated flow lines
+- Added highlightedLocationAreaId for pre-hovering
+- Added maxFlowThickness
+- Added minPickableFlowThickness 
+
+
 ## [6.0.0] - 2019-08-20
 ### Added
 - Automated clustering

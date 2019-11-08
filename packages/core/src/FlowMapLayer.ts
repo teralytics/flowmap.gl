@@ -54,12 +54,15 @@ export interface BasicProps {
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;
+  maxFlowThickness?: number;
+  minPickableFlowThickness?: number;
   showTotals?: boolean;
   locationCircleSize?: number;
   showLocationAreas?: boolean;
   showOnlyTopFlows?: number;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
+  highlightedLocationAreaId?: string;
   highlightedFlow?: Flow;
   outlineThickness?: number;
 }
@@ -73,6 +76,8 @@ export interface Props extends BasicProps {
 enum LayerKind {
   LOCATIONS = 'LOCATIONS',
   LOCATION_AREAS = 'LOCATION_AREAS',
+  LOCATION_AREAS_OUTLINES = 'LOCATION_AREAS_OUTLINES',
+  LOCATION_AREAS_SELECTED_AND_HIGHLIGHTED = 'LOCATION_AREAS_SELECTED_AND_HIGHLIGHTED',
   FLOWS = 'FLOWS',
   LOCATIONS_HIGHLIGHTED = 'LOCATIONS_HIGHLIGHTED',
   FLOWS_HIGHLIGHTED = 'FLOWS_HIGHLIGHTED',
@@ -239,11 +244,20 @@ export default class FlowMapLayer extends CompositeLayer {
     const layers: DeckGLLayer[] = [];
 
     if (showLocationAreas && isFeatureCollection(locations)) {
-      layers.push(this.getLocationAreasLayer(getLayerId(this.props.id, LayerKind.LOCATION_AREAS)));
+      layers.push(this.getLocationAreasLayer(getLayerId(this.props.id, LayerKind.LOCATION_AREAS), false));
     }
     layers.push(
       this.getFlowLinesLayer(getLayerId(this.props.id, LayerKind.FLOWS), topFlows, false, isLocationHighlighted),
     );
+
+    if (showLocationAreas && isFeatureCollection(locations)) {
+      layers.push(
+        this.getHighlightedLocationAreasLayer(
+          getLayerId(this.props.id, LayerKind.LOCATION_AREAS_SELECTED_AND_HIGHLIGHTED),
+        ),
+      );
+    }
+
     if (highlightedFlows) {
       layers.push(
         this.getFlowLinesLayer(getLayerId(this.props.id, LayerKind.FLOWS_HIGHLIGHTED), highlightedFlows, true, false),
@@ -260,10 +274,13 @@ export default class FlowMapLayer extends CompositeLayer {
         ),
       );
     }
+    if (showLocationAreas && isFeatureCollection(locations)) {
+      layers.push(this.getLocationAreasLayer(getLayerId(this.props.id, LayerKind.LOCATION_AREAS_OUTLINES), true));
+    }
     return layers;
   }
 
-  private getLocationAreasLayer(id: string): DeckGLLayer {
+  private getLocationAreasLayer(id: string, outline: boolean): DeckGLLayer {
     const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow } = this.props;
     const { selectors } = this.state;
     const colors = selectors.getColors(this.props);
@@ -274,15 +291,41 @@ export default class FlowMapLayer extends CompositeLayer {
       getLineColor: colors.locationAreas.outline,
       lineJointRounded: true,
       data: locations,
-      stroked: true,
-      filled: true,
-      pickable: true,
+      stroked: outline,
+      filled: !outline,
+      pickable: !outline,
       opacity: 1,
       lineWidthMinPixels: 1,
       pointRadiusMinPixels: 1,
-      updateTriggers: {
-        getFillColor: { selectedLocationIds, highlightedLocationId, highlightedFlow },
-      },
+      updateTriggers: outline
+        ? {}
+        : {
+            getFillColor: { selectedLocationIds, highlightedLocationId, highlightedFlow },
+          },
+    });
+  }
+
+  private getHighlightedLocationAreasLayer(id: string): DeckGLLayer {
+    const { selectors } = this.state;
+    const { highlightedLocationId, highlightedLocationAreaId } = this.props;
+    const colors = selectors.getColors(this.props);
+    const getLocationById = selectors.getLocationByIdGetter(this.props);
+
+    return new GeoJsonLayer({
+      id,
+      getFillColor: () => colors.locationAreas.highlighted,
+      getLineColor: colors.locationAreas.outline,
+      lineJointRounded: true,
+      data: highlightedLocationId
+        ? getLocationById(highlightedLocationId)
+        : highlightedLocationAreaId
+        ? getLocationById(highlightedLocationAreaId)
+        : undefined,
+      stroked: false,
+      filled: true,
+      pickable: false,
+      opacity: 1,
+      lineWidthMinPixels: 5,
     });
   }
 
@@ -300,6 +343,7 @@ export default class FlowMapLayer extends CompositeLayer {
       showTotals,
       locationCircleSize,
       outlineThickness,
+      minPickableFlowThickness,
     } = this.props;
     const { selectors } = this.state;
 
@@ -331,7 +375,9 @@ export default class FlowMapLayer extends CompositeLayer {
     const flowColorScale = selectors.getFlowColorScale(this.props);
     const colors = selectors.getColors(this.props);
     const getColor = selectors.getFlowLinesColorGetter(colors, flowColorScale, highlighted, dimmed);
+    const { animate } = this.props;
 
+    const thicknessUnit = this.props.maxFlowThickness != null ? this.props.maxFlowThickness : 10;
     const baseProps = {
       id,
       getSourcePosition,
@@ -349,10 +395,13 @@ export default class FlowMapLayer extends CompositeLayer {
           showTotals,
         },
       },
+      thicknessUnit,
       outlineColor: colors.outlineColor,
       ...(outlineThickness && { outlineThickness }),
+      ...(minPickableFlowThickness != null && {
+        getPickable: (f: Flow) => (thicknessUnit * getThickness(f) >= minPickableFlowThickness ? 1.0 : 0.0),
+      }),
     };
-    const { animate } = this.props;
     if (animate) {
       return new AnimatedFlowLinesLayer({
         ...baseProps,

@@ -49,7 +49,7 @@ const tooltipStyle: React.CSSProperties = {
 };
 
 export default class Example extends React.Component<Props, State> {
-  state = {
+  state: State = {
     tooltip: undefined,
   };
   private readonly initialViewState: ViewState;

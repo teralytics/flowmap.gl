@@ -48,6 +48,7 @@ attribute vec3 instanceSourcePositions;
 attribute vec3 instanceTargetPositions;
 attribute vec3 instancePickingColors;
 attribute vec2 instanceEndpointOffsets;
+attribute float instancePickable;
 
 uniform vec4 outlineColor;
 uniform float thicknessUnit;
@@ -93,9 +94,16 @@ void main(void) {
   gl_Position = project_common_position_to_clipspace(vertex_pos_modelspace);
   
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
-  vColor = mix(fillColor, vec4(outlineColor.xyz, outlineColor.w * fillColor.w), normals.z);
+  
+  if (instancePickable <= 0.5) {
+    vColor = mix(fillColor, vec4(outlineColor.xyz, instanceThickness), normals.z);
+  } else {
+    vColor = mix(fillColor, vec4(outlineColor.xyz, outlineColor.w * fillColor.w), normals.z);
+  }
   
   // Set color to be rendered to picking fbo (also used to check for selection highlight).
-  picking_setPickingColor(instancePickingColors);
+  if (instancePickable > 0.5) {
+    picking_setPickingColor(instancePickingColors);
+  }
 }
 `;

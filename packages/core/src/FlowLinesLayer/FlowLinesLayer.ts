@@ -16,7 +16,7 @@
  */
 
 import { Layer } from '@deck.gl/core';
-import { TRIANGLES, UNSIGNED_BYTE } from '@luma.gl/constants';
+import { TRIANGLES, UNSIGNED_BYTE, UNSIGNED_INT } from '@luma.gl/constants';
 import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
 import { Flow } from '../types';
@@ -32,10 +32,12 @@ export interface Props {
   drawOutline: boolean;
   outlineColor?: RGBA;
   outlineThickness?: number;
+  thicknessUnit?: number;
   getSourcePosition?: (d: Flow) => [number, number];
   getTargetPosition?: (d: Flow) => [number, number];
   getColor?: (d: Flow) => RGBA;
   getThickness?: (d: Flow) => number;
+  getPickable?: (d: Flow, { index }: { index: number }) => number; // >= 1.0 -> true
   getEndpointOffsets?: (d: Flow) => [number, number];
 }
 
@@ -49,7 +51,9 @@ class FlowLinesLayer extends Layer {
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: (d: Flow) => d.thickness },
+    getPickable: { type: 'accessor', value: (d: Flow) => 1.0 },
     drawOutline: true,
+    thicknessUnit: 15,
     outlineThickness: 1,
     outlineColor: [255, 255, 255, 255],
     parameters: {
@@ -104,18 +108,23 @@ class FlowLinesLayer extends Layer {
         type: UNSIGNED_BYTE,
         transition: false,
       },
+      instancePickable: {
+        accessor: 'getPickable',
+        size: 1,
+        transition: false,
+      },
     });
   }
 
   draw({ uniforms }: any) {
     const { gl } = this.context;
-    const { outlineColor } = this.props;
+    const { outlineColor, thicknessUnit } = this.props;
     gl.lineWidth(1);
     this.state.model
       .setUniforms({
         ...uniforms,
         outlineColor: outlineColor!.map((x: number) => x / 255),
-        thicknessUnit: 16,
+        thicknessUnit: thicknessUnit! * 2,
         gap: 0.75,
       })
       .draw();

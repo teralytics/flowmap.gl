@@ -51,7 +51,9 @@ attribute vec4 instanceSourceTargetPositions64xyLow;
 attribute vec4 instanceColors;
 attribute vec3 instancePickingColors;
 attribute float instanceWidths;
-
+attribute float instanceStaggering;
+attribute float instancePickable;
+         
 uniform float opacity;
 uniform float currentTime;
 uniform float thicknessUnit;
@@ -88,9 +90,11 @@ void main(void) {
 
   // Color
   vColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
-  sourceToTarget = positions.x * length(source - target) * NUM_PARTS - currentTime * SPEED; 
+  sourceToTarget = positions.x * length(source - target) * NUM_PARTS - currentTime * SPEED + instanceStaggering; 
 
   // Set color to be rendered to picking fbo (also used to check for selection highlight).
-  picking_setPickingColor(instancePickingColors);
+  if (instancePickable > 0.5) {
+    picking_setPickingColor(instancePickingColors);
+  }
 }
 `;
