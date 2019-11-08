@@ -32,6 +32,7 @@ export interface Props {
   drawOutline: boolean;
   outlineColor?: RGBA;
   outlineThickness?: number;
+  thicknessUnit?: number;
   getSourcePosition?: (d: Flow) => [number, number];
   getTargetPosition?: (d: Flow) => [number, number];
   getColor?: (d: Flow) => RGBA;
@@ -52,6 +53,7 @@ class FlowLinesLayer extends Layer {
     getThickness: { type: 'accessor', value: (d: Flow) => d.thickness },
     getPickable: { type: 'accessor', value: (d: Flow) => 1.0 },
     drawOutline: true,
+    thicknessUnit: 15,
     outlineThickness: 1,
     outlineColor: [255, 255, 255, 255],
     parameters: {
@@ -116,13 +118,13 @@ class FlowLinesLayer extends Layer {
 
   draw({ uniforms }: any) {
     const { gl } = this.context;
-    const { outlineColor } = this.props;
+    const { outlineColor, thicknessUnit } = this.props;
     gl.lineWidth(1);
     this.state.model
       .setUniforms({
         ...uniforms,
         outlineColor: outlineColor!.map((x: number) => x / 255),
-        thicknessUnit: 16,
+        thicknessUnit,
         gap: 0.75,
       })
       .draw();

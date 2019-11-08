@@ -18,7 +18,7 @@ import {
   isDiffColorsRGBA,
   RGBA,
 } from './colors';
-import FlowMapLayer, { Props } from './FlowMapLayer';
+import { Props } from './FlowMapLayer';
 import {
   Flow,
   FlowAccessors,

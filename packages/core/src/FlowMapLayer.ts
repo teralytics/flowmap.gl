@@ -43,6 +43,7 @@ export interface BasicProps {
   flows: Flow[];
   diffMode?: boolean;
   animate?: boolean;
+  maxFlowThickness?: number;
   animationCurrentTime?: number;
   colors?: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
@@ -374,6 +375,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const flowColorScale = selectors.getFlowColorScale(this.props);
     const colors = selectors.getColors(this.props);
     const getColor = selectors.getFlowLinesColorGetter(colors, flowColorScale, highlighted, dimmed);
+    const { animate } = this.props;
 
     const baseProps = {
       id,
@@ -392,13 +394,13 @@ export default class FlowMapLayer extends CompositeLayer {
           showTotals,
         },
       },
+      thicknessUnit: (this.props.maxFlowThickness != null ? this.props.maxFlowThickness : 10) * (animate ? 3 : 2),
       outlineColor: colors.outlineColor,
       ...(outlineThickness && { outlineThickness }),
       ...(getFlowPickable && {
         getPickable: (f: Flow) => (getFlowPickable(f) ? 1.0 : 0.0),
       }),
     };
-    const { animate } = this.props;
     if (animate) {
       return new AnimatedFlowLinesLayer({
         ...baseProps,
