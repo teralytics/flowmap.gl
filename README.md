@@ -126,14 +126,17 @@ interface Props {
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;  // can be used to override the color of some of the flows
+  maxFlowThickness?: number;
+  minPickableFlowThickness?: number;
   showTotals?: boolean;
   showOnlyTopFlows?: number;
   locationCircleSize?: number;
   showLocationAreas?: boolean;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
+  highlightedLocationAreaId?: string;
   highlightedFlow?: Flow;
-  outlineThickness: number;
+  outlineThickness: number;    
   onClick?: PickingHandler<FlowLayerPickingInfo>;
   onHover?: PickingHandler<FlowLayerPickingInfo>;
 }
