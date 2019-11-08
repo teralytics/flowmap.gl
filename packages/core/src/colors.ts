@@ -173,11 +173,11 @@ function getLocationAreaColorsRGBA(colors: LocationAreaColors | undefined, darkM
     connected: colorAsRgbaOr(colors && colors.connected, locationAreasNormal),
     highlighted: colorAsRgbaOr(
       colors && colors.highlighted,
-      normalColorHcl[darkMode ? 'brighter' : 'darker'](1).toString(),
+      opacifyHex(normalColorHcl[darkMode ? 'brighter' : 'darker'](1).toString(), 0.5),
     ),
     selected: colorAsRgbaOr(
       colors && colors.selected,
-      colorAsRgba(normalColorHcl[darkMode ? 'brighter' : 'darker'](2).toString()),
+      opacifyHex(normalColorHcl[darkMode ? 'brighter' : 'darker'](2).toString(), 0.8),
     ),
     outline: colorAsRgbaOr(
       colors && colors.outline,
@@ -246,6 +246,16 @@ function colorAsRgbaOr(color: string | undefined, defaultColor: RGBA | string): 
 
 export function rgbaAsString(color: RGBA): string {
   return `rgba(${color.join(',')})`;
+}
+
+export function opacifyHex(hexCode: string, opacity: number): string {
+  const c = d3color(hexCode);
+  if (!c) {
+    console.warn('Invalid color: ', hexCode);
+    return `rgba(255, 255, 255, ${opacity})`;
+  }
+  const col = c.rgb();
+  return `rgba(${col.r}, ${col.g}, ${col.b}, ${opacity})`;
 }
 
 export function opacityFloatToInteger(opacity: number): number {
