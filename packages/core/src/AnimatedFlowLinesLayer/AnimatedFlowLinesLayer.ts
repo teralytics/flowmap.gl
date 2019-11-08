@@ -61,6 +61,7 @@ export interface Props {
   getSourcePosition?: (d: Flow) => [number, number];
   getTargetPosition?: (d: Flow) => [number, number];
   getStaggering?: (d: Flow, { index }: { index: number }) => number;
+  getPickable?: (d: Flow, { index }: { index: number }) => number; // >= 1.0 -> true
   getColor?: (d: Flow) => RGBA;
   getThickness?: (d: Flow) => number;
   getEndpointOffsets?: (d: Flow) => [number, number];
@@ -73,6 +74,7 @@ export default class AnimatedFlowLinesLayer extends Layer {
     currentTime: 0,
     getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
+    getPickable: { type: 'accessor', value: (d: Flow) => 1.0 },
     getStaggering: { type: 'accessor', value: (d: Flow, { index }: { index: number }) => Math.random() },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
     getThickness: { type: 'accessor', value: 1 },
@@ -96,7 +98,7 @@ export default class AnimatedFlowLinesLayer extends Layer {
     this.state.model
       .setUniforms({
         ...uniforms,
-        thicknessUnit,
+        thicknessUnit: thicknessUnit! * 3,
         currentTime,
       })
       .draw();
@@ -135,6 +137,11 @@ export default class AnimatedFlowLinesLayer extends Layer {
       },
       instanceStaggering: {
         accessor: 'getStaggering',
+        size: 1,
+        transition: false,
+      },
+      instancePickable: {
+        accessor: 'getPickable',
         size: 1,
         transition: false,
       },

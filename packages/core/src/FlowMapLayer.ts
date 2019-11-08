@@ -43,7 +43,6 @@ export interface BasicProps {
   flows: Flow[];
   diffMode?: boolean;
   animate?: boolean;
-  maxFlowThickness?: number;
   animationCurrentTime?: number;
   colors?: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
@@ -55,7 +54,8 @@ export interface BasicProps {
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;
-  getFlowPickable?: FlowAccessor<boolean>;
+  maxFlowThickness?: number;
+  minPickableFlowThickness?: number;
   showTotals?: boolean;
   locationCircleSize?: number;
   showLocationAreas?: boolean;
@@ -343,7 +343,7 @@ export default class FlowMapLayer extends CompositeLayer {
       showTotals,
       locationCircleSize,
       outlineThickness,
-      getFlowPickable,
+      minPickableFlowThickness,
     } = this.props;
     const { selectors } = this.state;
 
@@ -377,6 +377,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const getColor = selectors.getFlowLinesColorGetter(colors, flowColorScale, highlighted, dimmed);
     const { animate } = this.props;
 
+    const thicknessUnit = this.props.maxFlowThickness != null ? this.props.maxFlowThickness : 10;
     const baseProps = {
       id,
       getSourcePosition,
@@ -394,11 +395,11 @@ export default class FlowMapLayer extends CompositeLayer {
           showTotals,
         },
       },
-      thicknessUnit: (this.props.maxFlowThickness != null ? this.props.maxFlowThickness : 10) * (animate ? 3 : 2),
+      thicknessUnit,
       outlineColor: colors.outlineColor,
       ...(outlineThickness && { outlineThickness }),
-      ...(getFlowPickable && {
-        getPickable: (f: Flow) => (getFlowPickable(f) ? 1.0 : 0.0),
+      ...(minPickableFlowThickness != null && {
+        getPickable: (f: Flow) => (thicknessUnit * getThickness(f) >= minPickableFlowThickness ? 1.0 : 0.0),
       }),
     };
     if (animate) {
