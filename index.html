@@ -1,14 +1,20 @@
-<!doctype html><html><head><meta charset="utf-8"><title>Storybook</title><style>html, body {
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Storybook</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>html, body {
     overflow: hidden;
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
-  }</style><script>try {
+  }</style><script>/* globals window */
+  /* eslint-disable no-underscore-dangle */
+  try {
     if (window.parent !== window) {
       window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.parent.__REACT_DEVTOOLS_GLOBAL_HOOK__;
       window.__VUE_DEVTOOLS_GLOBAL_HOOK__ = window.parent.__VUE_DEVTOOLS_GLOBAL_HOOK__;
     }
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.warn('unable to connect to parent frame for connecting dev tools');
-  }</script><script>document.title = 'flowmap.gl examples';</script></head><body><div id="root"></div><script src="/sb_dll/storybook_ui_dll.js"></script><script src="runtime~main.729a62daeea60911f9f0.bundle.js"></script><script src="vendors~main.e11d87b2a11dc7b803d5.bundle.js"></script><script src="main.e4fcfc10b3d601e858dd.bundle.js"></script></body></html>
+  }</script><style>#root[hidden],
+      #docs-root[hidden] {
+        display: none !important;
+      }</style></head><body><div id="root"></div><div id="docs-root"></div><script>window['DOCS_MODE'] = false;</script><script src="runtime~main.4d6118575687c0a0f1fb.bundle.js"></script><script src="vendors~main.0ab2b3ce47bc42840abd.bundle.js"></script><script src="main.8bcf3644977be390c413.bundle.js"></script></body></html>
