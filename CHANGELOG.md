@@ -1,5 +1,9 @@
 # Change log
 
+## [6.1.1] - 2019-11-19
+### Added
+- Added maxLocationCircleSize
+
 ## [6.1.0] - 2019-11-05
 ### Added
 - Yarn for building

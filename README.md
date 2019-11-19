@@ -130,7 +130,7 @@ interface Props {
   minPickableFlowThickness?: number;
   showTotals?: boolean;
   showOnlyTopFlows?: number;
-  locationCircleSize?: number;
+  maxLocationCircleSize?: number;
   showLocationAreas?: boolean;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;

@@ -18,7 +18,7 @@ import {
   isDiffColorsRGBA,
   RGBA,
 } from './colors';
-import { Props } from './FlowMapLayer';
+import FlowMapLayer, { Props } from './FlowMapLayer';
 import {
   Flow,
   FlowAccessors,
@@ -59,6 +59,8 @@ const getHighlightedFlow = (props: Props) => props.highlightedFlow;
 const getHighlightedLocationId = (props: Props) => props.highlightedLocationId;
 const getSelectedLocationIds = (props: Props) => props.selectedLocationIds;
 const getShowOnlyTopFlows = (props: Props) => props.showOnlyTopFlows;
+const getMaxLocationCircleSize = (props: Props) =>
+  props.maxLocationCircleSize != null ? props.maxLocationCircleSize : FlowMapLayer.defaultProps.maxLocationCircleSize;
 
 class Selectors {
   constructor(private inputAccessors: InputAccessors) {}
@@ -336,12 +338,12 @@ class Selectors {
   );
 
   private getSizeScale: PropsSelector<NumberScale> = createSelector(
-    [this.getMaxLocationMaxAbsTotal],
-    maxTotal => {
+    [getMaxLocationCircleSize, this.getMaxLocationMaxAbsTotal],
+    (maxLocationCircleSize, maxTotal) => {
       const scale = scalePow()
         .exponent(1 / 2)
         .domain([0, maxTotal])
-        .range([0, maxTotal > 0 ? 15 : 1]);
+        .range([0, maxTotal > 0 ? maxLocationCircleSize : 1]);
 
       return (v: number) => scale(Math.abs(v));
     },

@@ -186,6 +186,7 @@ storiesOf('Basic', module)
         showLocationAreas={true}
         flows={flows}
         locations={locations}
+        maxLocationCircleSize={3}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />
@@ -199,12 +200,12 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => {
       const locationIds = locations.features.map(getLocationId).reverse();
-      const getTotal = (location: Location) => 0; // Math.pow(locationIds.indexOf(getLocationId(location)), 10);
+      const getTotal = (location: Location) => Math.pow(locationIds.indexOf(getLocationId(location)), 10);
       return (
         <>
           <FlowMap
             getLocationId={getLocationId}
-            flows={[]}
+            flows={flows}
             locations={locations}
             getLocationTotalIn={getTotal}
             getLocationTotalOut={getTotal}
@@ -259,6 +260,25 @@ storiesOf('Basic', module)
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         outlineThickness={5}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'maxLocationCircleSize',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <FlowMap
+        getLocationId={getLocationId}
+        showTotals={true}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+        maxLocationCircleSize={30}
         mapboxAccessToken={mapboxAccessToken}
       />
     )),
