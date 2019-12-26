@@ -3,6 +3,8 @@
 ## [6.1.1] - 2019-11-19
 ### Added
 - Added maxLocationCircleSize
+### Fixed
+- ClusterIndex.makeLocationWeightGetter didn't correctly calculate outgoing totals
 
 ## [6.1.0] - 2019-11-05
 ### Added
