@@ -47,6 +47,7 @@ export interface FlowAccessors {
   getFlowDestId: FlowAccessor<string>;
   getFlowMagnitude: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;
+  getAnimatedFlowLineStaggering?: FlowAccessor<string | undefined>;
 }
 
 export interface LocationAccessors {
@@ -101,7 +102,13 @@ export interface FlowPickingInfo extends PickingInfo<Data> {
 
 export type FlowLayerPickingInfo = LocationPickingInfo | LocationAreaPickingInfo | FlowPickingInfo;
 
-export type FlowAccessor<T> = (flow: Flow) => T;
+// https://deck.gl/#/documentation/developer-guide/using-layers?section=accessors
+export interface AccessorObjectInfo {
+  index: number;
+  data: any;
+  target: any[];
+}
+export type FlowAccessor<T> = (flow: Flow, objectInfo?: AccessorObjectInfo) => T;
 export type LocationAccessor<T> = (location: Location) => T;
 export type LocationCircleAccessor<T> = (locCircle: LocationCircle) => T;
 

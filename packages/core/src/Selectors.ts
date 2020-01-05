@@ -75,22 +75,19 @@ class Selectors {
     },
   );
 
-  getLocationByIdGetter: PropsSelector<LocationByIdGetter> = createSelector(
-    [getLocationFeatures],
-    locations => {
-      const locationsById = nest<Location, Location | undefined>()
-        .key(this.inputAccessors.getLocationId)
-        .rollup(([d]) => d)
-        .object(locations);
-      return (id: string) => {
-        const location = locationsById[id];
-        if (!location) {
-          console.warn(`No location found for id '${id}'`);
-        }
-        return location;
-      };
-    },
-  );
+  getLocationByIdGetter: PropsSelector<LocationByIdGetter> = createSelector([getLocationFeatures], locations => {
+    const locationsById = nest<Location, Location | undefined>()
+      .key(this.inputAccessors.getLocationId)
+      .rollup(([d]) => d)
+      .object(locations);
+    return (id: string) => {
+      const location = locationsById[id];
+      if (!location) {
+        console.warn(`No location found for id '${id}'`);
+      }
+      return location;
+    };
+  });
 
   private getFilteredFlows: PropsSelector<Flow[]> = createSelector(
     [getFlows, getSelectedLocationIds],
@@ -109,22 +106,16 @@ class Selectors {
     },
   );
 
-  private getNonSelfFlows: PropsSelector<Flow[]> = createSelector(
-    [this.getFilteredFlows],
-    flows => {
-      const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
-      return flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow));
-    },
-  );
+  private getNonSelfFlows: PropsSelector<Flow[]> = createSelector([this.getFilteredFlows], flows => {
+    const { getFlowOriginId, getFlowDestId } = this.inputAccessors;
+    return flows.filter(flow => getFlowOriginId(flow) !== getFlowDestId(flow));
+  });
 
-  getSortedNonSelfFlows: PropsSelector<Flow[]> = createSelector(
-    [this.getNonSelfFlows],
-    flows => {
-      const comparator = (f1: Flow, f2: Flow) =>
-        Math.abs(this.inputAccessors.getFlowMagnitude(f1)) - Math.abs(this.inputAccessors.getFlowMagnitude(f2));
-      return flows.slice().sort(comparator);
-    },
-  );
+  getSortedNonSelfFlows: PropsSelector<Flow[]> = createSelector([this.getNonSelfFlows], flows => {
+    const comparator = (f1: Flow, f2: Flow) =>
+      Math.abs(this.inputAccessors.getFlowMagnitude(f1)) - Math.abs(this.inputAccessors.getFlowMagnitude(f2));
+    return flows.slice().sort(comparator);
+  });
 
   getTopFlows: PropsSelector<Flow[]> = createSelector(
     [this.getSortedNonSelfFlows, getShowOnlyTopFlows],
@@ -157,7 +148,7 @@ class Selectors {
 
   private getFlowMagnitudeExtent: PropsSelector<[number, number] | [undefined, undefined]> = createSelector(
     [this.getNonSelfFlows],
-    flows => extent(flows, this.inputAccessors.getFlowMagnitude),
+    flows => extent(flows, f => this.inputAccessors.getFlowMagnitude(f)),
   );
 
   getFlowThicknessScale: PropsSelector<NumberScale> = createSelector(

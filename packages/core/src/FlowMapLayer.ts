@@ -53,6 +53,7 @@ export interface BasicProps {
   getFlowOriginId?: FlowAccessor<string>;
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
+  getAnimatedFlowLineStaggering?: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;
   maxFlowThickness?: number;
   maxLocationCircleSize?: number;
@@ -340,6 +341,7 @@ export default class FlowMapLayer extends CompositeLayer {
       getFlowDestId,
       getFlowMagnitude,
       getLocationCentroid,
+      getAnimatedFlowLineStaggering,
       showTotals,
       maxLocationCircleSize,
       outlineThickness,
@@ -351,23 +353,23 @@ export default class FlowMapLayer extends CompositeLayer {
     const getLocationRadius = selectors.getLocationCircleRadiusGetter(this.props);
     const getLocationById = selectors.getLocationByIdGetter(this.props);
     const flowThicknessScale = selectors.getFlowThicknessScale(this.props);
-    const getSourcePosition: FlowAccessor<[number, number]> = flow =>
-      getLocationCentroid!(getLocationById(getFlowOriginId!(flow)));
-    const getTargetPosition: FlowAccessor<[number, number]> = flow =>
-      getLocationCentroid!(getLocationById(getFlowDestId!(flow)));
-    const getThickness: FlowAccessor<number> = flow => flowThicknessScale(getFlowMagnitude!(flow));
-    const getEndpointOffsets: FlowAccessor<[number, number]> = flow => {
+    const getSourcePosition: FlowAccessor<[number, number]> = (flow, info) =>
+      getLocationCentroid!(getLocationById(getFlowOriginId!(flow, info)));
+    const getTargetPosition: FlowAccessor<[number, number]> = (flow, info) =>
+      getLocationCentroid!(getLocationById(getFlowDestId!(flow, info)));
+    const getThickness: FlowAccessor<number> = (flow, info) => flowThicknessScale(getFlowMagnitude!(flow, info));
+    const getEndpointOffsets: FlowAccessor<[number, number]> = (flow, info) => {
       if (!showTotals) {
         return endpointOffsets;
       }
 
       return [
         getLocationRadius({
-          location: getLocationById(getFlowOriginId!(flow)),
+          location: getLocationById(getFlowOriginId!(flow, info)),
           type: LocationCircleType.OUTLINE,
         }),
         getLocationRadius({
-          location: getLocationById(getFlowDestId!(flow)),
+          location: getLocationById(getFlowDestId!(flow, info)),
           type: LocationCircleType.OUTLINE,
         }),
       ];
@@ -406,6 +408,9 @@ export default class FlowMapLayer extends CompositeLayer {
       return new AnimatedFlowLinesLayer({
         ...baseProps,
         currentTime: this.props.animationCurrentTime,
+        ...(getAnimatedFlowLineStaggering && {
+          getStaggering: getAnimatedFlowLineStaggering,
+        }),
       });
     } else {
       return new FlowLinesLayer(baseProps);

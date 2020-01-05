@@ -3,6 +3,7 @@
 ## [6.1.1] - 2019-11-19
 ### Added
 - Added maxLocationCircleSize
+- Added getAnimatedFlowLineStaggering
 ### Fixed
 - ClusterIndex.makeLocationWeightGetter didn't correctly calculate outgoing totals
 

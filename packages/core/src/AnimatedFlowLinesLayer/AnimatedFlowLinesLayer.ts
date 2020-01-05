@@ -43,7 +43,7 @@ import { Layer } from '@deck.gl/core';
 import { TRIANGLE_STRIP, UNSIGNED_BYTE } from '@luma.gl/constants';
 import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
-import { Flow } from '../types';
+import { AccessorObjectInfo, Flow } from '../types';
 import FragmentShader from './AnimatedFlowLinesLayerFragment.glsl';
 import VertexShader from './AnimatedFlowLinesLayerVertex.glsl';
 
@@ -60,7 +60,7 @@ export interface Props {
   thicknessUnit?: number;
   getSourcePosition?: (d: Flow) => [number, number];
   getTargetPosition?: (d: Flow) => [number, number];
-  getStaggering?: (d: Flow, { index }: { index: number }) => number;
+  getStaggering?: (d: Flow, info: AccessorObjectInfo) => number;
   getPickable?: (d: Flow, { index }: { index: number }) => number; // >= 1.0 -> true
   getColor?: (d: Flow) => RGBA;
   getThickness?: (d: Flow) => number;

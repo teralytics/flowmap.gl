@@ -362,18 +362,30 @@ storiesOf('Basic', module)
       withFetchJson('locations', './data/locations.json'),
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => {
+      const [thickness, setThickness] = React.useState(15);
       return (
         <>
           <FlowMap
             getLocationId={getLocationId}
-            maxFlowThickness={15}
+            maxFlowThickness={thickness}
             flows={flows}
+            animate={false}
             locations={locations}
             initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
             mapboxAccessToken={mapboxAccessToken}
           />
           <LegendBox bottom={35} left={10}>
             <LocationTotalsLegend />
+          </LegendBox>
+          <LegendBox top={10} right={10}>
+            <label>Thickness:</label>
+            <input
+              type="range"
+              value={thickness}
+              min={0}
+              max={30}
+              onChange={evt => setThickness(+evt.currentTarget.value)}
+            />
           </LegendBox>
         </>
       );
@@ -386,11 +398,12 @@ storiesOf('Basic', module)
       withFetchJson('locations', './data/locations.json'),
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => {
+      const [thickness, setThickness] = React.useState(15);
       return (
         <>
           <FlowMap
             getLocationId={getLocationId}
-            maxFlowThickness={15}
+            maxFlowThickness={thickness}
             flows={flows}
             animate={true}
             locations={locations}
@@ -399,6 +412,16 @@ storiesOf('Basic', module)
           />
           <LegendBox bottom={35} left={10}>
             <LocationTotalsLegend />
+          </LegendBox>
+          <LegendBox top={10} right={10}>
+            <label>Thickness:</label>
+            <input
+              type="range"
+              value={thickness}
+              min={0}
+              max={30}
+              onChange={evt => setThickness(+evt.currentTarget.value)}
+            />
           </LegendBox>
         </>
       );
