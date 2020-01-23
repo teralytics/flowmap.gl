@@ -67,7 +67,7 @@ export default class FlowMap extends React.Component<Props, State> {
   };
 
   static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
-    if (typeof(props.selectedLocationIds) !== 'undefined' && props.selectedLocationIds !== state.selectedLocationIds) {
+    if (props.selectedLocationIds !== state.selectedLocationIds) {
       return {
         selectedLocationIds: props.selectedLocationIds,
       };
