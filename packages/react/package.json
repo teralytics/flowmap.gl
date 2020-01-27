@@ -46,10 +46,10 @@
     "typescript": "^3.2.2"
   },
   "peerDependencies": {
-    "@deck.gl/react": ">= 7.3.0",
+    "@deck.gl/react": ">= 8.0.0",
     "react": ">= 16.0.0",
     "react-dom": ">= 16.0.0",
-    "react-map-gl": ">= 4.0.0"
+    "react-map-gl": ">= 5.0.0"
   },
   "gitHead": "685236ef24d44ee2c6f0c2aed79dd9c52a4e73fe",
   "publishConfig": {

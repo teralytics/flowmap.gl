@@ -63,10 +63,5 @@
   "workspaces": [
     "packages/*",
     "examples"
-  ],
-  "dependencies": {
-    "@deck.gl/core": "8.1.0-alpha.1",
-    "@deck.gl/layers": "8.1.0-alpha.1",
-    "@deck.gl/react": "8.1.0-alpha.1"
-  }
+  ]
 }

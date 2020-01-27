@@ -831,7 +831,7 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@deck.gl/core@8.1.0-alpha.1", "@deck.gl/core@^8.1.0-alpha.1":
+"@deck.gl/core@^8.1.0-alpha.1":
   version "8.1.0-alpha.1"
   resolved "https://registry.yarnpkg.com/@deck.gl/core/-/core-8.1.0-alpha.1.tgz#27d21fcace813ca52bdf3331b67a62380c3773c2"
   integrity sha512-gBSu2TStcHHRktfsW1T8LjShpAb5Ax14nR70SUm1cgF33hBl/AZV7z4bP5ml45yzSA8jWXK8DwInB2VzNxKqvA==
@@ -845,7 +845,7 @@
     mjolnir.js "^2.3.0"
     probe.gl "^3.2.1"
 
-"@deck.gl/layers@8.1.0-alpha.1", "@deck.gl/layers@^8.1.0-alpha.1":
+"@deck.gl/layers@^8.1.0-alpha.1":
   version "8.1.0-alpha.1"
   resolved "https://registry.yarnpkg.com/@deck.gl/layers/-/layers-8.1.0-alpha.1.tgz#75f1fe13cf3047ca0fbc242202fe16609ccaaef7"
   integrity sha512-xeMZZbkDzZq3mwt3djhSJxrjUz0XoT1rumnR8U2ROEuC/6L+1lo+i0xdm81kWQZJqE1PIzcHcUroanrq3rO/2g==
@@ -855,7 +855,7 @@
     "@mapbox/tiny-sdf" "^1.1.0"
     earcut "^2.0.6"
 
-"@deck.gl/react@8.1.0-alpha.1", "@deck.gl/react@^8.1.0-alpha.1":
+"@deck.gl/react@^8.1.0-alpha.1":
   version "8.1.0-alpha.1"
   resolved "https://registry.yarnpkg.com/@deck.gl/react/-/react-8.1.0-alpha.1.tgz#d9a61ff8a15efd5c14627dbbfa42fc73b4d8ea8d"
   integrity sha512-Ih7aaI0AphqmsZHm6jQWQwRJwAMvybSODD2FGK4g+xIQQ0J4ZqaO2mBEpcUVg86K+SkVGQHXa01nWzyuUzSW8Q==
