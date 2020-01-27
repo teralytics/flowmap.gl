@@ -1,7 +1,8 @@
 # Change log
 
 ## [7.0.0] - 2020-01-27
-### Upgraded to deck.gl v8
+### Upgraded
+- Upgrading all dependencies to latest
 - Making shaders work with deck.gl v8
 ### Fixed
 - selectedLocationIds didn't accept `undefined`
