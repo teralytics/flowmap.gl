@@ -60,10 +60,10 @@
     "typescript": "^3.2.2"
   },
   "peerDependencies": {
-    "@deck.gl/core": ">= 7.0.0",
-    "@deck.gl/layers": ">= 7.0.0",
-    "@luma.gl/constants": ">= 7.0.0",
-    "@luma.gl/core": ">= 7.0.0"
+    "@deck.gl/core": ">= 8.0.0",
+    "@deck.gl/layers": ">= 8.0.0",
+    "@luma.gl/constants": ">= 8.0.0",
+    "@luma.gl/core": ">= 8.0.0"
   },
   "gitHead": "685236ef24d44ee2c6f0c2aed79dd9c52a4e73fe",
   "publishConfig": {
