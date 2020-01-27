@@ -26,7 +26,7 @@ For instance, below we compare between the evening and the morning commuting beh
 <img src="./doc/morning-evening-peaks.gif" width="480" />
 
 ### Difference mode
-The layer can be used to show the [difference between two moments in time](https://teralytics.github.io/flowmap.gl/?selectedKind=Interactive&selectedStory=diff&full=0&addons=1&stories=1&panelRight=0&addonPanel=storybook%2Factions%2Factions-panel).
+The layer can be used to show the [difference between two moments in time](https://teralytics.github.io/flowmap.gl/?path=/story/basic--difference-mode).
 
 
 

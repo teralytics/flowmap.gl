@@ -39,7 +39,7 @@
  * THE SOFTWARE.
  */
 
-import { Layer } from '@deck.gl/core';
+import { Layer, picking, project32 } from '@deck.gl/core';
 import { TRIANGLE_STRIP, UNSIGNED_BYTE } from '@luma.gl/constants';
 import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
@@ -85,29 +85,19 @@ export default class AnimatedFlowLinesLayer extends Layer {
   };
 
   constructor(props: Props) {
-    const overrideProps = null;
-    super(props, overrideProps);
+    super(props);
   }
 
   getShaders() {
-    return { vs: VertexShader, fs: FragmentShader, modules: ['project32', 'picking'] };
-  }
-
-  draw({ uniforms }: any) {
-    const { currentTime, thicknessUnit } = this.props;
-    this.state.model
-      .setUniforms({
-        ...uniforms,
-        thicknessUnit: thicknessUnit! * 3,
-        currentTime,
-      })
-      .draw();
+    return super.getShaders({
+      vs: VertexShader,
+      fs: FragmentShader,
+      modules: [project32, picking],
+      shaderCache: this.context.shaderCache,
+    });
   }
 
   initializeState() {
-    const { gl } = this.context;
-    this.setState({ model: this.createModel(gl) });
-
     const attributeManager = this.getAttributeManager();
 
     /* eslint-disable max-len */
@@ -149,7 +139,31 @@ export default class AnimatedFlowLinesLayer extends Layer {
     /* eslint-enable max-len */
   }
 
-  createModel(gl: WebGLRenderingContext) {
+  updateState({ props, oldProps, changeFlags }: any) {
+    super.updateState({ props, oldProps, changeFlags });
+
+    if (changeFlags.extensionsChanged) {
+      const { gl } = this.context;
+      if (this.state.model) {
+        this.state.model.delete();
+      }
+      this.setState({ model: this._getModel(gl) });
+      this.getAttributeManager().invalidateAll();
+    }
+  }
+
+  draw({ uniforms }: any) {
+    const { currentTime, thicknessUnit } = this.props;
+    this.state.model
+      .setUniforms({
+        ...uniforms,
+        thicknessUnit: thicknessUnit! * 4,
+        currentTime,
+      })
+      .draw();
+  }
+
+  _getModel(gl: WebGLRenderingContext) {
     /*
      *  (0, -1)-------------_(1, -1)
      *       |          _,-"  |
@@ -170,7 +184,6 @@ export default class AnimatedFlowLinesLayer extends Layer {
           },
         }),
         isInstanced: true,
-        shaderCache: this.context.shaderCache,
       }),
     );
   }

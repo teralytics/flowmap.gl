@@ -45,14 +45,13 @@ precision highp float;
 
 varying vec4 vColor;
 varying float sourceToTarget;
-
+varying vec2 uv;
+                                   
 void main(void) {
+  geometry.uv = uv;
+
   gl_FragColor = vec4(vColor.xyz, vColor.w * smoothstep(0.3, 1.0, fract(sourceToTarget)));
 
-  // use highlight color if this fragment belongs to the selected object.
-  gl_FragColor = picking_filterHighlightColor(gl_FragColor);
-
-  // use picking color if rendering to picking FBO.
-  gl_FragColor = picking_filterPickingColor(gl_FragColor);
+  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }
 `;

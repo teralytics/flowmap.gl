@@ -21,24 +21,16 @@ precision highp float;
 
 varying vec4 vColor;
 varying vec2 unitPosition;
-// varying float innerUnitRadius;
+varying float outerRadiusPixels;
 
 void main(void) {
-
+  geometry.uv = unitPosition;
   float distToCenter = length(unitPosition);
-
-  if (distToCenter > 1.0 /* || distToCenter < innerUnitRadius*/) {
+  if (distToCenter > 1.0) {
     discard;
   }
   gl_FragColor = vColor;
-  
-  float soften = smoothstep(0.0, SOFT_OUTLINE, 1.0 - distToCenter);
-  gl_FragColor = vec4(vColor.rgb, vColor.a * soften);
-
-  // use highlight color if this fragment belongs to the selected object.
-  gl_FragColor = picking_filterHighlightColor(gl_FragColor);
-
-  // use picking color if rendering to picking FBO.
-  gl_FragColor = picking_filterPickingColor(gl_FragColor);
+  gl_FragColor.a *= smoothstep(0.0, SOFT_OUTLINE, 1.0 - distToCenter);
+  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }
 `;

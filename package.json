@@ -38,8 +38,8 @@
     "typecheck": "lerna run --stream typecheck"
   },
   "devDependencies": {
-    "gh-pages": "^2.0.1",
-    "husky": "^3.0.9",
+    "gh-pages": "^2.2.0",
+    "husky": "^4.0.7",
     "lerna": "^3.16.4",
     "lint-staged": "^9.4.2",
     "prettier": "^1.15.3",
@@ -63,5 +63,10 @@
   "workspaces": [
     "packages/*",
     "examples"
-  ]
+  ],
+  "dependencies": {
+    "@deck.gl/core": "8.1.0-alpha.1",
+    "@deck.gl/layers": "8.1.0-alpha.1",
+    "@deck.gl/react": "8.1.0-alpha.1"
+  }
 }

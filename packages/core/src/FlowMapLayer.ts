@@ -16,10 +16,10 @@
  */
 
 import { CompositeLayer } from '@deck.gl/core';
-import { GeoJsonLayer } from '@deck.gl/layers';
+import { GeoJsonLayer, ScatterplotLayer } from '@deck.gl/layers';
 import AnimatedFlowLinesLayer from './AnimatedFlowLinesLayer/AnimatedFlowLinesLayer';
 import { Colors, DiffColors } from './colors';
-import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
+import FlowCirclesLayer, { FlowCirclesDatum } from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import Selectors from './Selectors';
 import {
@@ -235,6 +235,7 @@ export default class FlowMapLayer extends CompositeLayer {
 
   renderLayers() {
     const { showLocationAreas, locations, highlightedLocationId } = this.props;
+
     const { selectors } = this.state;
 
     const topFlows = selectors.getTopFlows(this.props);
@@ -379,7 +380,8 @@ export default class FlowMapLayer extends CompositeLayer {
     const getColor = selectors.getFlowLinesColorGetter(colors, flowColorScale, highlighted, dimmed);
     const { animate } = this.props;
 
-    const thicknessUnit = this.props.maxFlowThickness != null ? this.props.maxFlowThickness : 10;
+    const thicknessUnit =
+      this.props.maxFlowThickness != null ? this.props.maxFlowThickness : FlowLinesLayer.defaultProps.thicknessUnit;
     const baseProps = {
       id,
       getSourcePosition,
