@@ -18,3 +18,8 @@
 body {
   font-family: sans-serif;
 }
+
+#deckgl-overlay {
+  /* This is temporary until mixBlendMode style prop works in <DeckGL> as before v8 */
+  mix-blend-mode: inherit;
+}
