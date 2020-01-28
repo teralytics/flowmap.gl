@@ -16,10 +16,10 @@
  */
 
 import { CompositeLayer } from '@deck.gl/core';
-import { GeoJsonLayer, ScatterplotLayer } from '@deck.gl/layers';
+import { GeoJsonLayer } from '@deck.gl/layers';
 import AnimatedFlowLinesLayer from './AnimatedFlowLinesLayer/AnimatedFlowLinesLayer';
 import { Colors, DiffColors } from './colors';
-import FlowCirclesLayer, { FlowCirclesDatum } from './FlowCirclesLayer/FlowCirclesLayer';
+import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import Selectors from './Selectors';
 import {

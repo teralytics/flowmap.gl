@@ -32,9 +32,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@deck.gl/core": "^8.1.0-alpha.1",
-    "@deck.gl/layers": "^8.1.0-alpha.1",
-    "@deck.gl/react": "^8.1.0-alpha.1",
+    "@deck.gl/core": "^8.0.0",
+    "@deck.gl/layers": "^8.0.0",
+    "@deck.gl/react": "^8.0.0",
     "@flowmap.gl/cluster": "^7.0.0-alpha.0",
     "@flowmap.gl/core": "^7.0.0-alpha.0",
     "@flowmap.gl/react": "^7.0.0-alpha.0",

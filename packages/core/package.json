@@ -46,8 +46,8 @@
     "reselect": "^4.0.0"
   },
   "devDependencies": {
-    "@deck.gl/core": "^8.1.0-alpha.1",
-    "@deck.gl/layers": "^8.1.0-alpha.1",
+    "@deck.gl/core": "^8.0.0",
+    "@deck.gl/layers": "^8.0.0",
     "@luma.gl/constants": "^8.0.1",
     "@luma.gl/core": "^8.0.1",
     "@types/d3-array": "^2.0.0",
