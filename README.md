@@ -26,7 +26,7 @@ For instance, below we compare between the evening and the morning commuting beh
 <img src="./doc/morning-evening-peaks.gif" width="480" />
 
 ### Difference mode
-The layer can be used to show the [difference between two moments in time](https://teralytics.github.io/flowmap.gl/?path=/story/basic--difference-mode).
+The layer can be used to show the [difference between two moments in time](?path=/story/basic--difference-mode).
 
 
 
@@ -45,9 +45,9 @@ With this approach you can use flowmap.gl together with other deck.gl layers.
 
 ```jsx harmony
 import * as React from 'react';
-import DeckGL from 'deck.gl';
+import { DeckGL } from 'deck.gl';
 import { StaticMap } from 'react-map-gl';
-import FlowMapLayer from '@flowmap.gl/core';
+import FlowMapLayer from '@flowmap.gl/core'
 
 class MyFlowMap extends React.Component {
   state = { viewState: this.props.initialViewState };
@@ -115,8 +115,10 @@ interface Props {
   id: string;
   locations: Locations;
   flows: Flow[];
-  diffMode: boolean;
-  colors: Colors | DiffColors;
+  diffMode?: boolean;
+  animate?: boolean;
+  animationCurrentTime?: number;
+  colors?: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
   getLocationTotalIn?: LocationAccessor<number>;
@@ -125,18 +127,19 @@ interface Props {
   getFlowOriginId?: FlowAccessor<string>;
   getFlowDestId?: FlowAccessor<string>;
   getFlowMagnitude?: FlowAccessor<number>;
-  getFlowColor?: FlowAccessor<string | undefined>;  // can be used to override the color of some of the flows
+  getAnimatedFlowLineStaggering?: FlowAccessor<number>;
+  getFlowColor?: FlowAccessor<string | undefined>;
   maxFlowThickness?: number;
+  maxLocationCircleSize?: number;
   minPickableFlowThickness?: number;
   showTotals?: boolean;
-  showOnlyTopFlows?: number;
-  maxLocationCircleSize?: number;
   showLocationAreas?: boolean;
+  showOnlyTopFlows?: number;
   selectedLocationIds?: string[];
   highlightedLocationId?: string;
   highlightedLocationAreaId?: string;
   highlightedFlow?: Flow;
-  outlineThickness: number;    
+  outlineThickness?: number;
   onClick?: PickingHandler<FlowLayerPickingInfo>;
   onHover?: PickingHandler<FlowLayerPickingInfo>;
 }
