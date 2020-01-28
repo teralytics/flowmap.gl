@@ -4,7 +4,7 @@
 
 Try [flowmap.blue](https://flowmap.blue/) for an easy way of publishing a flow map backed by a Google Sheets spreadsheet (no programming skills required).
 
-Check out the [live examples](https://teralytics.github.io/flowmap.gl/index.html).
+Check out the [live examples Storybook](https://teralytics.github.io/flowmap.gl/index.html) or the [minimal example app](https://github.com/ilyabo/flowmap.gl-example).
 
 <img src="./doc/swiss-cantons-relocations.jpg" width="500" />
 
