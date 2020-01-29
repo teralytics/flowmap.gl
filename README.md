@@ -44,39 +44,42 @@ Then, you can either use as a deck.gl layer or flowmap.gl as a React component:
 With this approach you can use flowmap.gl together with other deck.gl layers.
 
 ```jsx harmony
-import * as React from 'react';
-import { DeckGL } from 'deck.gl';
 import { StaticMap } from 'react-map-gl';
-import FlowMapLayer from '@flowmap.gl/core'
+import { DeckGL } from 'deck.gl';
+import FlowMapLayer from '@flowmap.gl/core';             
+import * as ReactDOM from 'react-dom';
 
-class MyFlowMap extends React.Component {
-  state = { viewState: this.props.initialViewState };
-
-  render() {
-    const flowMapLayer = new FlowMapLayer({
-      id: 'flow-map-layer',
-      locations: [...],   // either array of location areas or a GeoJSON feature collection
-      flows: [...],       // array of Flow objects
-      getLocationId: l => l.id,
-      getLocationCentroid: l => l.properties.centroid,
-      getFlowOriginId: f => f.origin,
-      getFlowDestId: f => f.dest,
-      getFlowMagnitude: f => f.count,
-    });
-
-    return (
-      <DeckGL
-        layers={[flowMapLayer]}
-        initialViewState={this.state.viewState}
-        controller={true}
-        onViewStateChange={({ viewState }) => this.setState({ viewState })}
-        children={({ width, height, viewState }) => (
-          <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
-        )}
-      />
-    );
-  }
-}
+ReactDOM.render(
+  <DeckGL
+    controller={true}
+    initialViewState={{ longitude: 0, latitude: 0, zoom: 1 }}
+    layers={[
+      new FlowMapLayer({
+        id: 'my-flowmap-layer',
+        locations:
+          // either array of location areas or a GeoJSON feature collection
+          [{ id: 1, name: New York, lat: 40.713543, lon: -74.011219 }, 
+           { id: 2, name: London, lat: 51.507425, lon: -0.127738 }, 
+           { id: 3, name: Rio de Janeiro, lat: -22.906241, lon: -43.180244 }],
+        flows: 
+          [{ origin: 1, dest: 2, count: 42 },
+           { origin: 2, dest: 1, count: 51 },
+           { origin: 3, dest: 1, count: 50 },
+           { origin: 2, dest: 3, count: 40 },
+           { origin: 1, dest: 3, count: 22 },
+           { origin: 3, dest: 2, count: 42 }],
+        getFlowMagnitude: (flow) => flow.count || 0,
+        getFlowOriginId: (flow) => flow.origin,
+        getFlowDestId: (flow) => flow.dest,
+        getLocationId: (loc) => loc.id,
+        getLocationCentroid: (location) => [location.lon, location.lat],
+      })
+    ]}
+  >
+    <StaticMap mapboxApiAccessToken={mapboxAccessToken} />
+  </DeckGL>,
+  document.body
+)
 ```
 
 ###  Usage as a React component
@@ -86,8 +89,8 @@ Install this additional dependency:
 npm install @flowmap.gl/react
 ```
 
-
 ```jsx harmony
+
 import FlowMap, { getViewStateForLocations } from '@flowmap.gl/react'
 
 const MapVis = ({ width, height }) =>
