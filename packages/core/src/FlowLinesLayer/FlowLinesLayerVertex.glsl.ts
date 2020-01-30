@@ -38,14 +38,15 @@
  */
 export default `\
 #define SHADER_NAME flow-line-layer-vertex-shader
-#define PI 3.1415926535897932384626433832795
 
 attribute vec3 positions;
 attribute vec3 normals;
 attribute vec4 instanceColors;
-attribute float instanceThickness;
+attribute float instanceThickness;    // 0..0.5
 attribute vec3 instanceSourcePositions;
 attribute vec3 instanceTargetPositions;
+attribute vec3 instanceSourcePositions64Low;
+attribute vec3 instanceTargetPositions64Low;
 attribute vec3 instancePickingColors;
 attribute vec2 instanceEndpointOffsets;
 attribute float instancePickable;
@@ -56,54 +57,64 @@ uniform float gap;
 uniform float opacity;
 
 varying vec4 vColor;
+varying vec2 uv;
 
-mat2 rotation_mat2(float a) {
-  return mat2(cos(a), sin(a), -sin(a), cos(a));
-}
-
-vec2 vec3_to_vec2(vec3 a) {
-  return vec2(a[0], a[1]);
+// Reverse function of project_pixel_size_to_clipspace()
+float project_clipspace_to_pixel_size(float offset) {
+  return offset / project_uFocalDistance / project_uDevicePixelRatio / 2.0 *
+    // TODO: this probably shouldn't depend on the aspect ratio 
+    min(project_uViewportSize.x, project_uViewportSize.y);     
 }
 
 void main(void) {
-  vec2 projectedSourceCoord = vec3_to_vec2(project_position(instanceSourcePositions));
-  vec2 projectedTargetCoord = vec3_to_vec2(project_position(instanceTargetPositions));
+  geometry.worldPosition = instanceSourcePositions;
+  geometry.worldPositionAlt = instanceTargetPositions;
+  
+  // Position
+  vec4 source_commonspace;    
+  vec4 target_commonspace;
+  vec4 source = project_position_to_clipspace(instanceSourcePositions, instanceSourcePositions64Low, vec3(0.), source_commonspace);
+  vec4 target = project_position_to_clipspace(instanceTargetPositions, instanceTargetPositions64Low, vec3(0.), target_commonspace);
 
+  // linear interpolation of source & target to pick right coord
+  float segmentIndex = positions.x;
+  vec4 p = mix(source, target, segmentIndex);
+  geometry.position = mix(source_commonspace, target_commonspace, segmentIndex);
+  uv = positions.xy;
+  geometry.uv = uv;
+  if (instancePickable > 0.5) {
+    geometry.pickingColor = instancePickingColors;
+  }
+  
+  // set the clamp limits in pixel size 
+  float offsetLimit = project_clipspace_to_pixel_size(length(target - source) * 0.8);    
+  vec2 limitedOffsetDistances = clamp(   
+    positions.yz * thicknessUnit,  // pixel size
+    -offsetLimit, offsetLimit
+  );
+  float endpointOffset = clamp(
+    1.6 * mix(instanceEndpointOffsets.x, -instanceEndpointOffsets.y, positions.x),
+    -offsetLimit, offsetLimit
+  );
 
-  vec2 sourceTarget = projectedTargetCoord - projectedSourceCoord;
-  float offsetLimit = length(sourceTarget) * 0.8;
-  vec2 flowlineDirection = normalize(sourceTarget);
-  vec2 limitedOffsetDistances = clamp(positions.yz * thicknessUnit, -offsetLimit, offsetLimit);
-  float endpointOffset = mix(instanceEndpointOffsets.x, -instanceEndpointOffsets.y, positions.x);
-  vec2 offset =
-    rotation_mat2(0.5*PI) * flowlineDirection * (instanceThickness * limitedOffsetDistances[0] + gap + normals.x) +
-    flowlineDirection * (instanceThickness * limitedOffsetDistances[1] + normals.y + endpointOffset)
-  ;
-
-
-  vec2 mixed_temp = mix(projectedSourceCoord, projectedTargetCoord, positions.x);
-
-  vec4 vertex_pos_modelspace;
-
-  vertex_pos_modelspace[0] = mixed_temp[0] + offset[0];
-  vertex_pos_modelspace[1] = mixed_temp[1] + offset[1];
-  vertex_pos_modelspace[2] = 0.0;
-  vertex_pos_modelspace[3] = 1.0;
-
-
-  gl_Position = project_common_position_to_clipspace(vertex_pos_modelspace);
+  vec2 flowlineDir = normalize((target.xy - source.xy) * project_uViewportSize);
+  vec2 perpendicularDir = vec2(-flowlineDir.y, flowlineDir.x);
+  vec3 offset = vec3(
+    flowlineDir * (instanceThickness * limitedOffsetDistances[1] + normals.y + endpointOffset) -
+    perpendicularDir * (instanceThickness * limitedOffsetDistances[0] + gap + normals.x),
+    0.0
+  );
+  
+  DECKGL_FILTER_SIZE(offset, geometry);
+  gl_Position = p + vec4(project_pixel_size_to_clipspace(offset.xy), 0.0, 0.0);
+  DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
   
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
-  
   if (instancePickable <= 0.5) {
     vColor = mix(fillColor, vec4(outlineColor.xyz, instanceThickness), normals.z);
   } else {
     vColor = mix(fillColor, vec4(outlineColor.xyz, outlineColor.w * fillColor.w), normals.z);
   }
-  
-  // Set color to be rendered to picking fbo (also used to check for selection highlight).
-  if (instancePickable > 0.5) {
-    picking_setPickingColor(instancePickingColors);
-  }
+  DECKGL_FILTER_COLOR(vColor, geometry);
 }
 `;

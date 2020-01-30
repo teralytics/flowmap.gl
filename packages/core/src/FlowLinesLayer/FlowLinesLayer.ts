@@ -15,8 +15,8 @@
  *
  */
 
-import { Layer } from '@deck.gl/core';
-import { TRIANGLES, UNSIGNED_BYTE, UNSIGNED_INT } from '@luma.gl/constants';
+import { Layer, picking, project32 } from '@deck.gl/core';
+import { TRIANGLES, UNSIGNED_BYTE } from '@luma.gl/constants';
 import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
 import { Flow } from '../types';
@@ -50,7 +50,7 @@ class FlowLinesLayer extends Layer {
     getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
-    getThickness: { type: 'accessor', value: (d: Flow) => d.thickness },
+    getThickness: { type: 'accessor', value: (d: Flow) => d.thickness }, // 0..0.5
     getPickable: { type: 'accessor', value: (d: Flow) => 1.0 },
     drawOutline: true,
     thicknessUnit: 15,
@@ -67,18 +67,15 @@ class FlowLinesLayer extends Layer {
   }
 
   getShaders() {
-    return {
+    return super.getShaders({
       vs: VertexShader,
       fs: FragmentShader,
-      modules: ['project32', 'picking'],
+      modules: [project32, picking],
       shaderCache: this.context.shaderCache,
-    };
+    });
   }
 
   initializeState() {
-    const { gl } = this.context;
-    this.setState({ model: this.createModel(gl) });
-
     const { attributeManager } = this.state;
 
     attributeManager.addInstanced({
@@ -116,6 +113,19 @@ class FlowLinesLayer extends Layer {
     });
   }
 
+  updateState({ props, oldProps, changeFlags }: any) {
+    super.updateState({ props, oldProps, changeFlags });
+
+    if (changeFlags.extensionsChanged) {
+      const { gl } = this.context;
+      if (this.state.model) {
+        this.state.model.delete();
+      }
+      this.setState({ model: this._getModel(gl) });
+      this.getAttributeManager().invalidateAll();
+    }
+  }
+
   draw({ uniforms }: any) {
     const { gl } = this.context;
     const { outlineColor, thicknessUnit } = this.props;
@@ -130,7 +140,7 @@ class FlowLinesLayer extends Layer {
       .draw();
   }
 
-  createModel(gl: WebGLRenderingContext) {
+  _getModel(gl: WebGLRenderingContext) {
     let positions: number[] = [];
     let pixelOffsets: number[] = [];
 

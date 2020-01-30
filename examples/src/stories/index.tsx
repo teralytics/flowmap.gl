@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Teralytics
+ * Copyright 2020 Teralytics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,32 @@ import { mapboxAccessToken } from '../index';
 import pipe from '../utils/pipe';
 import { withFetchJson } from '../utils/withFetch';
 import withStats from '../utils/withStats';
+import ClusteringExample from '../components/ClusteringExample';
+import withSheetsFetch from '../utils/withSheetsFetch';
+import Example from '../components/Example';
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
+const DARK_COLORS = {
+  darkMode: true,
+  flows: {
+    scheme: [
+      'rgb(0, 22, 61)',
+      'rgb(0, 27, 62)',
+      'rgb(0, 36, 68)',
+      'rgb(0, 48, 77)',
+      'rgb(3, 65, 91)',
+      'rgb(48, 87, 109)',
+      'rgb(85, 115, 133)',
+      'rgb(129, 149, 162)',
+      'rgb(179, 191, 197)',
+      'rgb(240, 240, 240)',
+    ],
+  },
+  locationAreas: {
+    normal: '#334',
+  },
+  outlineColor: '#000',
+};
 
 storiesOf('Basic', module)
   .add(
@@ -74,6 +98,67 @@ storiesOf('Basic', module)
           />
           <LegendBox bottom={35} left={10}>
             <LocationTotalsLegend colors={colors} />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
+    'dark mode',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      return (
+        <>
+          <FlowMap
+            colors={DARK_COLORS}
+            mapStyle="mapbox://styles/mapbox/dark-v10"
+            mixBlendMode="screen"
+            getLocationId={getLocationId}
+            flows={flows}
+            locations={locations}
+            showLocationAreas={false}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10} style={{ backgroundColor: '#000', color: '#fff' }}>
+            <LocationTotalsLegend colors={DARK_COLORS} />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
+    'dark mode bearing pitch',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const viewport = getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight]);
+      return (
+        <>
+          <FlowMap
+            colors={DARK_COLORS}
+            mapStyle="mapbox://styles/mapbox/dark-v10"
+            mixBlendMode="screen"
+            getLocationId={getLocationId}
+            flows={flows}
+            locations={locations}
+            showLocationAreas={false}
+            initialViewState={{
+              ...viewport,
+              altitude: 1.5,
+              bearing: 40,
+              pitch: 50,
+              zoom: viewport.zoom * 1.1,
+            }}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10} style={{ backgroundColor: '#000', color: '#fff' }}>
+            <LocationTotalsLegend colors={DARK_COLORS} />
           </LegendBox>
         </>
       );
@@ -186,6 +271,7 @@ storiesOf('Basic', module)
         showLocationAreas={true}
         flows={flows}
         locations={locations}
+        maxLocationCircleSize={3}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />
@@ -199,12 +285,12 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => {
       const locationIds = locations.features.map(getLocationId).reverse();
-      const getTotal = (location: Location) => 0; // Math.pow(locationIds.indexOf(getLocationId(location)), 10);
+      const getTotal = (location: Location) => Math.pow(locationIds.indexOf(getLocationId(location)), 10);
       return (
         <>
           <FlowMap
             getLocationId={getLocationId}
-            flows={[]}
+            flows={flows}
             locations={locations}
             getLocationTotalIn={getTotal}
             getLocationTotalOut={getTotal}
@@ -259,6 +345,25 @@ storiesOf('Basic', module)
         locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         outlineThickness={5}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
+    'maxLocationCircleSize',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <FlowMap
+        getLocationId={getLocationId}
+        showTotals={true}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+        maxLocationCircleSize={30}
         mapboxAccessToken={mapboxAccessToken}
       />
     )),
@@ -342,18 +447,30 @@ storiesOf('Basic', module)
       withFetchJson('locations', './data/locations.json'),
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => {
+      const [thickness, setThickness] = React.useState(15);
       return (
         <>
           <FlowMap
             getLocationId={getLocationId}
-            maxFlowThickness={15}
+            maxFlowThickness={thickness}
             flows={flows}
+            animate={false}
             locations={locations}
             initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
             mapboxAccessToken={mapboxAccessToken}
           />
           <LegendBox bottom={35} left={10}>
             <LocationTotalsLegend />
+          </LegendBox>
+          <LegendBox top={10} right={10}>
+            <label>Thickness:</label>
+            <input
+              type="range"
+              value={thickness}
+              min={0}
+              max={30}
+              onChange={evt => setThickness(+evt.currentTarget.value)}
+            />
           </LegendBox>
         </>
       );
@@ -366,11 +483,12 @@ storiesOf('Basic', module)
       withFetchJson('locations', './data/locations.json'),
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => {
+      const [thickness, setThickness] = React.useState(15);
       return (
         <>
           <FlowMap
             getLocationId={getLocationId}
-            maxFlowThickness={15}
+            maxFlowThickness={thickness}
             flows={flows}
             animate={true}
             locations={locations}
@@ -379,6 +497,16 @@ storiesOf('Basic', module)
           />
           <LegendBox bottom={35} left={10}>
             <LocationTotalsLegend />
+          </LegendBox>
+          <LegendBox top={10} right={10}>
+            <label>Thickness:</label>
+            <input
+              type="range"
+              value={thickness}
+              min={0}
+              max={30}
+              onChange={evt => setThickness(+evt.currentTarget.value)}
+            />
           </LegendBox>
         </>
       );
@@ -432,4 +560,111 @@ storiesOf('Basic', module)
         </>
       );
     }),
+  );
+
+storiesOf('Cluster on zoom', module)
+  .add(
+    'basic',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <ClusteringExample
+        locations={locations}
+        flows={flows}
+        getLocationId={(loc: Location) => loc.properties.abbr}
+        getLocationCentroid={(loc: Location) => loc.properties.centroid}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
+  )
+  .add(
+    'NL commuters',
+    pipe(
+      withStats,
+      withSheetsFetch('1Oe3zM219uSfJ3sjdRT90SAK2kU3xIvzdcCW6cwTsAuc'),
+    )(({ locations, flows }: any) => (
+      <ClusteringExample
+        locations={locations}
+        flows={flows}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(loc: Location): [number, number] => [+loc.lon, +loc.lat]}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
+  );
+
+storiesOf('Other datasets', module)
+  .add(
+    'London bicycle hire',
+    pipe(
+      withStats,
+      withSheetsFetch('1Z6dVVFFrdooHIs8xnJ_O7eM5bhS5KscCi7G_k0jUNDI'),
+    )(({ locations, flows }: any) => (
+      <Example
+        flows={flows}
+        locations={locations}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(location: Location): [number, number] => [+location.lon, +location.lat]}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
+  )
+  .add(
+    'NYC citibike',
+    pipe(
+      withStats,
+      withSheetsFetch('1Aum0anWxPx6bHyfcFXWCCTE8u0xtfenIls_kPAJEDIA'),
+    )(({ locations, flows }: any) => (
+      <Example
+        flows={flows}
+        locations={locations}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(location: Location): [number, number] => [+location.lon, +location.lat]}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
+  )
+  .add(
+    'Chicago taxis',
+    pipe(
+      withStats,
+      withSheetsFetch('1fhX98NFv5gAkkjB2YFCm50-fplFpmWVAZby3dmm9cgQ'),
+    )(({ locations, flows }: any) => (
+      <Example
+        flows={flows}
+        locations={locations}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(location: Location): [number, number] => [+location.lon, +location.lat]}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
+  )
+  .add(
+    'NL commuters',
+    pipe(
+      withStats,
+      withSheetsFetch('1Oe3zM219uSfJ3sjdRT90SAK2kU3xIvzdcCW6cwTsAuc'),
+    )(({ locations, flows }: any) => (
+      <Example
+        flows={flows}
+        locations={locations}
+        getLocationId={(loc: Location) => loc.id}
+        getLocationCentroid={(location: Location): [number, number] => [+location.lon, +location.lat]}
+        getFlowOriginId={(flow: Flow) => flow.origin}
+        getFlowDestId={(flow: Flow) => flow.dest}
+        getFlowMagnitude={(flow: Flow) => +flow.count}
+      />
+    )),
   );

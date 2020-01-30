@@ -1,6 +1,6 @@
 {
   "name": "@flowmap.gl/react",
-  "version": "6.1.0",
+  "version": "7.0.0",
   "description": "React components for @flowmap.gl/core",
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
@@ -29,27 +29,27 @@
   },
   "homepage": "https://github.com/teralytics/flowmap.gl#readme",
   "dependencies": {
-    "@flowmap.gl/core": "^6.1.0",
+    "@flowmap.gl/core": "^7.0.0",
     "@mapbox/geo-viewport": "^0.4.0",
     "d3-color": "^1.2.3",
     "d3-geo": "^1.11.3"
   },
   "devDependencies": {
-    "@deck.gl/react": "^7.3.3",
+    "@deck.gl/react": "^8.0.0",
     "@types/d3-color": "^1.2.1",
     "@types/d3-geo": "^1.11.0",
     "@types/mapbox__geo-viewport": "^0.4.0",
     "@types/react": "^16.7.20",
     "@types/react-map-gl": "^5.0.2",
     "react": "^16.7.0",
-    "react-map-gl": "^5.0.12",
+    "react-map-gl": "^5.2.1",
     "typescript": "^3.2.2"
   },
   "peerDependencies": {
-    "@deck.gl/react": ">= 7.3.0",
+    "@deck.gl/react": ">= 8.0.0",
     "react": ">= 16.0.0",
     "react-dom": ">= 16.0.0",
-    "react-map-gl": ">= 4.0.0"
+    "react-map-gl": ">= 5.0.0"
   },
   "gitHead": "685236ef24d44ee2c6f0c2aed79dd9c52a4e73fe",
   "publishConfig": {

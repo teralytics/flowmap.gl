@@ -1,5 +1,19 @@
 # Change log
 
+## [7.0.0] - 2020-01-27
+### Upgraded
+- Upgrading all dependencies to latest
+- Making shaders work with deck.gl v8
+### Fixed
+- selectedLocationIds didn't accept `undefined`
+
+## [6.1.1] - 2019-11-19
+### Added
+- Added maxLocationCircleSize
+- Added getAnimatedFlowLineStaggering
+### Fixed
+- ClusterIndex.makeLocationWeightGetter didn't correctly calculate outgoing totals
+
 ## [6.1.0] - 2019-11-05
 ### Added
 - Yarn for building

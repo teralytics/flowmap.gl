@@ -213,7 +213,7 @@ export function makeLocationWeightGetter(
     const dest = getFlowDestId(flow);
     const count = getFlowMagnitude(flow);
     locationTotals.incoming.set(dest, (locationTotals.incoming.get(dest) || 0) + count);
-    locationTotals.outgoing.set(origin, (locationTotals.outgoing.get(dest) || 0) + count);
+    locationTotals.outgoing.set(origin, (locationTotals.outgoing.get(origin) || 0) + count);
   }
   return (id: string) =>
     Math.max(Math.abs(locationTotals.incoming.get(id) || 0), Math.abs(locationTotals.outgoing.get(id) || 0));

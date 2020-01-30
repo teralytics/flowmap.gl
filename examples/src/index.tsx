@@ -16,8 +16,6 @@
  */
 
 import React from 'react';
-import './stories/basic';
-import './stories/clustering';
-import './stories/datasets';
+import './stories';
 
 export const mapboxAccessToken = process.env.MapboxAccessToken || '';

@@ -67,7 +67,7 @@ export default class FlowMap extends React.Component<Props, State> {
   };
 
   static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
-    if (props.selectedLocationIds && props.selectedLocationIds !== state.selectedLocationIds) {
+    if (props.selectedLocationIds !== state.selectedLocationIds) {
       return {
         selectedLocationIds: props.selectedLocationIds,
       };
@@ -123,16 +123,9 @@ export default class FlowMap extends React.Component<Props, State> {
           viewState={this.state.viewState}
           controller={true}
           onViewStateChange={this.handleViewStateChange}
-          children={({ width, height, viewState }: any) => (
-            <StaticMap
-              width={width}
-              height={height}
-              mapboxApiAccessToken={mapboxAccessToken}
-              mapStyle={mapStyle}
-              viewState={viewState}
-            />
-          )}
-        />
+        >
+          <StaticMap width="100%" height="100%" mapboxApiAccessToken={mapboxAccessToken} mapStyle={mapStyle} />
+        </DeckGL>
       </>
     );
   }

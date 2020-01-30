@@ -15,8 +15,8 @@
  *
  */
 
-import { Layer } from '@deck.gl/core';
-import { TRIANGLE_FAN, UNSIGNED_BYTE } from '@luma.gl/constants';
+import { Layer, picking, project32 } from '@deck.gl/core';
+import { DOUBLE, TRIANGLE_FAN, UNSIGNED_BYTE } from '@luma.gl/constants';
 import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
 import FragmentShader from './FlowCirclesLayerFragment.glsl';
@@ -30,15 +30,20 @@ export interface Props {
   pickable?: boolean;
   updateTriggers?: { [key: string]: {} };
   getColor?: (d: FlowCirclesDatum) => RGBA;
-  getPosition: (d: FlowCirclesDatum) => [number, number];
-  getRadius: (d: FlowCirclesDatum) => number;
+  getPosition?: (d: FlowCirclesDatum) => [number, number];
+  getRadius?: (d: FlowCirclesDatum) => number;
   data: FlowCirclesDatum[];
 }
+
+const DEFAULT_COLOR = [0, 0, 0, 255];
 
 class FlowCirclesLayer extends Layer {
   static layerName: string = 'FlowCirclesLayer';
 
   static defaultProps = {
+    getColor: { type: 'accessor', value: DEFAULT_COLOR },
+    getPosition: { type: 'accessor', value: (d: FlowCirclesDatum) => d.position },
+    getRadius: { type: 'accessor', value: 1 },
     parameters: {
       depthTest: false,
     },
@@ -50,21 +55,19 @@ class FlowCirclesLayer extends Layer {
   }
 
   getShaders() {
-    return {
+    return super.getShaders({
       vs: VertexShader,
       fs: FragmentShader,
-      modules: ['project32', 'picking'],
-      shaderCache: this.context.shaderCache,
-    };
+      modules: [project32, picking],
+    });
   }
 
   initializeState() {
-    const { gl } = this.context;
-    this.setState({ model: this.createModel(gl) });
-
     this.getAttributeManager().addInstanced({
       instancePositions: {
         size: 3,
+        type: DOUBLE,
+        fp64: this.use64bitPositions(),
         transition: true,
         accessor: 'getPosition',
       },
@@ -79,12 +82,28 @@ class FlowCirclesLayer extends Layer {
         transition: true,
         type: UNSIGNED_BYTE,
         accessor: 'getColor',
-        defaultValue: [0, 0, 0, 255],
+        defaultValue: DEFAULT_COLOR,
       },
     });
   }
 
-  createModel(gl: WebGLRenderingContext) {
+  updateState({ props, oldProps, changeFlags }: any) {
+    super.updateState({ props, oldProps, changeFlags });
+    if (changeFlags.extensionsChanged) {
+      const { gl } = this.context;
+      if (this.state.model) {
+        this.state.model.delete();
+      }
+      this.setState({ model: this._getModel(gl) });
+      this.getAttributeManager().invalidateAll();
+    }
+  }
+
+  draw({ uniforms }: any) {
+    this.state.model.setUniforms(uniforms).draw();
+  }
+
+  _getModel(gl: WebGLRenderingContext) {
     // a square that minimally cover the unit circle
     const positions = [-1, -1, 0, -1, 1, 0, 1, 1, 0, 1, -1, 0];
 
@@ -94,12 +113,12 @@ class FlowCirclesLayer extends Layer {
         id: this.props.id,
         geometry: new Geometry({
           drawMode: TRIANGLE_FAN,
+          vertexCount: 4,
           attributes: {
-            positions: new Float32Array(positions),
+            positions: { size: 3, value: new Float32Array(positions) },
           },
         }),
         isInstanced: true,
-        shaderCache: this.context.shaderCache,
       }),
     );
   }

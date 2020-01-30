@@ -32,22 +32,22 @@
     "cluster-dev": "cd packages/cluster && yarn dev",
     "storybook:build": "cd examples && yarn storybook:build",
     "storybook:deploy": "cd examples && yarn storybook:deploy",
-    "version": "lerna version --no-push --force-publish",
+    "version-bump": "lerna version --no-push --force-publish",
     "publish-prerelease": "lerna publish --dist-tag next from-package",
     "lint": "tslint --fix '{examples,packages/*}/{src,test,stories}/**/*.{ts,tsx}'",
     "typecheck": "lerna run --stream typecheck"
   },
   "devDependencies": {
-    "gh-pages": "^2.0.1",
-    "husky": "^3.0.9",
+    "gh-pages": "^2.2.0",
+    "husky": "^4.2.1",
     "lerna": "^3.16.4",
-    "lint-staged": "^9.4.2",
+    "lint-staged": "^10.0.3",
     "prettier": "^1.15.3",
-    "tslint": "^5.12.1",
+    "tslint": "^6.0.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "tslint-react": "^4.1.0",
-    "typescript": "^3.2.2"
+    "tslint-react": "^4.2.0",
+    "typescript": "^3.7.5"
   },
   "lint-staged": {
     "{examples,packages/*}/{src,test}/**/*.{ts,tsx}": [
