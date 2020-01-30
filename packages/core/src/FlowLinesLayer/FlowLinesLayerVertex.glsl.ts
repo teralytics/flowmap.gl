@@ -38,7 +38,6 @@
  */
 export default `\
 #define SHADER_NAME flow-line-layer-vertex-shader
-#define PI 3.1415926535897932384626433832795
 
 attribute vec3 positions;
 attribute vec3 normals;
@@ -60,17 +59,10 @@ uniform float opacity;
 varying vec4 vColor;
 varying vec2 uv;
 
-mat2 rotation_mat2(float a) {
-  return mat2(cos(a), sin(a), -sin(a), cos(a));
-}
-
-vec2 vec3_to_vec2(vec3 a) {
-  return vec2(a[0], a[1]);
-}
-
 // Reverse function of project_pixel_size_to_clipspace()
 float project_clipspace_to_pixel_size(float offset) {
-  return offset / project_uFocalDistance / project_uDevicePixelRatio / 2.0 * 
+  return offset / project_uFocalDistance / project_uDevicePixelRatio / 2.0 *
+    // TODO: this probably shouldn't depend on the aspect ratio 
     min(project_uViewportSize.x, project_uViewportSize.y);     
 }
 
@@ -83,7 +75,6 @@ void main(void) {
   vec4 target_commonspace;
   vec4 source = project_position_to_clipspace(instanceSourcePositions, instanceSourcePositions64Low, vec3(0.), source_commonspace);
   vec4 target = project_position_to_clipspace(instanceTargetPositions, instanceTargetPositions64Low, vec3(0.), target_commonspace);
-    
 
   // linear interpolation of source & target to pick right coord
   float segmentIndex = positions.x;
@@ -102,15 +93,14 @@ void main(void) {
     -offsetLimit, offsetLimit
   );
   float endpointOffset = clamp(
-    1.5*mix(instanceEndpointOffsets.x, -instanceEndpointOffsets.y, positions.x),
+    1.6 * mix(instanceEndpointOffsets.x, -instanceEndpointOffsets.y, positions.x),
     -offsetLimit, offsetLimit
   );
 
-  vec4 sourceTarget = target_commonspace - source_commonspace;
-  vec2 flowlineDir = normalize(sourceTarget.xy);
-  vec2 perpendicularDir = rotation_mat2(0.5*PI) * flowlineDir;
+  vec2 flowlineDir = normalize((target.xy - source.xy) * project_uViewportSize);
+  vec2 perpendicularDir = vec2(-flowlineDir.y, flowlineDir.x);
   vec3 offset = vec3(
-    flowlineDir * (instanceThickness * limitedOffsetDistances[1] + normals.y + endpointOffset) - 
+    flowlineDir * (instanceThickness * limitedOffsetDistances[1] + normals.y + endpointOffset) -
     perpendicularDir * (instanceThickness * limitedOffsetDistances[0] + gap + normals.x),
     0.0
   );
@@ -118,7 +108,6 @@ void main(void) {
   DECKGL_FILTER_SIZE(offset, geometry);
   gl_Position = p + vec4(project_pixel_size_to_clipspace(offset.xy), 0.0, 0.0);
   DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
-
   
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
   if (instancePickable <= 0.5) {

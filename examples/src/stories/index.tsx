@@ -30,6 +30,27 @@ import withSheetsFetch from '../utils/withSheetsFetch';
 import Example from '../components/Example';
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
+const DARK_COLORS = {
+  darkMode: true,
+  flows: {
+    scheme: [
+      'rgb(0, 22, 61)',
+      'rgb(0, 27, 62)',
+      'rgb(0, 36, 68)',
+      'rgb(0, 48, 77)',
+      'rgb(3, 65, 91)',
+      'rgb(48, 87, 109)',
+      'rgb(85, 115, 133)',
+      'rgb(129, 149, 162)',
+      'rgb(179, 191, 197)',
+      'rgb(240, 240, 240)',
+    ],
+  },
+  locationAreas: {
+    normal: '#334',
+  },
+  outlineColor: '#000',
+};
 
 storiesOf('Basic', module)
   .add(
@@ -89,32 +110,38 @@ storiesOf('Basic', module)
       withFetchJson('locations', './data/locations.json'),
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => {
-      const colors = {
-        darkMode: true,
-        flows: {
-          scheme: [
-            'rgb(0, 22, 61)',
-            'rgb(0, 27, 62)',
-            'rgb(0, 36, 68)',
-            'rgb(0, 48, 77)',
-            'rgb(3, 65, 91)',
-            'rgb(48, 87, 109)',
-            'rgb(85, 115, 133)',
-            'rgb(129, 149, 162)',
-            'rgb(179, 191, 197)',
-            'rgb(240, 240, 240)',
-          ],
-        },
-        locationAreas: {
-          normal: '#334',
-        },
-        outlineColor: '#000',
-      };
-
       return (
         <>
           <FlowMap
-            colors={colors}
+            colors={DARK_COLORS}
+            mapStyle="mapbox://styles/mapbox/dark-v10"
+            mixBlendMode="screen"
+            getLocationId={getLocationId}
+            flows={flows}
+            locations={locations}
+            showLocationAreas={false}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10} style={{ backgroundColor: '#000', color: '#fff' }}>
+            <LocationTotalsLegend colors={DARK_COLORS} />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
+    'dark mode bearing pitch',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const viewport = getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight]);
+      return (
+        <>
+          <FlowMap
+            colors={DARK_COLORS}
             mapStyle="mapbox://styles/mapbox/dark-v10"
             mixBlendMode="screen"
             getLocationId={getLocationId}
@@ -122,13 +149,16 @@ storiesOf('Basic', module)
             locations={locations}
             showLocationAreas={false}
             initialViewState={{
-              ...getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight]),
+              ...viewport,
               altitude: 1.5,
+              bearing: 40,
+              pitch: 50,
+              zoom: viewport.zoom * 1.1,
             }}
             mapboxAccessToken={mapboxAccessToken}
           />
           <LegendBox bottom={35} left={10} style={{ backgroundColor: '#000', color: '#fff' }}>
-            <LocationTotalsLegend colors={colors} />
+            <LocationTotalsLegend colors={DARK_COLORS} />
           </LegendBox>
         </>
       );
