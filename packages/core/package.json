@@ -1,6 +1,6 @@
 {
   "name": "@flowmap.gl/core",
-  "version": "7.0.0-alpha.2",
+  "version": "7.0.0",
   "description": "Flow map drawing layer for deck.gl",
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
