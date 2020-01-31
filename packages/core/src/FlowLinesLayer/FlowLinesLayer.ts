@@ -22,7 +22,7 @@ import {RGBA} from '../colors';
 import {Flow} from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
-import {LayerProps} from "@deck.gl/core/lib/layer";
+import {LayerProps} from "../LayerProps";
 
 export interface Props extends LayerProps {
   id: string;

@@ -16,13 +16,13 @@
  */
 
 import { CompositeLayer } from '@deck.gl/core';
-import { LayerProps } from '@deck.gl/core/lib/layer';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import AnimatedFlowLinesLayer from './AnimatedFlowLinesLayer/AnimatedFlowLinesLayer';
 import { Colors, DiffColors } from './colors';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import Selectors from './Selectors';
+import { LayerProps } from './LayerProps';
 import {
   DeckGLLayer,
   Flow,
@@ -412,8 +412,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const getColor = selectors.getFlowLinesColorGetter(colors, flowColorScale, highlighted, dimmed);
     const { animate } = this.props;
 
-    const thicknessUnit =
-      maxFlowThickness != null ? maxFlowThickness : FlowLinesLayer.defaultProps.thicknessUnit;
+    const thicknessUnit = maxFlowThickness != null ? maxFlowThickness : FlowLinesLayer.defaultProps.thicknessUnit;
     const baseProps = {
       id,
       getSourcePosition,
@@ -463,9 +462,7 @@ export default class FlowMapLayer extends CompositeLayer {
         }),
       );
     } else {
-      return new FlowLinesLayer(
-        this.getSubLayerProps(baseProps)
-      );
+      return new FlowLinesLayer(this.getSubLayerProps(baseProps));
     }
   }
 
