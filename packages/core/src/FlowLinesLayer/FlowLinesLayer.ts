@@ -15,15 +15,16 @@
  *
  */
 
-import { Layer, picking, project32 } from '@deck.gl/core';
-import { TRIANGLES, UNSIGNED_BYTE } from '@luma.gl/constants';
-import { Geometry, Model } from '@luma.gl/core';
-import { RGBA } from '../colors';
-import { Flow } from '../types';
+import {Layer, picking, project32} from '@deck.gl/core';
+import {TRIANGLES, UNSIGNED_BYTE} from '@luma.gl/constants';
+import {Geometry, Model} from '@luma.gl/core';
+import {RGBA} from '../colors';
+import {Flow} from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
+import {LayerProps} from "@deck.gl/core/lib/layer";
 
-export interface Props {
+export interface Props extends LayerProps {
   id: string;
   opacity?: number;
   pickable?: boolean;

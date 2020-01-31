@@ -15,19 +15,21 @@
  *
  */
 
-import { Flow, Location } from '@flowmap.gl/core';
-import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
-import { storiesOf } from '@storybook/react';
+import FlowMapLayer, {Flow, Location} from '@flowmap.gl/core';
+import FlowMap, {DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend} from '@flowmap.gl/react';
+import {storiesOf} from '@storybook/react';
 import * as d3scaleChromatic from 'd3-scale-chromatic';
 import React from 'react';
 import NonInteractiveExample from '../components/NonInteractiveExample';
-import { mapboxAccessToken } from '../index';
+import {mapboxAccessToken} from '../index';
 import pipe from '../utils/pipe';
-import { withFetchJson } from '../utils/withFetch';
+import {withFetchJson} from '../utils/withFetch';
 import withStats from '../utils/withStats';
 import ClusteringExample from '../components/ClusteringExample';
 import withSheetsFetch from '../utils/withSheetsFetch';
 import Example from '../components/Example';
+import {DeckGL} from "@deck.gl/react";
+import {StaticMap} from 'react-map-gl';
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 const DARK_COLORS = {
@@ -104,6 +106,85 @@ storiesOf('Basic', module)
     }),
   )
   .add(
+    'two layers',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      return (
+        <DeckGL
+          style={{ mixBlendMode: 'multiply' }}
+          controller={true}
+          initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+          layers={[
+            new FlowMapLayer({
+              id: 'flow-map-layer-1',
+              colors: {
+                flows: {
+                  scheme: d3scaleChromatic.schemeReds[d3scaleChromatic.schemeReds.length - 1] as string[],
+                },
+              },
+              showLocationAreas: false,
+              locations,
+              flows: flows.filter((f: Flow) => f.origin === 'GE'),
+              getLocationId,
+            }),
+            new FlowMapLayer({
+              id: 'flow-map-layer-2',
+              colors: {
+                flows: {
+                  scheme: d3scaleChromatic.schemeBlues[d3scaleChromatic.schemeBlues.length - 1] as string[],
+                },
+              },
+              locations,
+              showLocationAreas: false,
+              flows: flows.filter((f: Flow) => f.origin === 'ZH'),
+              getLocationId,
+            }),
+          ]}
+        >
+          <StaticMap
+            mapboxApiAccessToken={mapboxAccessToken}
+            width="100%" height="100%"
+          />
+        </DeckGL>
+      );
+    }),
+  )
+  .add(
+    'bearing pitch',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const viewport = getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight]);
+      return (
+        <>
+          <FlowMap
+            mixBlendMode="multiply"
+            getLocationId={getLocationId}
+            flows={flows}
+            locations={locations}
+            showLocationAreas={false}
+            initialViewState={{
+              ...viewport,
+              altitude: 1.5,
+              bearing: 40,
+              pitch: 50,
+              zoom: viewport.zoom * 1.1,
+            }}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10} >
+            <LocationTotalsLegend colors={DARK_COLORS} />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
     'dark mode',
     pipe(
       withStats,
@@ -121,40 +202,6 @@ storiesOf('Basic', module)
             locations={locations}
             showLocationAreas={false}
             initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-            mapboxAccessToken={mapboxAccessToken}
-          />
-          <LegendBox bottom={35} left={10} style={{ backgroundColor: '#000', color: '#fff' }}>
-            <LocationTotalsLegend colors={DARK_COLORS} />
-          </LegendBox>
-        </>
-      );
-    }),
-  )
-  .add(
-    'dark mode bearing pitch',
-    pipe(
-      withStats,
-      withFetchJson('locations', './data/locations.json'),
-      withFetchJson('flows', './data/flows-2016.json'),
-    )(({ locations, flows }: any) => {
-      const viewport = getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight]);
-      return (
-        <>
-          <FlowMap
-            colors={DARK_COLORS}
-            mapStyle="mapbox://styles/mapbox/dark-v10"
-            mixBlendMode="screen"
-            getLocationId={getLocationId}
-            flows={flows}
-            locations={locations}
-            showLocationAreas={false}
-            initialViewState={{
-              ...viewport,
-              altitude: 1.5,
-              bearing: 40,
-              pitch: 50,
-              zoom: viewport.zoom * 1.1,
-            }}
             mapboxAccessToken={mapboxAccessToken}
           />
           <LegendBox bottom={35} left={10} style={{ backgroundColor: '#000', color: '#fff' }}>
@@ -401,6 +448,49 @@ storiesOf('Basic', module)
     )),
   )
   .add(
+    'non-pickable',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <>
+        <FlowMap
+          getLocationId={getLocationId}
+          flows={flows}
+          locations={locations}
+          initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+          mapboxAccessToken={mapboxAccessToken}
+          pickable={false}
+        />
+        <LegendBox bottom={35} left={10}>
+          <LocationTotalsLegend />
+        </LegendBox>
+      </>
+    )),
+  )
+  .add(
+    'basic',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <>
+        <FlowMap
+          getLocationId={getLocationId}
+          flows={flows}
+          locations={locations}
+          initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+          mapboxAccessToken={mapboxAccessToken}
+        />
+        <LegendBox bottom={35} left={10}>
+          <LocationTotalsLegend />
+        </LegendBox>
+      </>
+    )),
+  )
+  .add(
     'difference mode',
     pipe(
       withStats,
@@ -440,6 +530,43 @@ storiesOf('Basic', module)
       </LegendBox>
     </>
   ))
+  .add(
+    'opacity',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const [opacity, setOpacity] = React.useState(0.5);
+      return (
+        <>
+          <FlowMap
+            getLocationId={getLocationId}
+            opacity={opacity}
+            flows={flows}
+            animate={false}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+          <LegendBox top={10} right={10}>
+            <label>Opacity:</label>
+            <input
+              type="range"
+              value={opacity}
+              min={0}
+              max={1}
+              step={0.05}
+              onChange={evt => setOpacity(+evt.currentTarget.value)}
+            />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
   .add(
     'maxFlowThickness',
     pipe(
