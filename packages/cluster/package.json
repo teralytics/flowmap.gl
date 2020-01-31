@@ -1,6 +1,6 @@
 {
   "name": "@flowmap.gl/cluster",
-  "version": "7.1.0-alpha.1",
+  "version": "7.1.0-alpha.2",
   "description": "Location/flow clustering for @flowmap.gl/core",
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
@@ -34,7 +34,7 @@
     "kdbush": "^3.0.0"
   },
   "devDependencies": {
-    "@flowmap.gl/core": "^7.1.0-alpha.1",
+    "@flowmap.gl/core": "^7.1.0-alpha.2",
     "@types/geojson": "^7946.0.7",
     "react": "^16.7.0",
     "typescript": "^3.2.2"
