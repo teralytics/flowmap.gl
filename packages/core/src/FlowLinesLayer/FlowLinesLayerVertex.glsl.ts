@@ -59,11 +59,8 @@ uniform float opacity;
 varying vec4 vColor;
 varying vec2 uv;
 
-// Reverse function of project_pixel_size_to_clipspace()
-float project_clipspace_to_pixel_size(float offset) {
-  return offset / project_uFocalDistance / project_uDevicePixelRatio / 2.0 *
-    // TODO: this probably shouldn't depend on the aspect ratio 
-    min(project_uViewportSize.x, project_uViewportSize.y);     
+float project_common_to_pixel_size(float commonSize) {
+  return commonSize * project_uScale;     
 }
 
 void main(void) {
@@ -87,14 +84,16 @@ void main(void) {
   }
   
   // set the clamp limits in pixel size 
-  float offsetLimit = project_clipspace_to_pixel_size(length(target - source) * 0.8);    
+  float offsetLimit = project_common_to_pixel_size(
+    length(target_commonspace - source_commonspace) * 1.0
+  );    
   vec2 limitedOffsetDistances = clamp(   
     positions.yz * thicknessUnit,  // pixel size
     -offsetLimit, offsetLimit
   );
   float endpointOffset = clamp(
-    1.6 * mix(instanceEndpointOffsets.x, -instanceEndpointOffsets.y, positions.x),
-    -offsetLimit, offsetLimit
+    1.5 * mix(instanceEndpointOffsets.x, -instanceEndpointOffsets.y, positions.x),
+    -offsetLimit/2.0, offsetLimit/2.0
   );
 
   vec2 flowlineDir = normalize((target.xy - source.xy) * project_uViewportSize);
