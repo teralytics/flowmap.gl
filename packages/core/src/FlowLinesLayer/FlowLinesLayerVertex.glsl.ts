@@ -59,10 +59,6 @@ uniform float opacity;
 varying vec4 vColor;
 varying vec2 uv;
 
-float project_common_to_pixel_size(float commonSize) {
-  return commonSize * project_uScale;     
-}
-
 void main(void) {
   geometry.worldPosition = instanceSourcePositions;
   geometry.worldPositionAlt = instanceTargetPositions;
@@ -74,9 +70,9 @@ void main(void) {
   vec4 target = project_position_to_clipspace(instanceTargetPositions, instanceTargetPositions64Low, vec3(0.), target_commonspace);
 
   // linear interpolation of source & target to pick right coord
-  float segmentIndex = positions.x;
-  vec4 p = mix(source, target, segmentIndex);
-  geometry.position = mix(source_commonspace, target_commonspace, segmentIndex);
+  float sourceOrTarget = positions.x;
+  vec4 p = mix(source, target, sourceOrTarget);
+  geometry.position = mix(source_commonspace, target_commonspace, sourceOrTarget);
   uv = positions.xy;
   geometry.uv = uv;
   if (instancePickable > 0.5) {
@@ -84,28 +80,33 @@ void main(void) {
   }
   
   // set the clamp limits in pixel size 
-  float offsetLimit = project_common_to_pixel_size(
-    length(target_commonspace - source_commonspace) * 1.0
-  );    
+  float lengthCommon = length(target_commonspace - source_commonspace);    
+  vec2 offsetDistances = project_pixel_size(positions.yz) * thicknessUnit;
+  
   vec2 limitedOffsetDistances = clamp(   
-    positions.yz * thicknessUnit,  // pixel size
-    -offsetLimit, offsetLimit
+    project_pixel_size(positions.yz) * thicknessUnit,
+    -lengthCommon, lengthCommon
   );
-  float endpointOffset = clamp(
-    1.5 * mix(instanceEndpointOffsets.x, -instanceEndpointOffsets.y, positions.x),
-    -offsetLimit/2.0, offsetLimit/2.0
+  float startOffsetCommon = project_pixel_size(instanceEndpointOffsets[0]);
+  float endOffsetCommon = project_pixel_size(instanceEndpointOffsets[1]);
+  float endpointOffset = mix(
+    clamp(startOffsetCommon, 0.0, max(0.0, lengthCommon*.5 - startOffsetCommon - endOffsetCommon)),
+    -clamp(endOffsetCommon, 0.0, max(0.0, lengthCommon - startOffsetCommon - endOffsetCommon)), 
+    positions.x
   );
 
-  vec2 flowlineDir = normalize((target.xy - source.xy) * project_uViewportSize);
+  vec2 flowlineDir = normalize(target_commonspace.xy - source_commonspace.xy);
   vec2 perpendicularDir = vec2(-flowlineDir.y, flowlineDir.x);
-  vec3 offset = vec3(
-    flowlineDir * (instanceThickness * limitedOffsetDistances[1] + normals.y + endpointOffset) -
-    perpendicularDir * (instanceThickness * limitedOffsetDistances[0] + gap + normals.x),
+  vec2 normalsCommon = project_pixel_size(normals.xy);
+  float gapCommon = project_pixel_size(gap);
+  vec3 offsetCommon = vec3(
+    flowlineDir * (instanceThickness * limitedOffsetDistances[1] + normalsCommon.y + endpointOffset) -
+    perpendicularDir * (instanceThickness * limitedOffsetDistances[0] + gapCommon + normalsCommon.x),
     0.0
   );
   
-  DECKGL_FILTER_SIZE(offset, geometry);
-  gl_Position = p + vec4(project_pixel_size_to_clipspace(offset.xy), 0.0, 0.0);
+  DECKGL_FILTER_SIZE(offsetCommon, geometry);
+  gl_Position = p + project_common_position_to_clipspace(vec4(offsetCommon.xy, 0.0, 0.0));
   DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
   
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
