@@ -85,7 +85,7 @@ void main(void) {
   
   vec2 limitedOffsetDistances = clamp(   
     project_pixel_size(positions.yz) * thicknessUnit,
-    -lengthCommon, lengthCommon
+    -lengthCommon*.5, lengthCommon*.5
   );
   float startOffsetCommon = project_pixel_size(instanceEndpointOffsets[0]);
   float endOffsetCommon = project_pixel_size(instanceEndpointOffsets[1]);
@@ -100,7 +100,7 @@ void main(void) {
   vec2 normalsCommon = project_pixel_size(normals.xy);
   float gapCommon = project_pixel_size(gap);
   vec3 offsetCommon = vec3(
-    flowlineDir * (instanceThickness * limitedOffsetDistances[1] + normalsCommon.y + endpointOffset) -
+    flowlineDir * (instanceThickness * limitedOffsetDistances[1] + normalsCommon.y + endpointOffset * 1.05) -
     perpendicularDir * (instanceThickness * limitedOffsetDistances[0] + gapCommon + normalsCommon.x),
     0.0
   );
