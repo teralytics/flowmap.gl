@@ -90,8 +90,8 @@ void main(void) {
   float startOffsetCommon = project_pixel_size(instanceEndpointOffsets[0]);
   float endOffsetCommon = project_pixel_size(instanceEndpointOffsets[1]);
   float endpointOffset = mix(
-    clamp(startOffsetCommon, 0.0, max(0.0, lengthCommon*.5 - startOffsetCommon - endOffsetCommon)),
-    -clamp(endOffsetCommon, 0.0, max(0.0, lengthCommon - startOffsetCommon - endOffsetCommon)), 
+    clamp(startOffsetCommon, 0.0, lengthCommon*.2),
+    -clamp(endOffsetCommon, 0.0, lengthCommon*.2),
     positions.x
   );
 
