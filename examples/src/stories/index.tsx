@@ -268,6 +268,29 @@ storiesOf('Basic', module)
     )),
   )
   .add(
+    'zoom > 12',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => (
+      <FlowMap
+        getLocationId={getLocationId}
+        showTotals={true}
+        showLocationAreas={true}
+        flows={flows}
+        locations={locations}
+        initialViewState={{
+          ...getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight]),
+          zoom: 13,
+          longitude: 8.645888,
+          latitude: 47.411184,
+        }}
+        mapboxAccessToken={mapboxAccessToken}
+      />
+    )),
+  )
+  .add(
     'only top 100 flows',
     pipe(
       withStats,

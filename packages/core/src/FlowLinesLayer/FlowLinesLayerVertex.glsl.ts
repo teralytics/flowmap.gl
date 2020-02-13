@@ -71,7 +71,6 @@ void main(void) {
 
   // linear interpolation of source & target to pick right coord
   float sourceOrTarget = positions.x;
-  vec4 p = mix(source, target, sourceOrTarget);
   geometry.position = mix(source_commonspace, target_commonspace, sourceOrTarget);
   uv = positions.xy;
   geometry.uv = uv;
@@ -106,7 +105,10 @@ void main(void) {
   );
   
   DECKGL_FILTER_SIZE(offsetCommon, geometry);
-  gl_Position = p + project_common_position_to_clipspace(vec4(offsetCommon.xy, 0.0, 0.0));
+  vec4 position_commonspace = mix(source_commonspace, target_commonspace, sourceOrTarget);
+  vec4 offset_commonspace = vec4(offsetCommon, 0.0);
+  gl_Position = project_common_position_to_clipspace(position_commonspace + offset_commonspace);
+      
   DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
   
   vec4 fillColor = vec4(instanceColors.rgb, instanceColors.a * opacity) / 255.;
