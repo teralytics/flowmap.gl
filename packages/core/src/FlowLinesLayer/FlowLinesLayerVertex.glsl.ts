@@ -85,7 +85,7 @@ void main(void) {
   
   vec2 limitedOffsetDistances = clamp(   
     project_pixel_size(positions.yz) * thicknessUnit,
-    -lengthCommon*.5, lengthCommon*.5
+    -lengthCommon*.8, lengthCommon*.8
   );
   float startOffsetCommon = project_pixel_size(instanceEndpointOffsets[0]);
   float endOffsetCommon = project_pixel_size(instanceEndpointOffsets[1]);
