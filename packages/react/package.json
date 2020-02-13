@@ -1,6 +1,6 @@
 {
   "name": "@flowmap.gl/react",
-  "version": "7.1.0-alpha.5",
+  "version": "7.1.0-alpha.6",
   "description": "React components for @flowmap.gl/core",
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/teralytics/flowmap.gl#readme",
   "dependencies": {
-    "@flowmap.gl/core": "^7.1.0-alpha.5",
+    "@flowmap.gl/core": "^7.1.0-alpha.6",
     "@mapbox/geo-viewport": "^0.4.0",
     "d3-color": "^1.2.3",
     "d3-geo": "^1.11.3"
