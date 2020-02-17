@@ -22,6 +22,7 @@ import { Colors, DiffColors } from './colors';
 import FlowCirclesLayer from './FlowCirclesLayer/FlowCirclesLayer';
 import FlowLinesLayer from './FlowLinesLayer/FlowLinesLayer';
 import Selectors from './Selectors';
+import { LayerProps } from './LayerProps';
 import {
   DeckGLLayer,
   Flow,
@@ -38,7 +39,7 @@ import {
   PickingType,
 } from './types';
 
-export interface BasicProps {
+export interface BasicProps extends LayerProps {
   locations: Locations;
   flows: Flow[];
   diffMode?: boolean;
@@ -66,6 +67,17 @@ export interface BasicProps {
   highlightedLocationAreaId?: string;
   highlightedFlow?: Flow;
   outlineThickness?: number;
+  updateTriggers?: {
+    getFlowLinesSourcePosition?: any;
+    getFlowLinesTargetPosition?: any;
+    getFlowLinesThickness?: any;
+    getFlowLinesEndpointOffsets?: any;
+    getFlowLinesColor?: any;
+    getCirclesRadius?: any;
+    getCirclesColor?: any;
+    getLocationAreasFillColor?: any;
+    getLocationAreasLineColor?: any;
+  };
 }
 
 export interface Props extends BasicProps {
@@ -283,52 +295,70 @@ export default class FlowMapLayer extends CompositeLayer {
   }
 
   private getLocationAreasLayer(id: string, outline: boolean): DeckGLLayer {
-    const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow } = this.props;
+    const { locations, selectedLocationIds, highlightedLocationId, highlightedFlow, updateTriggers } = this.props;
     const { selectors } = this.state;
     const colors = selectors.getColors(this.props);
 
-    return new GeoJsonLayer({
-      id,
-      getFillColor: selectors.getLocationAreaFillColorGetter(this.props),
-      getLineColor: colors.locationAreas.outline,
-      lineJointRounded: true,
-      data: locations,
-      stroked: outline,
-      filled: !outline,
-      pickable: !outline,
-      opacity: 1,
-      lineWidthMinPixels: 1,
-      pointRadiusMinPixels: 1,
-      updateTriggers: outline
-        ? {}
-        : {
-            getFillColor: { selectedLocationIds, highlightedLocationId, highlightedFlow },
+    return new GeoJsonLayer(
+      this.getSubLayerProps({
+        id,
+        getFillColor: selectors.getLocationAreaFillColorGetter(this.props),
+        getLineColor: colors.locationAreas.outline,
+        lineJointRounded: true,
+        data: locations,
+        stroked: outline,
+        filled: !outline,
+        ...(outline && { pickable: false }),
+        lineWidthMinPixels: 1,
+        pointRadiusMinPixels: 1,
+        updateTriggers: {
+          getFillColor: {
+            colors,
+            ...(outline && { selectedLocationIds, highlightedLocationId, highlightedFlow }),
+            ...updateTriggers?.getLocationAreasFillColor,
           },
-    });
+          getLineColor: {
+            colors,
+            ...updateTriggers?.getLocationAreasLineColor,
+          },
+        },
+      }),
+    );
   }
 
   private getHighlightedLocationAreasLayer(id: string): DeckGLLayer {
     const { selectors } = this.state;
-    const { highlightedLocationId, highlightedLocationAreaId } = this.props;
+    const { highlightedLocationId, highlightedLocationAreaId, updateTriggers } = this.props;
     const colors = selectors.getColors(this.props);
     const getLocationById = selectors.getLocationByIdGetter(this.props);
 
-    return new GeoJsonLayer({
-      id,
-      getFillColor: () => colors.locationAreas.highlighted,
-      getLineColor: colors.locationAreas.outline,
-      lineJointRounded: true,
-      data: highlightedLocationId
-        ? getLocationById(highlightedLocationId)
-        : highlightedLocationAreaId
-        ? getLocationById(highlightedLocationAreaId)
-        : undefined,
-      stroked: false,
-      filled: true,
-      pickable: false,
-      opacity: 1,
-      lineWidthMinPixels: 5,
-    });
+    return new GeoJsonLayer(
+      this.getSubLayerProps({
+        id,
+        getFillColor: () => colors.locationAreas.highlighted,
+        getLineColor: colors.locationAreas.outline,
+        lineJointRounded: true,
+        data: highlightedLocationId
+          ? getLocationById(highlightedLocationId)
+          : highlightedLocationAreaId
+          ? getLocationById(highlightedLocationAreaId)
+          : undefined,
+        stroked: false,
+        filled: true,
+        pickable: false,
+        lineWidthMinPixels: 5,
+        updateTriggers: {
+          getFillColor: {
+            colors,
+            ...updateTriggers?.getLocationAreasFillColor,
+          },
+          getLineColor: {
+            colors,
+            ...updateTriggers?.getLocationAreasLineColor,
+          },
+        },
+      }),
+    );
   }
 
   private getFlowLinesLayer(
@@ -347,6 +377,8 @@ export default class FlowMapLayer extends CompositeLayer {
       maxLocationCircleSize,
       outlineThickness,
       minPickableFlowThickness,
+      maxFlowThickness,
+      updateTriggers,
     } = this.props;
     const { selectors } = this.state;
 
@@ -380,8 +412,7 @@ export default class FlowMapLayer extends CompositeLayer {
     const getColor = selectors.getFlowLinesColorGetter(colors, flowColorScale, highlighted, dimmed);
     const { animate } = this.props;
 
-    const thicknessUnit =
-      this.props.maxFlowThickness != null ? this.props.maxFlowThickness : FlowLinesLayer.defaultProps.thicknessUnit;
+    const thicknessUnit = maxFlowThickness != null ? maxFlowThickness : FlowLinesLayer.defaultProps.thicknessUnit;
     const baseProps = {
       id,
       getSourcePosition,
@@ -390,13 +421,23 @@ export default class FlowMapLayer extends CompositeLayer {
       getEndpointOffsets,
       getColor,
       data: flows,
-      opacity: 1,
-      pickable: !highlighted,
+      ...(highlighted && { pickable: false }),
       drawOutline: !dimmed,
       updateTriggers: {
-        getColor: { dimmed },
+        getSourcePosition: updateTriggers?.getFlowLinesSourcePosition,
+        getTargetPosition: updateTriggers?.getFlowLinesTargetPosition,
+        getThickness: {
+          maxFlowThickness,
+          ...updateTriggers?.getFlowLinesThickness,
+        },
+        getColor: {
+          colors,
+          dimmed,
+          ...updateTriggers?.getFlowLinesColor,
+        },
         getEndpointOffsets: {
           showTotals,
+          ...updateTriggers?.getFlowLinesEndpointOffsets,
         },
       },
       thicknessUnit,
@@ -405,42 +446,71 @@ export default class FlowMapLayer extends CompositeLayer {
       ...(minPickableFlowThickness != null && {
         getPickable: (f: Flow) => (thicknessUnit * getThickness(f) >= minPickableFlowThickness ? 1.0 : 0.0),
       }),
+      parameters: {
+        ...this.props.parameters,
+        depthTest: false,
+      },
     };
     if (animate) {
-      return new AnimatedFlowLinesLayer({
-        ...baseProps,
-        currentTime: this.props.animationCurrentTime,
-        ...(getAnimatedFlowLineStaggering && {
-          getStaggering: getAnimatedFlowLineStaggering,
+      return new AnimatedFlowLinesLayer(
+        this.getSubLayerProps({
+          ...baseProps,
+          currentTime: this.props.animationCurrentTime,
+          ...(getAnimatedFlowLineStaggering && {
+            getStaggering: getAnimatedFlowLineStaggering,
+          }),
         }),
-      });
+      );
     } else {
-      return new FlowLinesLayer(baseProps);
+      return new FlowLinesLayer(this.getSubLayerProps(baseProps));
     }
   }
 
   private getLocationCirclesLayer(id: string, circles: LocationCircle[], highlighted: boolean): FlowCirclesLayer {
-    const { highlightedLocationId, selectedLocationIds, getLocationCentroid, flows, showTotals } = this.props;
+    const {
+      highlightedLocationId,
+      selectedLocationIds,
+      getLocationCentroid,
+      flows,
+      showTotals,
+      updateTriggers,
+      maxLocationCircleSize,
+    } = this.props;
     const { selectors } = this.state;
 
-    const getRadius = showTotals
-      ? selectors.getLocationCircleRadiusGetter(this.props)
-      : () => this.props.maxLocationCircleSize;
+    const getRadius = showTotals ? selectors.getLocationCircleRadiusGetter(this.props) : () => maxLocationCircleSize;
+    const colors = selectors.getColors(this.props);
     const getColor = selectors.getLocationCircleColorGetter(this.props);
     const getPosition: LocationCircleAccessor<[number, number]> = locCircle => getLocationCentroid!(locCircle.location);
 
-    return new FlowCirclesLayer({
-      id,
-      getColor,
-      getPosition,
-      getRadius,
-      data: circles,
-      opacity: 1,
-      pickable: true,
-      updateTriggers: {
-        getRadius: { selectedLocationIds, flows },
-        getColor: { highlightedLocationId, selectedLocationIds, flows },
-      },
-    });
+    return new FlowCirclesLayer(
+      this.getSubLayerProps({
+        id,
+        getColor,
+        getPosition,
+        getRadius,
+        data: circles,
+        updateTriggers: {
+          getRadius: {
+            showTotals,
+            selectedLocationIds,
+            maxLocationCircleSize,
+            flows,
+            ...updateTriggers?.getCirclesRadius,
+          },
+          getColor: {
+            colors,
+            highlightedLocationId,
+            selectedLocationIds,
+            flows,
+            ...updateTriggers?.getCirclesColor,
+          },
+        },
+        parameters: {
+          ...this.props.parameters,
+          depthTest: false,
+        },
+      }),
+    );
   }
 }

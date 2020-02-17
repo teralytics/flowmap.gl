@@ -22,8 +22,9 @@ import { RGBA } from '../colors';
 import { Flow } from '../types';
 import FragmentShader from './FlowLinesLayerFragment.glsl';
 import VertexShader from './FlowLinesLayerVertex.glsl';
+import { LayerProps } from '../LayerProps';
 
-export interface Props {
+export interface Props extends LayerProps {
   id: string;
   opacity?: number;
   pickable?: boolean;
@@ -53,7 +54,7 @@ class FlowLinesLayer extends Layer {
     getThickness: { type: 'accessor', value: (d: Flow) => d.thickness }, // 0..0.5
     getPickable: { type: 'accessor', value: (d: Flow) => 1.0 },
     drawOutline: true,
-    thicknessUnit: 15,
+    thicknessUnit: 10,
     outlineThickness: 1,
     outlineColor: [255, 255, 255, 255],
     parameters: {
@@ -134,8 +135,8 @@ class FlowLinesLayer extends Layer {
       .setUniforms({
         ...uniforms,
         outlineColor: outlineColor!.map((x: number) => x / 255),
-        thicknessUnit: thicknessUnit! * 2,
-        gap: 0.75,
+        thicknessUnit: thicknessUnit! * 2.0,
+        gap: 0.5,
       })
       .draw();
   }

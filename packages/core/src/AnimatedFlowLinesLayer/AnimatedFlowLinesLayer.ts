@@ -46,8 +46,9 @@ import { RGBA } from '../colors';
 import { AccessorObjectInfo, Flow } from '../types';
 import FragmentShader from './AnimatedFlowLinesLayerFragment.glsl';
 import VertexShader from './AnimatedFlowLinesLayerVertex.glsl';
+import { LayerProps } from '../LayerProps';
 
-export interface Props {
+export interface Props extends LayerProps {
   id: string;
   opacity?: number;
   pickable?: boolean;

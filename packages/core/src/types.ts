@@ -77,7 +77,7 @@ export interface PickingInfo<T> {
   lngLat: [number, number];
 }
 
-export type PickingHandler<T> = (info: T) => void;
+export type PickingHandler<T> = (info: T, event: { srcEvent: MouseEvent }) => void;
 
 export interface LocationPickingInfo extends PickingInfo<Data> {
   type: PickingType.LOCATION;

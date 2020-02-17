@@ -66,10 +66,9 @@ const NonInteractiveExample: React.SFC<Props> = ({
       controller={true}
       initialViewState={initialViewState}
       layers={[flowMapLayer]}
-      children={({ width, height, viewState }: any) => (
-        <StaticMap mapboxApiAccessToken={mapboxAccessToken} width={width} height={height} viewState={viewState} />
-      )}
-    />
+    >
+      <StaticMap mapboxApiAccessToken={mapboxAccessToken} width="100%" height="100%" />
+    </DeckGL>
   );
 };
 

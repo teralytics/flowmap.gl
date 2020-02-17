@@ -30,6 +30,7 @@ attribute float instanceRadius;
 attribute vec4 instanceColors;
 attribute vec3 instancePickingColors;
 
+uniform float opacity;
 varying vec4 vColor;
 varying vec2 unitPosition;
 varying float outerRadiusPixels;
@@ -51,7 +52,7 @@ void main(void) {
   DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
                             
   // Apply opacity to instance color, or return instance picking color
-  vColor = instanceColors / 255.;
+  vColor = vec4(instanceColors.rgb / 255., instanceColors.a / 255. * opacity);
   DECKGL_FILTER_COLOR(vColor, geometry);
 }
 `;
