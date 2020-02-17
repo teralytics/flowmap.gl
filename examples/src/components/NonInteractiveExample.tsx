@@ -67,10 +67,7 @@ const NonInteractiveExample: React.SFC<Props> = ({
       initialViewState={initialViewState}
       layers={[flowMapLayer]}
     >
-      <StaticMap
-        mapboxApiAccessToken={mapboxAccessToken}
-        width="100%" height="100%"
-      />
+      <StaticMap mapboxApiAccessToken={mapboxAccessToken} width="100%" height="100%" />
     </DeckGL>
   );
 };

@@ -165,14 +165,13 @@ export function clusterLocations(
         if (!children) {
           throw new Error(`Cluster ${id} doesn't have children`);
         }
-        const cluster: Cluster = {
+        nodes.push({
           id: makeClusterId(id),
           name: makeClusterName(id, numPoints),
           zoom,
           centroid: [xLng(x), yLat(y)] as [number, number],
           children,
-        };
-        nodes.push(cluster);
+        } as Cluster);
       }
     }
     clusterLevels.push({

@@ -42,7 +42,7 @@ const withFetch = (mode: 'csv' | 'json', propName: string, url: string) => (Comp
           }
         })
         .catch(reason => {
-          console.log(reason);
+          console.error(reason);
           this.setState({ error: true });
         })
         .then(data => this.setState({ data: mode === 'csv' ? csvParse(data) : data }));

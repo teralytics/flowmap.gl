@@ -15,13 +15,13 @@
  *
  */
 
-import {Layer, picking, project32} from '@deck.gl/core';
-import {DOUBLE, TRIANGLE_FAN, UNSIGNED_BYTE} from '@luma.gl/constants';
-import {Geometry, Model} from '@luma.gl/core';
-import {RGBA} from '../colors';
+import { Layer, picking, project32 } from '@deck.gl/core';
+import { DOUBLE, TRIANGLE_FAN, UNSIGNED_BYTE } from '@luma.gl/constants';
+import { Geometry, Model } from '@luma.gl/core';
+import { RGBA } from '../colors';
 import FragmentShader from './FlowCirclesLayerFragment.glsl';
 import VertexShader from './FlowCirclesLayerVertex.glsl';
-import {LayerProps} from "../LayerProps";
+import { LayerProps } from '../LayerProps';
 
 export type FlowCirclesDatum = any;
 

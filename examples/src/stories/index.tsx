@@ -15,21 +15,21 @@
  *
  */
 
-import FlowMapLayer, {Flow, Location} from '@flowmap.gl/core';
-import FlowMap, {DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend} from '@flowmap.gl/react';
-import {storiesOf} from '@storybook/react';
+import FlowMapLayer, { Flow, Location } from '@flowmap.gl/core';
+import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
+import { storiesOf } from '@storybook/react';
 import * as d3scaleChromatic from 'd3-scale-chromatic';
 import React from 'react';
 import NonInteractiveExample from '../components/NonInteractiveExample';
-import {mapboxAccessToken} from '../index';
+import { mapboxAccessToken } from '../index';
 import pipe from '../utils/pipe';
-import {withFetchJson} from '../utils/withFetch';
+import { withFetchJson } from '../utils/withFetch';
 import withStats from '../utils/withStats';
 import ClusteringExample from '../components/ClusteringExample';
 import withSheetsFetch from '../utils/withSheetsFetch';
 import Example from '../components/Example';
-import {DeckGL} from "@deck.gl/react";
-import {StaticMap} from 'react-map-gl';
+import { DeckGL } from '@deck.gl/react';
+import { StaticMap } from 'react-map-gl';
 
 const getLocationId = (loc: Location) => loc.properties.abbr;
 const DARK_COLORS = {
@@ -144,10 +144,7 @@ storiesOf('Basic', module)
             }),
           ]}
         >
-          <StaticMap
-            mapboxApiAccessToken={mapboxAccessToken}
-            width="100%" height="100%"
-          />
+          <StaticMap mapboxApiAccessToken={mapboxAccessToken} width="100%" height="100%" />
         </DeckGL>
       );
     }),
@@ -177,7 +174,7 @@ storiesOf('Basic', module)
             }}
             mapboxAccessToken={mapboxAccessToken}
           />
-          <LegendBox bottom={35} left={10} >
+          <LegendBox bottom={35} left={10}>
             <LocationTotalsLegend colors={DARK_COLORS} />
           </LegendBox>
         </>
