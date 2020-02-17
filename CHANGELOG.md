@@ -1,5 +1,12 @@
 # Change log
 
+## [7.1.0] - 2020-02-17
+### Fixed
+- Flow lines didn't render correctly with non-zero bearing/pitch
+### Added
+- Support for Layer props (pickable, opacity etc)
+- Using getSubLayerPros for updateTriggers
+
 ## [7.0.0] - 2020-01-27
 ### Upgraded
 - Upgrading all dependencies to latest
