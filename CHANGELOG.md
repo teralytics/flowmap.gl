@@ -1,5 +1,11 @@
 # Change log
 
+## [7.2.0] - 2020-03-07
+### Fixed
+- Added missing DOUBLE type for the instanceSourcePositions and instanceTargetPositions
+  attributes in FlowLineLayer
+- Upgraded deck.gl to 8.0.17  
+
 ## [7.1.0] - 2020-02-17
 ### Fixed
 - Flow lines didn't render correctly with non-zero bearing/pitch
