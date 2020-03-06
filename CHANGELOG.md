@@ -5,6 +5,7 @@
 - Added missing DOUBLE type for the instanceSourcePositions and instanceTargetPositions
   attributes in FlowLineLayer
 - Upgraded deck.gl to 8.0.17  
+- Upgraded all deps to latest  
 
 ## [7.1.0] - 2020-02-17
 ### Fixed
