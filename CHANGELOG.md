@@ -3,7 +3,7 @@
 ## [7.2.0] - 2020-03-07
 ### Fixed
 - Added missing DOUBLE type for the instanceSourcePositions and instanceTargetPositions
-  attributes in FlowLineLayer
+  attributes in FlowLineLayer: this led to incorrect projection when zooming in beyond level 12
 - Upgraded deck.gl to 8.0.17  
 - Upgraded all deps to latest  
 
