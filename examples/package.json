@@ -46,7 +46,9 @@
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-map-gl": "^5.2.1",
-    "stats.js": "^0.17.0"
+    "stats.js": "^0.17.0",
+    "tslint": "^6.1.0",
+    "tslint-plugin-prettier": "^2.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",

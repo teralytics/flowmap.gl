@@ -1,5 +1,9 @@
 # Change log
 
+## [7.2.1] - 2020-03-17
+### Fixed
+- Upgraded all deps to latest to prevent vulnerabilities warnings  
+
 ## [7.2.0] - 2020-03-07
 ### Fixed
 - Added missing DOUBLE type for the instanceSourcePositions and instanceTargetPositions
