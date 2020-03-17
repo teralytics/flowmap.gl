@@ -38,15 +38,15 @@
   },
   "devDependencies": {
     "gh-pages": "^2.2.0",
-    "husky": "^4.2.1",
+    "husky": "^4.2.3",
     "lerna": "^3.16.4",
-    "lint-staged": "^10.0.3",
+    "lint-staged": "^10.0.8",
     "prettier": "^1.15.3",
     "tslint": "^6.0.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-plugin-prettier": "^2.0.1",
     "tslint-react": "^4.2.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.8.3"
   },
   "lint-staged": {
     "{examples,packages/*}/{src,test}/**/*.{ts,tsx}": [

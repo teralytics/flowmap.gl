@@ -1,6 +1,6 @@
 {
   "name": "@flowmap.gl/react",
-  "version": "7.1.0",
+  "version": "7.2.0",
   "description": "React components for @flowmap.gl/core",
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/teralytics/flowmap.gl#readme",
   "dependencies": {
-    "@flowmap.gl/core": "^7.1.0",
+    "@flowmap.gl/core": "^7.2.0",
     "@mapbox/geo-viewport": "^0.4.0",
     "d3-color": "^1.2.3",
     "d3-geo": "^1.11.3"
@@ -40,7 +40,6 @@
     "@types/d3-geo": "^1.11.0",
     "@types/mapbox__geo-viewport": "^0.4.0",
     "@types/react": "^16.7.20",
-    "@types/react-map-gl": "^5.0.2",
     "react": "^16.7.0",
     "react-map-gl": "^5.2.1",
     "typescript": "^3.2.2"

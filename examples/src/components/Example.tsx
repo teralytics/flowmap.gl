@@ -18,7 +18,7 @@
 import { Flow, FlowAccessors, FlowLayerPickingInfo, Location, LocationAccessors } from '@flowmap.gl/core';
 import FlowMap, { getViewStateForLocations, Highlight, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import React from 'react';
-import { ViewState } from 'react-map-gl';
+import { ViewState } from '@flowmap.gl/core';
 import { mapboxAccessToken } from '../index';
 
 const SHOW_TOP_FLOWS = 10000;

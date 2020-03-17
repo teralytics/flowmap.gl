@@ -16,7 +16,7 @@
  */
 
 import { Layer, picking, project32 } from '@deck.gl/core';
-import { TRIANGLES, UNSIGNED_BYTE } from '@luma.gl/constants';
+import { TRIANGLES, UNSIGNED_BYTE, DOUBLE } from '@luma.gl/constants';
 import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
 import { Flow } from '../types';
@@ -84,11 +84,13 @@ class FlowLinesLayer extends Layer {
         accessor: 'getSourcePosition',
         size: 3,
         transition: false,
+        type: DOUBLE,
       },
       instanceTargetPositions: {
         accessor: 'getTargetPosition',
         size: 3,
         transition: false,
+        type: DOUBLE,
       },
       instanceThickness: {
         accessor: 'getThickness',

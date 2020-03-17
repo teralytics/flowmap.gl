@@ -19,7 +19,8 @@ import { DeckGL } from '@deck.gl/react';
 import FlowMapLayer, { Location } from '@flowmap.gl/core';
 import { FeatureCollection, GeometryObject } from 'geojson';
 import * as React from 'react';
-import { StaticMap, ViewState } from 'react-map-gl';
+import { StaticMap } from 'react-map-gl';
+import { ViewState } from '@flowmap.gl/core';
 
 export interface Flow {
   origin: string;

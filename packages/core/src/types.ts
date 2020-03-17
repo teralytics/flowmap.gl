@@ -31,6 +31,14 @@ export function isFeatureCollection(
   return (locations as FeatureCollection<GeometryObject, LocationProperties>).type === 'FeatureCollection';
 }
 
+export interface ViewState {
+  latitude: number;
+  longitude: number;
+  zoom: number;
+  bearing?: number;
+  pitch?: number;
+  altitude?: number;
+}
 export const enum LocationCircleType {
   INNER = 'inner',
   OUTER = 'outer',

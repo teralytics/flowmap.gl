@@ -19,7 +19,8 @@ import { DeckGL } from '@deck.gl/react';
 import FlowMapLayer, { BasicProps, Flow, FlowLayerPickingInfo, PickingType } from '@flowmap.gl/core';
 import { BlendMode } from 'csstype';
 import * as React from 'react';
-import { StaticMap, ViewState, ViewStateChangeInfo } from 'react-map-gl';
+import { StaticMap } from 'react-map-gl';
+import { ViewState } from '@flowmap.gl/core';
 
 const FLOW_MAP_LAYER_ID = 'flow-map-layer';
 
@@ -264,7 +265,7 @@ export default class FlowMap extends React.Component<Props, State> {
     }
   };
 
-  private handleViewStateChange = ({ viewState }: ViewStateChangeInfo) => {
+  private handleViewStateChange = ({ viewState }: { viewState: ViewState }) => {
     this.setState({
       viewState,
       highlight: undefined,
