@@ -50,8 +50,7 @@
   },
   "lint-staged": {
     "{examples,packages/*}/{src,test}/**/*.{ts,tsx}": [
-      "tslint --fix",
-      "git add"
+      "tslint --fix"
     ]
   },
   "husky": {
