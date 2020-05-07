@@ -38,20 +38,19 @@
   },
   "devDependencies": {
     "gh-pages": "^2.2.0",
-    "husky": "^4.2.3",
-    "lerna": "^3.16.4",
-    "lint-staged": "^10.0.8",
-    "prettier": "^1.15.3",
-    "tslint": "^6.0.0",
-    "tslint-config-prettier": "^1.17.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "tslint-react": "^4.2.0",
+    "husky": "^4.2.5",
+    "lerna": "^3.20.2",
+    "lint-staged": "^10.2.2",
+    "prettier": "^2.0.5",
+    "tslint": "^6.1.2",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.3.0",
+    "tslint-react": "^5.0.0",
     "typescript": "^3.8.3"
   },
   "lint-staged": {
     "{examples,packages/*}/{src,test}/**/*.{ts,tsx}": [
-      "tslint --fix",
-      "git add"
+      "tslint --fix"
     ]
   },
   "husky": {

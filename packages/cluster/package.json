@@ -1,6 +1,6 @@
 {
   "name": "@flowmap.gl/cluster",
-  "version": "7.2.1",
+  "version": "7.2.2",
   "description": "Location/flow clustering for @flowmap.gl/core",
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
@@ -30,14 +30,14 @@
   "homepage": "https://github.com/teralytics/flowmap.gl#readme",
   "dependencies": {
     "@types/d3-array": "^2.0.0",
-    "d3-array": "^2.0.3",
+    "d3-array": "^2.4.0",
     "kdbush": "^3.0.0"
   },
   "devDependencies": {
-    "@flowmap.gl/core": "^7.2.1",
+    "@flowmap.gl/core": "^7.2.2",
     "@types/geojson": "^7946.0.7",
-    "react": "^16.7.0",
-    "typescript": "^3.2.2"
+    "react": "^16.13.1",
+    "typescript": "^3.8.3"
   },
   "publishConfig": {
     "access": "public"
