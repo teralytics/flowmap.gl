@@ -32,9 +32,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@deck.gl/core": "^8.1.4",
-    "@deck.gl/layers": "^8.1.4",
-    "@deck.gl/react": "^8.1.4",
+    "@deck.gl/core": "^8.1.5",
+    "@deck.gl/layers": "^8.1.5",
+    "@deck.gl/react": "^8.1.5",
     "@flowmap.gl/cluster": "^7.2.1",
     "@flowmap.gl/core": "^7.2.1",
     "@flowmap.gl/react": "^7.2.1",
@@ -57,7 +57,7 @@
     "@types/d3-dsv": "^1.0.36",
     "@types/d3-geo": "^1.11.1",
     "@types/geojson": "^7946.0.7",
-    "@types/node": "^13.13.4",
+    "@types/node": "^13.13.5",
     "@types/react": "^16.9.34",
     "@types/stats.js": "^0.17.0",
     "@types/storybook__react": "^5.2.1",
