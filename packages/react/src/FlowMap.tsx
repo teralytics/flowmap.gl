@@ -65,6 +65,7 @@ const ESC_KEY = 'Escape';
 export default class FlowMap extends React.Component<Props, State> {
   static defaultProps: Partial<Props> = {
     mixBlendMode: 'multiply',
+    pickable: true,
   };
 
   static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
