@@ -20,7 +20,6 @@ import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, Location
 import { storiesOf } from '@storybook/react';
 import * as d3scaleChromatic from 'd3-scale-chromatic';
 import React from 'react';
-import NonInteractiveExample from '../components/NonInteractiveExample';
 import { mapboxAccessToken } from '../index';
 import pipe from '../utils/pipe';
 import { withFetchJson } from '../utils/withFetch';
@@ -56,7 +55,33 @@ const DARK_COLORS = {
 
 storiesOf('Basic', module)
   .add(
-    'basic',
+    'basic as layer',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const flowMapLayer = new FlowMapLayer({
+        id: 'flow-map-layer',
+        locations,
+        flows,
+        getLocationId: (loc: Location) => loc.properties.abbr,
+        getFlowMagnitude: (f: Flow) => f.count,
+      });
+      return (
+        <DeckGL
+          style={{ mixBlendMode: 'multiply' }}
+          controller={true}
+          initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+          layers={[flowMapLayer]}
+        >
+          <StaticMap mapboxApiAccessToken={mapboxAccessToken} width="100%" height="100%" />
+        </DeckGL>
+      );
+    }),
+  )
+  .add(
+    'basic as interactive component',
     pipe(
       withStats,
       withFetchJson('locations', './data/locations.json'),
@@ -64,6 +89,7 @@ storiesOf('Basic', module)
     )(({ locations, flows }: any) => (
       <>
         <FlowMap
+          pickable={true}
           getLocationId={getLocationId}
           flows={flows}
           locations={locations}
@@ -91,6 +117,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             colors={colors}
             getLocationId={getLocationId}
             flows={flows}
@@ -160,6 +187,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             mixBlendMode="multiply"
             getLocationId={getLocationId}
             flows={flows}
@@ -191,6 +219,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             colors={DARK_COLORS}
             mapStyle="mapbox://styles/mapbox/dark-v10"
             mixBlendMode="screen"
@@ -231,6 +260,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             colors={colors}
             mapStyle="mapbox://styles/mapbox/dark-v10"
             mixBlendMode="screen"
@@ -255,6 +285,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        pickable={true}
         animate={true}
         getLocationId={getLocationId}
         flows={flows}
@@ -272,6 +303,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        pickable={true}
         getLocationId={getLocationId}
         showTotals={true}
         showLocationAreas={true}
@@ -295,6 +327,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        pickable={true}
         getLocationId={getLocationId}
         showTotals={true}
         showOnlyTopFlows={100}
@@ -314,6 +347,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        pickable={true}
         colors={{ outlineColor: '#fff' }}
         getLocationId={getLocationId}
         showTotals={true}
@@ -333,6 +367,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        pickable={true}
         getLocationId={getLocationId}
         showTotals={false}
         showLocationAreas={true}
@@ -356,6 +391,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             getLocationId={getLocationId}
             flows={flows}
             locations={locations}
@@ -380,6 +416,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        pickable={true}
         getLocationId={getLocationId}
         flows={flows}
         locations={locations}
@@ -402,6 +439,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        pickable={true}
         colors={{
           outlineColor: '#64e9f9',
         }}
@@ -424,6 +462,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        pickable={true}
         getLocationId={getLocationId}
         showTotals={true}
         showLocationAreas={true}
@@ -443,25 +482,11 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => (
       <FlowMap
+        pickable={true}
         getLocationId={getLocationId}
         flows={flows}
         locations={locations}
         multiselect={true}
-        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-        mapboxAccessToken={mapboxAccessToken}
-      />
-    )),
-  )
-  .add(
-    'non-interactive',
-    pipe(
-      withStats,
-      withFetchJson('locations', './data/locations.json'),
-      withFetchJson('flows', './data/flows-2016.json'),
-    )(({ locations, flows }: any) => (
-      <NonInteractiveExample
-        flows={flows}
-        locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />
@@ -476,12 +501,12 @@ storiesOf('Basic', module)
     )(({ locations, flows }: any) => (
       <>
         <FlowMap
+          pickable={false}
           getLocationId={getLocationId}
           flows={flows}
           locations={locations}
           initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
           mapboxAccessToken={mapboxAccessToken}
-          pickable={false}
         />
         <LegendBox bottom={35} left={10}>
           <LocationTotalsLegend />
@@ -498,6 +523,7 @@ storiesOf('Basic', module)
     )(({ locations, flows }: any) => (
       <>
         <FlowMap
+          pickable={true}
           getLocationId={getLocationId}
           flows={flows}
           locations={locations}
@@ -519,6 +545,7 @@ storiesOf('Basic', module)
     )(({ locations, flows }: any) => (
       <>
         <FlowMap
+          pickable={true}
           diffMode={true}
           getLocationId={getLocationId}
           showTotals={true}
@@ -561,6 +588,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             getLocationId={getLocationId}
             opacity={opacity}
             flows={flows}
@@ -598,6 +626,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             getLocationId={getLocationId}
             maxFlowThickness={thickness}
             flows={flows}
@@ -634,6 +663,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             getLocationId={getLocationId}
             maxFlowThickness={thickness}
             flows={flows}
@@ -669,6 +699,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             getLocationId={getLocationId}
             minPickableFlowThickness={1}
             flows={flows}
@@ -693,6 +724,7 @@ storiesOf('Basic', module)
       return (
         <>
           <FlowMap
+            pickable={true}
             getLocationId={getLocationId}
             minPickableFlowThickness={1}
             animate={true}

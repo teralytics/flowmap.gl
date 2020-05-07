@@ -110,6 +110,7 @@ export default class Example extends React.Component<Props, State> {
     return (
       <>
         <FlowMap
+          pickable={true}
           initialViewState={this.initialViewState}
           showTotals={true}
           showLocationAreas={false}

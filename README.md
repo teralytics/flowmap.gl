@@ -107,6 +107,7 @@ const MapVis = ({ width, height }) =>
           getFlowOriginId={f => f.origin}
           getFlowDestId={f => f.dest}
           getFlowMagnitude={f => f.count}
+          pickable={true} 
         />
     </div>
 ```
@@ -119,7 +120,7 @@ interface Props {
   locations: Locations;
   flows: Flow[];
   diffMode?: boolean;
-  animate?: boolean;
+  animate?: boolean;    
   animationCurrentTime?: number;
   colors?: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
@@ -143,6 +144,7 @@ interface Props {
   highlightedLocationAreaId?: string;
   highlightedFlow?: Flow;
   outlineThickness?: number;
+  pickable?: boolean;
   onClick?: PickingHandler<FlowLayerPickingInfo>;
   onHover?: PickingHandler<FlowLayerPickingInfo>;
 }
