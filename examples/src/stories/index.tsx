@@ -20,7 +20,6 @@ import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, Location
 import { storiesOf } from '@storybook/react';
 import * as d3scaleChromatic from 'd3-scale-chromatic';
 import React from 'react';
-import NonInteractiveExample from '../components/NonInteractiveExample';
 import { mapboxAccessToken } from '../index';
 import pipe from '../utils/pipe';
 import { withFetchJson } from '../utils/withFetch';
@@ -56,7 +55,33 @@ const DARK_COLORS = {
 
 storiesOf('Basic', module)
   .add(
-    'basic',
+    'basic as layer',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const flowMapLayer = new FlowMapLayer({
+        id: 'flow-map-layer',
+        locations,
+        flows,
+        getLocationId: (loc: Location) => loc.properties.abbr,
+        getFlowMagnitude: (f: Flow) => f.count,
+      });
+      return (
+        <DeckGL
+          style={{ mixBlendMode: 'multiply' }}
+          controller={true}
+          initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+          layers={[flowMapLayer]}
+        >
+          <StaticMap mapboxApiAccessToken={mapboxAccessToken} width="100%" height="100%" />
+        </DeckGL>
+      );
+    }),
+  )
+  .add(
+    'basic as  interactive component',
     pipe(
       withStats,
       withFetchJson('locations', './data/locations.json'),
@@ -447,21 +472,6 @@ storiesOf('Basic', module)
         flows={flows}
         locations={locations}
         multiselect={true}
-        initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-        mapboxAccessToken={mapboxAccessToken}
-      />
-    )),
-  )
-  .add(
-    'non-interactive',
-    pipe(
-      withStats,
-      withFetchJson('locations', './data/locations.json'),
-      withFetchJson('flows', './data/flows-2016.json'),
-    )(({ locations, flows }: any) => (
-      <NonInteractiveExample
-        flows={flows}
-        locations={locations}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
         mapboxAccessToken={mapboxAccessToken}
       />
