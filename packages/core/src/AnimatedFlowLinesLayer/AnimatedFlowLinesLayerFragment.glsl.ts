@@ -43,6 +43,8 @@ export default `\
 
 precision highp float;
 
+uniform float tailLength;
+
 varying vec4 vColor;
 varying float sourceToTarget;
 varying vec2 uv;
@@ -50,7 +52,7 @@ varying vec2 uv;
 void main(void) {
   geometry.uv = uv;
 
-  gl_FragColor = vec4(vColor.xyz, vColor.w * smoothstep(0.3, 1.0, fract(sourceToTarget)));
+  gl_FragColor = vec4(vColor.xyz, vColor.w * smoothstep(1.0 - tailLength, 1.0, fract(sourceToTarget)));
 
   DECKGL_FILTER_COLOR(gl_FragColor, geometry);
 }

@@ -660,6 +660,7 @@ storiesOf('Basic', module)
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => {
       const [thickness, setThickness] = React.useState(15);
+      const [tailLength, setTailLength] = React.useState(0.7);
       return (
         <>
           <FlowMap
@@ -668,6 +669,7 @@ storiesOf('Basic', module)
             maxFlowThickness={thickness}
             flows={flows}
             animate={true}
+            tailLength={tailLength}
             locations={locations}
             initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
             mapboxAccessToken={mapboxAccessToken}
@@ -683,6 +685,15 @@ storiesOf('Basic', module)
               min={0}
               max={30}
               onChange={evt => setThickness(+evt.currentTarget.value)}
+            />
+            <label>Tail length:</label>
+            <input
+              type="range"
+              value={tailLength}
+              min={0.01}
+              max={1}
+              step={0.1}
+              onChange={evt => setTailLength(+evt.currentTarget.value)}
             />
           </LegendBox>
         </>
