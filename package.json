@@ -26,6 +26,7 @@
   ],
   "scripts": {
     "start": "cd examples && yarn start",
+    "dev": "yarn core-dev & yarn react-dev & yarn cluster-dev & yarn start",
     "core-dev": "cd packages/core && yarn dev",
     "react-dev": "cd packages/react && yarn dev",
     "cluster-dev": "cd packages/cluster && yarn dev",
