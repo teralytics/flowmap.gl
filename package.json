@@ -26,6 +26,7 @@
   ],
   "scripts": {
     "start": "cd examples && yarn start",
+    "dev": "yarn core-dev & yarn react-dev & yarn cluster-dev & yarn start",
     "core-dev": "cd packages/core && yarn dev",
     "react-dev": "cd packages/react && yarn dev",
     "cluster-dev": "cd packages/cluster && yarn dev",
@@ -37,7 +38,7 @@
     "typecheck": "lerna run --stream typecheck"
   },
   "devDependencies": {
-    "gh-pages": "^2.2.0",
+    "gh-pages": "^3.1.0",
     "husky": "^4.2.5",
     "lerna": "^3.20.2",
     "lint-staged": "^10.2.2",
