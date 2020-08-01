@@ -1,5 +1,9 @@
 # Change log
 
+## [7.2.4] - 2020-08-01
+### Fixed
+- Upgrade deps 
+
 ## [7.2.2] - 2020-05-07
 ### Fixed
 - Upgraded all deps to latest to prevent vulnerabilities warnings 
