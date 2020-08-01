@@ -17,7 +17,7 @@
 
 import { DeckGL } from '@deck.gl/react';
 import FlowMapLayer, { BasicProps, Flow, FlowLayerPickingInfo, PickingType } from '@flowmap.gl/core';
-import { BlendMode } from 'csstype';
+import { Property } from 'csstype';
 import * as React from 'react';
 import { StaticMap } from 'react-map-gl';
 import { ViewState } from '@flowmap.gl/core';
@@ -47,7 +47,7 @@ export interface Props extends BasicProps {
   mapboxAccessToken: string;
   mapStyle?: string;
   multiselect?: boolean;
-  mixBlendMode?: BlendMode;
+  mixBlendMode?: Property.MixBlendMode;
   onSelected?: (locationIds: string[] | undefined) => void;
   onHighlighted?: (highlight: Highlight | undefined, info: FlowLayerPickingInfo | undefined) => void;
   onViewStateChange?: (viewState: ViewState) => void;
