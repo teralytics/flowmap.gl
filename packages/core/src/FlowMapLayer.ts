@@ -57,6 +57,7 @@ export interface BasicProps extends LayerProps {
   getAnimatedFlowLineStaggering?: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;
   maxFlowThickness?: number;
+  flowMagnitudeExtent?: [number, number];
   maxLocationCircleSize?: number;
   minPickableFlowThickness?: number;
   showTotals?: boolean;
@@ -378,6 +379,7 @@ export default class FlowMapLayer extends CompositeLayer {
       outlineThickness,
       minPickableFlowThickness,
       maxFlowThickness,
+      flowMagnitudeExtent,
       updateTriggers,
     } = this.props;
     const { selectors } = this.state;
@@ -427,6 +429,7 @@ export default class FlowMapLayer extends CompositeLayer {
         getSourcePosition: updateTriggers?.getFlowLinesSourcePosition,
         getTargetPosition: updateTriggers?.getFlowLinesTargetPosition,
         getThickness: {
+          flowMagnitudeExtent,
           maxFlowThickness,
           ...updateTriggers?.getFlowLinesThickness,
         },

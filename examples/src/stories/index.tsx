@@ -653,6 +653,44 @@ storiesOf('Basic', module)
     }),
   )
   .add(
+    'flowMagnitudeExtent',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const [maxMagnitude, setMaxMagnitude] = React.useState(2000);
+      const flowMagnitudeExtent: [number, number] = [0, maxMagnitude];
+      return (
+        <>
+          <FlowMap
+            pickable={true}
+            getLocationId={getLocationId}
+            flowMagnitudeExtent={flowMagnitudeExtent}
+            flows={flows}
+            animate={false}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+          <LegendBox top={10} right={10}>
+            <label>Max flow magnitude:</label>
+            <input
+              type="range"
+              value={maxMagnitude}
+              min={2000}
+              max={20000}
+              onChange={evt => setMaxMagnitude(+evt.currentTarget.value)}
+            />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
     'maxFlowThickness animated',
     pipe(
       withStats,
