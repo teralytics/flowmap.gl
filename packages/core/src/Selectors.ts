@@ -147,8 +147,11 @@ class Selectors {
   );
 
   private getFlowMagnitudeExtent: PropsSelector<[number, number] | [undefined, undefined]> = createSelector(
-    [this.getNonSelfFlows],
-    flows => extent(flows, f => this.inputAccessors.getFlowMagnitude(f)),
+    [this.getNonSelfFlows, props => props.flowMagnitudeExtent],
+    (flows, flowMagnitudeExtent) => {
+      if (flowMagnitudeExtent != null) return flowMagnitudeExtent;
+      return extent(flows, f => this.inputAccessors.getFlowMagnitude(f));
+    },
   );
 
   getFlowThicknessScale: PropsSelector<NumberScale> = createSelector(
