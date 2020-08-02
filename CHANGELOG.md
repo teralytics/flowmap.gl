@@ -1,5 +1,10 @@
 # Change log
 
+## [7.3.0] - 2020-08-02
+### Added
+- Added flowMagnitudeExtent 
+- Added animationTailLength 
+
 ## [7.2.4] - 2020-08-01
 ### Fixed
 - Upgrade deps 

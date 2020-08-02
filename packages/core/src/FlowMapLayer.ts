@@ -45,6 +45,7 @@ export interface BasicProps extends LayerProps {
   diffMode?: boolean;
   animate?: boolean;
   animationCurrentTime?: number;
+  animationTailLength?: number;
   colors?: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
@@ -57,6 +58,7 @@ export interface BasicProps extends LayerProps {
   getAnimatedFlowLineStaggering?: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;
   maxFlowThickness?: number;
+  flowMagnitudeExtent?: [number, number];
   maxLocationCircleSize?: number;
   minPickableFlowThickness?: number;
   showTotals?: boolean;
@@ -134,6 +136,7 @@ export default class FlowMapLayer extends CompositeLayer {
     maxLocationCircleSize: 15,
     outlineThickness: 1,
     showLocationAreas: true,
+    animationTailLength: 0.7,
   };
   props!: Props;
 
@@ -378,6 +381,7 @@ export default class FlowMapLayer extends CompositeLayer {
       outlineThickness,
       minPickableFlowThickness,
       maxFlowThickness,
+      flowMagnitudeExtent,
       updateTriggers,
     } = this.props;
     const { selectors } = this.state;
@@ -427,6 +431,7 @@ export default class FlowMapLayer extends CompositeLayer {
         getSourcePosition: updateTriggers?.getFlowLinesSourcePosition,
         getTargetPosition: updateTriggers?.getFlowLinesTargetPosition,
         getThickness: {
+          flowMagnitudeExtent,
           maxFlowThickness,
           ...updateTriggers?.getFlowLinesThickness,
         },
@@ -456,6 +461,9 @@ export default class FlowMapLayer extends CompositeLayer {
         this.getSubLayerProps({
           ...baseProps,
           currentTime: this.props.animationCurrentTime,
+          ...(this.props.animationTailLength != null && {
+            animationTailLength: this.props.animationTailLength,
+          }),
           ...(getAnimatedFlowLineStaggering && {
             getStaggering: getAnimatedFlowLineStaggering,
           }),

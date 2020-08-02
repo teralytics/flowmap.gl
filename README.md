@@ -122,6 +122,7 @@ interface Props {
   diffMode?: boolean;
   animate?: boolean;    
   animationCurrentTime?: number;
+  animationTailLength?: number;
   colors?: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
@@ -134,6 +135,7 @@ interface Props {
   getAnimatedFlowLineStaggering?: FlowAccessor<number>;
   getFlowColor?: FlowAccessor<string | undefined>;
   maxFlowThickness?: number;
+  flowMagnitudeExtent?: [number, number];
   maxLocationCircleSize?: number;
   minPickableFlowThickness?: number;
   showTotals?: boolean;

@@ -296,6 +296,44 @@ storiesOf('Basic', module)
     )),
   )
   .add(
+    'animationTailLength',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const [animationTailLength, setAnimationTailLength] = React.useState(0.7);
+      return (
+        <>
+          <FlowMap
+            pickable={true}
+            getLocationId={getLocationId}
+            flows={flows}
+            animate={true}
+            animationTailLength={animationTailLength}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+          <LegendBox top={10} right={10}>
+            <label>Tail length:</label>
+            <input
+              type="range"
+              value={animationTailLength}
+              min={0.0}
+              max={1}
+              step={0.01}
+              onChange={evt => setAnimationTailLength(+evt.currentTarget.value)}
+            />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
     'zoom > 12',
     pipe(
       withStats,
@@ -646,6 +684,90 @@ storiesOf('Basic', module)
               min={0}
               max={30}
               onChange={evt => setThickness(+evt.currentTarget.value)}
+            />
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
+    'flowMagnitudeExtent',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2016.json'),
+    )(({ locations, flows }: any) => {
+      const [maxMagnitude, setMaxMagnitude] = React.useState(10000);
+      const flowMagnitudeExtent: [number, number] = [0, maxMagnitude];
+      return (
+        <>
+          <FlowMap
+            pickable={true}
+            getLocationId={getLocationId}
+            flowMagnitudeExtent={flowMagnitudeExtent}
+            flows={flows}
+            animate={false}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <LocationTotalsLegend />
+          </LegendBox>
+          <LegendBox top={10} right={10} style={{ maxWidth: 320 }}>
+            <label>flowMagnitudeExtent[1]:</label>
+            <input
+              type="range"
+              value={maxMagnitude}
+              min={2000}
+              max={20000}
+              onChange={evt => setMaxMagnitude(+evt.currentTarget.value)}
+            />
+            <div style={{ fontSize: 'small', color: '#999' }}>
+              Use it to fix the scale of a changing dataset (e.g. over time)
+            </div>
+          </LegendBox>
+        </>
+      );
+    }),
+  )
+  .add(
+    'flowMagnitudeExtent difference mode',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-diff-2015-2016.json'),
+    )(({ locations, flows }: any) => {
+      const [maxMagnitude, setMaxMagnitude] = React.useState(500);
+      const flowMagnitudeExtent: [number, number] = [0, maxMagnitude];
+      return (
+        <>
+          <FlowMap
+            pickable={true}
+            diffMode={true}
+            getLocationId={getLocationId}
+            showTotals={true}
+            showLocationAreas={true}
+            flows={flows}
+            flowMagnitudeExtent={flowMagnitudeExtent}
+            locations={locations}
+            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+            mapboxAccessToken={mapboxAccessToken}
+          />
+          <LegendBox bottom={35} left={10}>
+            <DiffColorsLegend />
+            <hr />
+            <LocationTotalsLegend diff={true} />
+          </LegendBox>
+          <LegendBox top={10} right={10}>
+            <label>flowMagnitudeExtent[1]:</label>
+            <input
+              type="range"
+              value={maxMagnitude}
+              min={50}
+              max={1000}
+              step={10}
+              onChange={evt => setMaxMagnitude(+evt.currentTarget.value)}
             />
           </LegendBox>
         </>

@@ -59,6 +59,7 @@ export interface Props extends LayerProps {
   outlineThickness?: number;
   currentTime?: number;
   thicknessUnit?: number;
+  animationTailLength?: number;
   getSourcePosition?: (d: Flow) => [number, number];
   getTargetPosition?: (d: Flow) => [number, number];
   getStaggering?: (d: Flow, info: AccessorObjectInfo) => number;
@@ -73,6 +74,7 @@ const DEFAULT_COLOR: RGBA = [0, 132, 193, 255];
 export default class AnimatedFlowLinesLayer extends Layer {
   static defaultProps = {
     currentTime: 0,
+    animationTailLength: 0.7,
     getSourcePosition: { type: 'accessor', value: (d: Flow) => d.sourcePosition },
     getTargetPosition: { type: 'accessor', value: (d: Flow) => d.targetPosition },
     getPickable: { type: 'accessor', value: (d: Flow) => 1.0 },
@@ -154,11 +156,12 @@ export default class AnimatedFlowLinesLayer extends Layer {
   }
 
   draw({ uniforms }: any) {
-    const { currentTime, thicknessUnit } = this.props;
+    const { currentTime, thicknessUnit, animationTailLength } = this.props;
     this.state.model
       .setUniforms({
         ...uniforms,
         thicknessUnit: thicknessUnit! * 4,
+        animationTailLength,
         currentTime,
       })
       .draw();

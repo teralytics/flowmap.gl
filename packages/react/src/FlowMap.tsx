@@ -155,6 +155,7 @@ export default class FlowMap extends React.Component<Props, State> {
       mapboxAccessToken,
       mixBlendMode,
       multiselect,
+      animationTailLength,
       onSelected,
       onHighlighted,
       ...flowMapLayerProps
@@ -166,6 +167,7 @@ export default class FlowMap extends React.Component<Props, State> {
       animationCurrentTime: this.state.time,
       ...flowMapLayerProps,
       selectedLocationIds,
+      animationTailLength,
       highlightedLocationId: highlight && highlight.type === HighlightType.LOCATION ? highlight.locationId : undefined,
       highlightedLocationAreaId:
         highlight && highlight.type === HighlightType.LOCATION_AREA ? highlight.locationId : undefined,
