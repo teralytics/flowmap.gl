@@ -45,6 +45,7 @@ export interface BasicProps extends LayerProps {
   diffMode?: boolean;
   animate?: boolean;
   animationCurrentTime?: number;
+  animationTailLength?: number;
   colors?: Colors | DiffColors;
   getLocationId?: LocationAccessor<string>;
   getLocationCentroid?: LocationAccessor<[number, number]>;
@@ -68,7 +69,6 @@ export interface BasicProps extends LayerProps {
   highlightedLocationAreaId?: string;
   highlightedFlow?: Flow;
   outlineThickness?: number;
-  tailLength?: number;
   updateTriggers?: {
     getFlowLinesSourcePosition?: any;
     getFlowLinesTargetPosition?: any;
@@ -136,7 +136,7 @@ export default class FlowMapLayer extends CompositeLayer {
     maxLocationCircleSize: 15,
     outlineThickness: 1,
     showLocationAreas: true,
-    tailLength: 0.7,
+    animationTailLength: 0.7,
   };
   props!: Props;
 
@@ -461,7 +461,9 @@ export default class FlowMapLayer extends CompositeLayer {
         this.getSubLayerProps({
           ...baseProps,
           currentTime: this.props.animationCurrentTime,
-          tailLength: this.props.tailLength,
+          ...(this.props.animationTailLength != null && {
+            animationTailLength: this.props.animationTailLength,
+          }),
           ...(getAnimatedFlowLineStaggering && {
             getStaggering: getAnimatedFlowLineStaggering,
           }),
