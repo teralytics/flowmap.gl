@@ -691,20 +691,23 @@ storiesOf('Basic', module)
     }),
   )
   .add(
-    'flowMagnitudeExtent',
+    'flowMagnitudeExtent, locationTotalsExtent',
     pipe(
       withStats,
       withFetchJson('locations', './data/locations.json'),
       withFetchJson('flows', './data/flows-2016.json'),
     )(({ locations, flows }: any) => {
-      const [maxMagnitude, setMaxMagnitude] = React.useState(10000);
-      const flowMagnitudeExtent: [number, number] = [0, maxMagnitude];
+      const [maxFlowMagnitude, setMaxFlowMagnitude] = React.useState(10000);
+      const flowMagnitudeExtent: [number, number] = [0, maxFlowMagnitude];
+      const [maxLocationTotal, setMaxLocationTotal] = React.useState(500000);
+      const locationTotalsExtent: [number, number] = [0, maxLocationTotal];
       return (
         <>
           <FlowMap
             pickable={true}
             getLocationId={getLocationId}
             flowMagnitudeExtent={flowMagnitudeExtent}
+            locationTotalsExtent={locationTotalsExtent}
             flows={flows}
             animate={false}
             locations={locations}
@@ -715,16 +718,27 @@ storiesOf('Basic', module)
             <LocationTotalsLegend />
           </LegendBox>
           <LegendBox top={10} right={10} style={{ maxWidth: 320 }}>
-            <label>flowMagnitudeExtent[1]:</label>
-            <input
-              type="range"
-              value={maxMagnitude}
-              min={2000}
-              max={20000}
-              onChange={evt => setMaxMagnitude(+evt.currentTarget.value)}
-            />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+              <label>flowMagnitudeExtent[1]:</label>
+              <input
+                type="range"
+                value={maxFlowMagnitude}
+                min={2000}
+                max={20000}
+                onChange={evt => setMaxFlowMagnitude(+evt.currentTarget.value)}
+              />
+              <label>locationTotalExtent[1]:</label>
+              <input
+                type="range"
+                value={maxLocationTotal}
+                min={10000}
+                max={1000000}
+                step={100}
+                onChange={evt => setMaxLocationTotal(+evt.currentTarget.value)}
+              />
+            </div>
             <div style={{ fontSize: 'small', color: '#999' }}>
-              Use it to fix the scale of a changing dataset (e.g. over time)
+              Use it to fix the scales of a changing dataset (e.g. over time)
             </div>
           </LegendBox>
         </>
@@ -732,14 +746,16 @@ storiesOf('Basic', module)
     }),
   )
   .add(
-    'flowMagnitudeExtent difference mode',
+    'flowMagnitudeExtent, locationTotalsExtent in diff mode',
     pipe(
       withStats,
       withFetchJson('locations', './data/locations.json'),
       withFetchJson('flows', './data/flows-diff-2015-2016.json'),
     )(({ locations, flows }: any) => {
-      const [maxMagnitude, setMaxMagnitude] = React.useState(500);
-      const flowMagnitudeExtent: [number, number] = [0, maxMagnitude];
+      const [maxFlowMagnitude, setMaxFlowMagnitude] = React.useState(500);
+      const flowMagnitudeExtent: [number, number] = [0, maxFlowMagnitude];
+      const [maxLocationTotal, setMaxLocationTotal] = React.useState(50000);
+      const locationTotalsExtent: [number, number] = [0, maxLocationTotal];
       return (
         <>
           <FlowMap
@@ -750,6 +766,7 @@ storiesOf('Basic', module)
             showLocationAreas={true}
             flows={flows}
             flowMagnitudeExtent={flowMagnitudeExtent}
+            locationTotalsExtent={locationTotalsExtent}
             locations={locations}
             initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
             mapboxAccessToken={mapboxAccessToken}
@@ -760,15 +777,28 @@ storiesOf('Basic', module)
             <LocationTotalsLegend diff={true} />
           </LegendBox>
           <LegendBox top={10} right={10}>
-            <label>flowMagnitudeExtent[1]:</label>
-            <input
-              type="range"
-              value={maxMagnitude}
-              min={50}
-              max={1000}
-              step={10}
-              onChange={evt => setMaxMagnitude(+evt.currentTarget.value)}
-            />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+              <label>flowMagnitudeExtent[1]:</label>
+              <input
+                type="range"
+                value={maxFlowMagnitude}
+                min={2000}
+                max={20000}
+                onChange={evt => setMaxFlowMagnitude(+evt.currentTarget.value)}
+              />
+              <label>locationTotalExtent[1]:</label>
+              <input
+                type="range"
+                value={maxLocationTotal}
+                min={1000}
+                max={100000}
+                step={10}
+                onChange={evt => setMaxLocationTotal(+evt.currentTarget.value)}
+              />
+            </div>
+            <div style={{ fontSize: 'small', color: '#999' }}>
+              Use it to fix the scales of a changing dataset (e.g. over time)
+            </div>
           </LegendBox>
         </>
       );
