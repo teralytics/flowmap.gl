@@ -136,6 +136,7 @@ interface Props {
   getFlowColor?: FlowAccessor<string | undefined>;
   maxFlowThickness?: number;
   flowMagnitudeExtent?: [number, number];
+  locationTotalsExtent?: [number, number];
   maxLocationCircleSize?: number;
   minPickableFlowThickness?: number;
   showTotals?: boolean;

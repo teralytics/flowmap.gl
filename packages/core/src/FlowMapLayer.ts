@@ -59,6 +59,7 @@ export interface BasicProps extends LayerProps {
   getFlowColor?: FlowAccessor<string | undefined>;
   maxFlowThickness?: number;
   flowMagnitudeExtent?: [number, number];
+  locationTotalsExtent?: [number, number];
   maxLocationCircleSize?: number;
   minPickableFlowThickness?: number;
   showTotals?: boolean;
@@ -382,6 +383,7 @@ export default class FlowMapLayer extends CompositeLayer {
       minPickableFlowThickness,
       maxFlowThickness,
       flowMagnitudeExtent,
+      locationTotalsExtent,
       updateTriggers,
     } = this.props;
     const { selectors } = this.state;
@@ -442,6 +444,7 @@ export default class FlowMapLayer extends CompositeLayer {
         },
         getEndpointOffsets: {
           showTotals,
+          locationTotalsExtent,
           ...updateTriggers?.getFlowLinesEndpointOffsets,
         },
       },
@@ -483,6 +486,7 @@ export default class FlowMapLayer extends CompositeLayer {
       showTotals,
       updateTriggers,
       maxLocationCircleSize,
+      locationTotalsExtent,
     } = this.props;
     const { selectors } = this.state;
 
@@ -503,6 +507,7 @@ export default class FlowMapLayer extends CompositeLayer {
             showTotals,
             selectedLocationIds,
             maxLocationCircleSize,
+            locationTotalsExtent,
             flows,
             ...updateTriggers?.getCirclesRadius,
           },

@@ -1,5 +1,9 @@
 # Change log
 
+## [7.3.1] - 2020-08-03
+### Added
+- Added locationTotalsExtent 
+
 ## [7.3.0] - 2020-08-02
 ### Added
 - Added flowMagnitudeExtent 

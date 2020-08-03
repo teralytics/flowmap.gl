@@ -301,8 +301,13 @@ class Selectors {
   );
 
   private getMaxLocationMaxAbsTotal: PropsSelector<number> = createSelector(
-    [getLocationFeatures, this.getLocationMaxAbsTotalGetter],
-    (locations, getLocationMaxAbsTotal) => max(locations, getLocationMaxAbsTotal) || 0,
+    [getLocationFeatures, this.getLocationMaxAbsTotalGetter, props => props.locationTotalsExtent],
+    (locations, getLocationMaxAbsTotal, locationTotalsExtent) => {
+      if (locationTotalsExtent != null) {
+        return max(locationTotalsExtent, Math.abs) || 0;
+      }
+      return max(locations, getLocationMaxAbsTotal) || 0;
+    },
   );
 
   getLocationCircles: PropsSelector<LocationCircle[]> = createSelector(
