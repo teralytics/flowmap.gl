@@ -30,14 +30,14 @@
   "homepage": "https://github.com/teralytics/flowmap.gl#readme",
   "dependencies": {
     "@types/d3-array": "^2.0.0",
-    "d3-array": "^2.4.0",
+    "d3-array": "^2.7.1",
     "kdbush": "^3.0.0"
   },
   "devDependencies": {
     "@flowmap.gl/core": "^7.3.1",
     "@types/geojson": "^7946.0.7",
     "react": "^16.13.1",
-    "typescript": "^3.8.3"
+    "typescript": "^4.0.2"
   },
   "publishConfig": {
     "access": "public"
