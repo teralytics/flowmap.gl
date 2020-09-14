@@ -1,5 +1,9 @@
 # Change log
 
+## [7.3.2] - 2020-09-14
+### Added
+- Upgrade deps 
+
 ## [7.3.1] - 2020-08-03
 ### Added
 - Added locationTotalsExtent 
