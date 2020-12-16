@@ -30,6 +30,7 @@
     "core-dev": "cd packages/core && yarn dev",
     "react-dev": "cd packages/react && yarn dev",
     "cluster-dev": "cd packages/cluster && yarn dev",
+    "build": "cd packages/core && yarn build && cd packages/react && yarn build && cd packages/cluster && yarn build",
     "storybook:build": "cd examples && yarn storybook:build",
     "storybook:deploy": "cd examples && yarn storybook:deploy",
     "bump": "lerna version --no-push --force-publish",
@@ -41,13 +42,21 @@
     "gh-pages": "^3.1.0",
     "husky": "^4.3.0",
     "lerna": "^3.20.2",
-    "lint-staged": "^10.3.0",
-    "prettier": "^2.1.1",
+    "lint-staged": "^10.5.2",
+    "prettier": "^2.2.0",
     "tslint": "^6.1.2",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.3.0",
     "tslint-react": "^5.0.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.1.2"
+  },
+  "_resolutions": {
+    "**/@deck.gl/core": "8.3.6",
+    "**/@deck.gl/constants": "8.3.6",
+    "**/@deck.gl/react": "8.3.6",
+    "**/@deck.gl/layers": "8.3.6",
+    "**/@luma.gl/core": "8.2.0",
+    "**/@luma.gl/constants": "8.2.0"
   },
   "lint-staged": {
     "{examples,packages/*}/{src,test}/**/*.{ts,tsx}": [
