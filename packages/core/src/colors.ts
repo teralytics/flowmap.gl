@@ -293,6 +293,7 @@ export function createFlowColorScale(
   animate: boolean | undefined,
 ): ColorScale {
   const scale = scaleSequentialPow(interpolateRgbBasis(scheme))
+    // @ts-ignore
     .exponent(animate ? 1 / 2 : 1 / 3)
     .domain(domain);
   return (value: number) => colorAsRgba(scale(value));
