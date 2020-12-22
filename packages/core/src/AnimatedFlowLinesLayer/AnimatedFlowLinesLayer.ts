@@ -40,7 +40,7 @@
  */
 
 import { Layer, picking, project32 } from '@deck.gl/core';
-import { TRIANGLE_STRIP, UNSIGNED_BYTE } from '@luma.gl/constants';
+import GL from '@luma.gl/constants';
 import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
 import { AccessorObjectInfo, Flow } from '../types';
@@ -117,7 +117,7 @@ export default class AnimatedFlowLinesLayer extends Layer {
       },
       instanceColors: {
         size: 4,
-        type: UNSIGNED_BYTE,
+        type: GL.UNSIGNED_BYTE,
         transition: true,
         accessor: 'getColor',
         defaultValue: [0, 0, 0, 255],
@@ -182,7 +182,7 @@ export default class AnimatedFlowLinesLayer extends Layer {
       Object.assign({}, this.getShaders(), {
         id: this.props.id,
         geometry: new Geometry({
-          drawMode: TRIANGLE_STRIP,
+          drawMode: GL.TRIANGLE_STRIP,
           attributes: {
             positions: new Float32Array(positions),
           },

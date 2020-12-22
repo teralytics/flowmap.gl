@@ -154,7 +154,7 @@ class Selectors {
     },
   );
 
-  getFlowThicknessScale: PropsSelector<NumberScale> = createSelector(
+  getFlowThicknessScale: PropsSelector<(magnitude: number) => number | undefined> = createSelector(
     [this.getFlowMagnitudeExtent],
     ([minMagnitude, maxMagnitude]) => {
       const scale = scaleLinear()
@@ -336,7 +336,7 @@ class Selectors {
     },
   );
 
-  private getSizeScale: PropsSelector<NumberScale> = createSelector(
+  private getSizeScale: PropsSelector<(v: number) => number> = createSelector(
     [getMaxLocationCircleSize, this.getMaxLocationMaxAbsTotal],
     (maxLocationCircleSize, maxTotal) => {
       const scale = scalePow()
@@ -344,7 +344,7 @@ class Selectors {
         .domain([0, maxTotal])
         .range([0, maxTotal > 0 ? maxLocationCircleSize : 1]);
 
-      return (v: number) => scale(Math.abs(v));
+      return (v: number) => scale(Math.abs(v)) || 0;
     },
   );
 

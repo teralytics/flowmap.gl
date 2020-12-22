@@ -142,7 +142,7 @@ export function clusterLocations(
     let childrenByParent: Map<number, string[]> | undefined;
     const tree = trees[zoom];
     if (zoom < maxAvailZoom) {
-      childrenByParent = rollup<Point, number, string[]>(
+      childrenByParent = rollup<Point, string[], number>(
         trees[zoom + 1].points,
         (points: any[]) => points.map((p: any) => (p.id ? makeClusterId(p.id) : getLocationId(locations[p.index]))),
         (point: any) => point.parentId,

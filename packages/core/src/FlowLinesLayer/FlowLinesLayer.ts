@@ -16,7 +16,7 @@
  */
 
 import { Layer, picking, project32 } from '@deck.gl/core';
-import { TRIANGLES, UNSIGNED_BYTE, DOUBLE } from '@luma.gl/constants';
+import GL from '@luma.gl/constants';
 import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
 import { Flow } from '../types';
@@ -84,13 +84,13 @@ class FlowLinesLayer extends Layer {
         accessor: 'getSourcePosition',
         size: 3,
         transition: false,
-        type: DOUBLE,
+        type: GL.DOUBLE,
       },
       instanceTargetPositions: {
         accessor: 'getTargetPosition',
         size: 3,
         transition: false,
-        type: DOUBLE,
+        type: GL.DOUBLE,
       },
       instanceThickness: {
         accessor: 'getThickness',
@@ -105,7 +105,7 @@ class FlowLinesLayer extends Layer {
       instanceColors: {
         accessor: 'getColor',
         size: 4,
-        type: UNSIGNED_BYTE,
+        type: GL.UNSIGNED_BYTE,
         transition: false,
       },
       instancePickable: {
@@ -223,7 +223,7 @@ class FlowLinesLayer extends Layer {
       id: this.props.id,
       ...this.getShaders(),
       geometry: new Geometry({
-        drawType: TRIANGLES,
+        drawType: GL.TRIANGLES,
         attributes: {
           positions: new Float32Array(positions),
           normals: new Float32Array(pixelOffsets),

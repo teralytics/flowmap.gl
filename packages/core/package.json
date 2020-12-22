@@ -1,6 +1,6 @@
 {
   "name": "@flowmap.gl/core",
-  "version": "7.3.2",
+  "version": "7.3.3",
   "description": "Flow map drawing layer for deck.gl",
   "main": "dist/index.js",
   "module": "dist-esm/index.js",
@@ -48,8 +48,8 @@
   "devDependencies": {
     "@deck.gl/core": "^8.2.8",
     "@deck.gl/layers": "^8.2.8",
-    "@luma.gl/constants": "^8.1.2",
-    "@luma.gl/core": "^8.1.2",
+    "@luma.gl/constants": "^8.2.0",
+    "@luma.gl/core": "^8.2.0",
     "@types/d3-array": "^2.0.0",
     "@types/d3-collection": "^1.0.8",
     "@types/d3-color": "^1.2.2",
