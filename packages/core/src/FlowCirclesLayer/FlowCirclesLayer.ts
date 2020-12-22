@@ -16,7 +16,7 @@
  */
 
 import { Layer, picking, project32 } from '@deck.gl/core';
-import { DOUBLE, TRIANGLE_FAN, UNSIGNED_BYTE } from '@luma.gl/constants';
+import GL from '@luma.gl/constants';
 import { Geometry, Model } from '@luma.gl/core';
 import { RGBA } from '../colors';
 import FragmentShader from './FlowCirclesLayerFragment.glsl';
@@ -67,7 +67,7 @@ class FlowCirclesLayer extends Layer {
     this.getAttributeManager().addInstanced({
       instancePositions: {
         size: 3,
-        type: DOUBLE,
+        type: GL.DOUBLE,
         fp64: this.use64bitPositions(),
         transition: true,
         accessor: 'getPosition',
@@ -81,7 +81,7 @@ class FlowCirclesLayer extends Layer {
       instanceColors: {
         size: 4,
         transition: true,
-        type: UNSIGNED_BYTE,
+        type: GL.UNSIGNED_BYTE,
         accessor: 'getColor',
         defaultValue: DEFAULT_COLOR,
       },
@@ -113,7 +113,7 @@ class FlowCirclesLayer extends Layer {
       Object.assign(this.getShaders(), {
         id: this.props.id,
         geometry: new Geometry({
-          drawMode: TRIANGLE_FAN,
+          drawMode: GL.TRIANGLE_FAN,
           vertexCount: 4,
           attributes: {
             positions: { size: 3, value: new Float32Array(positions) },
