@@ -1,5 +1,9 @@
 # Change log
 
+## [7.3.3] - 2020-12-22
+### Added
+- Upgrade deps 
+
 ## [7.3.2] - 2020-09-14
 ### Added
 - Upgrade deps 
