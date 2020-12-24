@@ -89,7 +89,7 @@ export interface Props extends BasicProps {
   onHover?: PickingHandler<FlowLayerPickingInfo>;
 }
 
-enum LayerKind {
+export enum LayerKind {
   LOCATIONS = 'LOCATIONS',
   LOCATION_AREAS = 'LOCATION_AREAS',
   LOCATION_AREAS_OUTLINES = 'LOCATION_AREAS_OUTLINES',
@@ -99,15 +99,17 @@ enum LayerKind {
   FLOWS_HIGHLIGHTED = 'FLOWS_HIGHLIGHTED',
 }
 
-const LAYER_ID_SEPARATOR = ':::';
-
 function getLayerId(baseLayerId: string, layerKind: LayerKind) {
-  return `${baseLayerId}${LAYER_ID_SEPARATOR}${layerKind.valueOf()}`;
+  return layerKind.valueOf();
 }
 
-function getLayerKind(id: string): LayerKind {
-  const kind = id.substr(id.lastIndexOf(LAYER_ID_SEPARATOR) + LAYER_ID_SEPARATOR.length);
-  return LayerKind[kind as keyof typeof LayerKind];
+function getLayerKind(id: string): LayerKind | undefined {
+  for (const kind of Object.keys(LayerKind)) {
+    if (id.endsWith(kind)) {
+      return LayerKind[kind as keyof typeof LayerKind];
+    }
+  }
+  return undefined;
 }
 
 function getPickType({ id }: DeckGLLayer): PickingType | undefined {
@@ -456,7 +458,7 @@ export default class FlowMapLayer extends CompositeLayer {
       }),
       parameters: {
         ...this.props.parameters,
-        depthTest: false,
+        // depthTest: false,
       },
     };
     if (animate) {

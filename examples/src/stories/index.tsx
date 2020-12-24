@@ -15,7 +15,7 @@
  *
  */
 
-import FlowMapLayer, { Flow, Location } from '@flowmap.gl/core';
+import FlowMapLayer, { Flow, LayerKind, Location } from '@flowmap.gl/core';
 import FlowMap, { DiffColorsLegend, getViewStateForFeatures, LegendBox, LocationTotalsLegend } from '@flowmap.gl/react';
 import { storiesOf } from '@storybook/react';
 import * as d3scaleChromatic from 'd3-scale-chromatic';
@@ -274,6 +274,74 @@ storiesOf('Basic', module)
             <LocationTotalsLegend colors={colors} />
           </LegendBox>
         </>
+      );
+    }),
+  )
+  .add(
+    'prop animated by time',
+    pipe(
+      withStats,
+      withFetchJson('locations', './data/locations.json'),
+      withFetchJson('flows', './data/flows-2015.json'),
+    )(({ locations, flows }: any) => {
+      const maxCount = 100000; // useMemo(() => max(flows, (f: Flow) => +f.count), [flows]) || 0;
+      function generate() {
+        return flows.map((f: Flow) => ({
+          ...f,
+          count: Math.min(maxCount * 1.5, f.count * (0.5 + Math.random())),
+        }));
+      }
+      const [flowCounts, setFlowCounts] = React.useState(generate());
+      const maxTotalCount = 100000;
+      const handleRandomize = () => setFlowCounts(generate());
+      const duration = 1000;
+
+      const flowMapLayer = new FlowMapLayer({
+        id: 'flow-map-layer',
+        locations,
+        flows: flowCounts,
+        getLocationId: (loc: Location) => loc.properties.abbr,
+        getFlowMagnitude: (f: Flow) => f.count,
+        // flowMagnitudeExtent: [0, maxCount],
+        locationTotalsExtent: [0, maxTotalCount],
+        _subLayerProps: {
+          [LayerKind.LOCATIONS]: {
+            transitions: {
+              getRadius: {
+                duration,
+              },
+              getColor: {
+                duration,
+              },
+            },
+          },
+          [LayerKind.FLOWS]: {
+            transitions: {
+              getColor: {
+                duration,
+              },
+              getThickness: {
+                duration,
+              },
+              getEndpointOffsets: {
+                duration,
+              },
+            },
+          },
+        },
+      } as any);
+      return (
+        <DeckGL
+          style={{ mixBlendMode: 'multiply' }}
+          controller={true}
+          initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
+          layers={[flowMapLayer]}
+        >
+          <StaticMap mapboxApiAccessToken={mapboxAccessToken} width="100%" height="100%" />
+          <LegendBox top={10} right={10}>
+            <button onClick={handleRandomize}>Randomize flow counts</button>
+          </LegendBox>
+        </DeckGL>
       );
     }),
   )
@@ -799,43 +867,6 @@ storiesOf('Basic', module)
             <div style={{ fontSize: 'small', color: '#999' }}>
               Use it to fix the scales of a changing dataset (e.g. over time)
             </div>
-          </LegendBox>
-        </>
-      );
-    }),
-  )
-  .add(
-    'maxFlowThickness animated',
-    pipe(
-      withStats,
-      withFetchJson('locations', './data/locations.json'),
-      withFetchJson('flows', './data/flows-2016.json'),
-    )(({ locations, flows }: any) => {
-      const [thickness, setThickness] = React.useState(15);
-      return (
-        <>
-          <FlowMap
-            pickable={true}
-            getLocationId={getLocationId}
-            maxFlowThickness={thickness}
-            flows={flows}
-            animate={true}
-            locations={locations}
-            initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-            mapboxAccessToken={mapboxAccessToken}
-          />
-          <LegendBox bottom={35} left={10}>
-            <LocationTotalsLegend />
-          </LegendBox>
-          <LegendBox top={10} right={10}>
-            <label>Thickness:</label>
-            <input
-              type="range"
-              value={thickness}
-              min={0}
-              max={30}
-              onChange={evt => setThickness(+evt.currentTarget.value)}
-            />
           </LegendBox>
         </>
       );

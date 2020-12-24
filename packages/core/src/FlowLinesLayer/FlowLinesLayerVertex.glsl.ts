@@ -101,7 +101,7 @@ void main(void) {
   vec3 offsetCommon = vec3(
     flowlineDir * (instanceThickness * limitedOffsetDistances[1] + normalsCommon.y + endpointOffset * 1.05) -
     perpendicularDir * (instanceThickness * limitedOffsetDistances[0] + gapCommon + normalsCommon.x),
-    0.0
+    instanceThickness * mix(0.0011, 0.001, normals.z)  // outline's offset should differ to avoid z-fighting
   );
   
   DECKGL_FILTER_SIZE(offsetCommon, geometry);

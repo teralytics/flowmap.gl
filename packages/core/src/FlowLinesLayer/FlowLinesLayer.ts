@@ -58,7 +58,7 @@ class FlowLinesLayer extends Layer {
     outlineThickness: 1,
     outlineColor: [255, 255, 255, 255],
     parameters: {
-      depthTest: false,
+      // depthTest: false,
     },
   };
   props!: Props;
@@ -83,35 +83,35 @@ class FlowLinesLayer extends Layer {
       instanceSourcePositions: {
         accessor: 'getSourcePosition',
         size: 3,
-        transition: false,
+        transition: true,
         type: GL.DOUBLE,
       },
       instanceTargetPositions: {
         accessor: 'getTargetPosition',
         size: 3,
-        transition: false,
+        transition: true,
         type: GL.DOUBLE,
       },
       instanceThickness: {
         accessor: 'getThickness',
         size: 1,
-        transition: false,
+        transition: true,
       },
       instanceEndpointOffsets: {
         accessor: 'getEndpointOffsets',
         size: 2,
-        transition: false,
+        transition: true,
       },
       instanceColors: {
         accessor: 'getColor',
         size: 4,
         type: GL.UNSIGNED_BYTE,
-        transition: false,
+        transition: true,
       },
       instancePickable: {
         accessor: 'getPickable',
         size: 1,
-        transition: false,
+        transition: true,
       },
     });
   }

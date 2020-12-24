@@ -112,9 +112,10 @@ class Selectors {
   });
 
   getSortedNonSelfFlows: PropsSelector<Flow[]> = createSelector([this.getNonSelfFlows], flows => {
-    const comparator = (f1: Flow, f2: Flow) =>
-      Math.abs(this.inputAccessors.getFlowMagnitude(f1)) - Math.abs(this.inputAccessors.getFlowMagnitude(f2));
-    return flows.slice().sort(comparator);
+    // const comparator = (f1: Flow, f2: Flow) =>
+    //   Math.abs(this.inputAccessors.getFlowMagnitude(f1)) - Math.abs(this.inputAccessors.getFlowMagnitude(f2));
+    // return flows.slice().sort(comparator);
+    return flows;
   });
 
   getTopFlows: PropsSelector<Flow[]> = createSelector(
