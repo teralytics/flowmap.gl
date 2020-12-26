@@ -17,6 +17,8 @@
 
 import FlowMapLayer from './FlowMapLayer';
 
+export { default as FlowLinesLayer } from './FlowLinesLayer';
+
 export * from './FlowMapLayer';
 export * from './types';
 
