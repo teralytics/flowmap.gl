@@ -18,9 +18,13 @@
 import FlowMapLayer from './FlowMapLayer';
 
 export { default as FlowLinesLayer } from './FlowLinesLayer';
+export { default as FlowCirclesLayer } from './FlowCirclesLayer';
 
 export * from './FlowMapLayer';
 export * from './types';
+
+export { default as Selectors } from './Selectors';
+export * from './Selectors';
 
 // required by LocationTotalsLegend
 export {

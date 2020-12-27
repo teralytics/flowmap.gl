@@ -23,10 +23,87 @@ import { StaticMap } from 'react-map-gl';
 import { mapboxAccessToken } from '../index';
 import React, { useMemo } from 'react';
 import { storiesOf } from '@storybook/react';
-import { Flow, FlowLinesLayer, Location } from '@flowmap.gl/core';
+import {
+  Flow,
+  FlowLinesLayer,
+  FlowCirclesLayer,
+  Location,
+  calcLocationTotals,
+  getLocationMaxAbsTotalGetter,
+} from '@flowmap.gl/core';
 import { getViewStateForFeatures } from '@flowmap.gl/react';
 import { scaleLinear } from 'd3-scale';
 import { ascending, max } from 'd3-array';
+import { colorAsRgba } from '@flowmap.gl/core/dist/colors';
+
+function flatMap<S, T>(xs: S[], f: (item: S) => T | T[]): T[] {
+  return xs.reduce((acc: T[], x: S) => acc.concat(f(x)), []);
+}
+
+function prepareData(locations: Location[], flows: Flow[]) {
+  const sortedFlows: Flow[] = flows.slice().sort((a: Flow, b: Flow) => ascending(+a.count, +b.count));
+  const { incoming, outgoing, within } = calcLocationTotals(locations, flows, {
+    getFlowOriginId: (flow: Flow) => flow.origin,
+    getFlowDestId: (flow: Flow) => flow.dest,
+    getFlowMagnitude: (flow: Flow) => +flow.count,
+  });
+  const centroidsById: Map<string, [number, number]> = locations.reduce(
+    (m: Map<string, [number, number]>, d: Location) => (m.set(d.properties.abbr, d.properties.centroid), m),
+    new Map(),
+  );
+  const getLocationMaxAbsTotal = getLocationMaxAbsTotalGetter(
+    locations,
+    d => incoming[d.properties.abbr],
+    d => outgoing[d.properties.abbr],
+    d => within[d.properties.abbr],
+  );
+  const maxAbsTotalsById: Map<string, number> = locations.reduce(
+    (m: Map<string, number>, d: Location) => (m.set(d.properties.abbr, getLocationMaxAbsTotal(d)), m),
+    new Map(),
+  );
+  const circleSizeScale = scaleLinear()
+    .range([0, 15])
+    .domain([0, max(maxAbsTotalsById.values()) || 0]);
+  const thicknessScale = scaleLinear()
+    .range([0, 10])
+    .domain([0, max(sortedFlows, (f: Flow) => +f.count) || 0]);
+
+  const circlePositions = new Float32Array(flatMap(locations, (d: Location) => d.properties.centroid));
+  const circleColors = new Uint8Array(flatMap(locations, (d: Location) => colorAsRgba('#137CBD')));
+  const circleRadii = new Float32Array(
+    locations.map((d: Location) => circleSizeScale(getLocationMaxAbsTotal(d) || 0) || 0),
+  );
+
+  const sourcePositions = new Float32Array(flatMap(sortedFlows, (d: Flow) => centroidsById.get(d.origin)!));
+  const targetPositions = new Float32Array(flatMap(sortedFlows, (d: Flow) => centroidsById.get(d.dest)!));
+  const thicknesses = new Float32Array(sortedFlows.map((d: Flow) => thicknessScale(d.count) || 0));
+  const endpointOffsets = new Float32Array(
+    flatMap(sortedFlows, (d: Flow) => [
+      circleSizeScale(maxAbsTotalsById.get(d.origin) || 0) || 0,
+      circleSizeScale(maxAbsTotalsById.get(d.dest) || 0) || 0,
+    ]),
+  );
+
+  return {
+    circleAttributes: {
+      length: locations.length,
+      attributes: {
+        getPosition: { value: circlePositions, size: 2 },
+        getColor: { value: circleColors, size: 4 },
+        getRadius: { value: circleRadii, size: 1 },
+      },
+    },
+    lineAttributes: {
+      length: sortedFlows.length,
+      attributes: {
+        getSourcePosition: { value: sourcePositions, size: 2 },
+        getTargetPosition: { value: targetPositions, size: 2 },
+        getThickness: { value: thicknesses, size: 1 },
+        getEndpointOffsets: { value: endpointOffsets, size: 2 },
+      },
+    },
+  };
+}
 
 storiesOf('Typed arrays', module).add(
   'Typed array attributes',
@@ -35,47 +112,27 @@ storiesOf('Typed arrays', module).add(
     withFetchJson('locations', './data/locations.json'),
     withFetchJson('flows', './data/flows-2016.json'),
   )(({ locations, flows }: any) => {
-    const centroidsById = locations.features.reduce((m: any, d: Location) => {
-      m[d.properties.abbr] = d.properties.centroid;
-      return m;
-    }, {});
-
-    const sortedFlows = useMemo(() => flows.slice().sort((a: Flow, b: Flow) => ascending(+a.count, +b.count)), [flows]);
-
-    const thicknessScale = scaleLinear()
-      .range([0, 10])
-      .domain([0, max(sortedFlows, (f: Flow) => +f.count) || 0]);
-
-    const sourcePositions = useMemo(() => new Float32Array(sortedFlows.flatMap((d: Flow) => centroidsById[d.origin])), [
-      sortedFlows,
+    const { lineAttributes, circleAttributes } = useMemo(() => prepareData(locations.features, flows), [
+      locations,
+      flows,
     ]);
-    const targetPositions = useMemo(() => new Float32Array(sortedFlows.flatMap((d: Flow) => centroidsById[d.dest])), [
-      sortedFlows,
-    ]);
-    const thicknesses = useMemo(() => new Float32Array(sortedFlows.map((d: Flow) => thicknessScale(d.count) || 0)), [
-      sortedFlows,
-    ]);
-
-    const flowLines = new FlowLinesLayer({
-      id: 'flowLines',
-      data: {
-        length: sortedFlows.length,
-        attributes: {
-          getSourcePosition: { value: sourcePositions, size: 2 },
-          getTargetPosition: { value: targetPositions, size: 2 },
-          getThickness: { value: thicknesses, size: 1 },
-        },
-      } as any,
-      getEndpointOffsets: [0, 0],
+    const flowLinesLayer = new FlowLinesLayer({
+      id: 'lines',
+      data: lineAttributes as any,
       drawOutline: true,
-    } as any);
+    });
+    const flowCirclesLayer = new FlowCirclesLayer({
+      id: 'circles',
+      data: circleAttributes as any,
+      opacity: 1,
+    });
 
     return (
       <DeckGL
         style={{ mixBlendMode: 'multiply' }}
         controller={true}
         initialViewState={getViewStateForFeatures(locations, [window.innerWidth, window.innerHeight])}
-        layers={[flowLines]}
+        layers={[flowLinesLayer, flowCirclesLayer]}
       >
         <StaticMap mapboxApiAccessToken={mapboxAccessToken} width="100%" height="100%" />
       </DeckGL>

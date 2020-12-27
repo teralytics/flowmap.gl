@@ -27,7 +27,6 @@ import {
   LocationAccessors,
   LocationCircle,
   LocationCircleType,
-  NumberScale,
 } from './types';
 
 export type InputAccessors = LocationAccessors & FlowAccessors;
@@ -216,24 +215,7 @@ class Selectors {
 
   private getLocationTotals: PropsSelector<LocationTotals> = createSelector(
     [getLocationFeatures, this.getFilteredFlows],
-    (locations, flows) => {
-      const { getFlowOriginId, getFlowDestId, getFlowMagnitude } = this.inputAccessors;
-      return flows.reduce<LocationTotals>(
-        (acc, curr) => {
-          const originId = getFlowOriginId(curr);
-          const destId = getFlowDestId(curr);
-          const magnitude = getFlowMagnitude(curr);
-          if (originId === destId) {
-            acc.within[originId] = (acc.within[originId] || 0) + magnitude;
-          } else {
-            acc.outgoing[originId] = (acc.outgoing[originId] || 0) + magnitude;
-            acc.incoming[destId] = (acc.incoming[destId] || 0) + magnitude;
-          }
-          return acc;
-        },
-        { incoming: {}, outgoing: {}, within: {} },
-      );
-    },
+    (locations, flows) => calcLocationTotals(locations, flows, this.inputAccessors),
   );
 
   getHighlightedLocationCircles: PropsSelector<LocationCircle[] | undefined> = createSelector(
@@ -291,13 +273,7 @@ class Selectors {
       this.getLocationTotalOutGetter,
       this.getLocationTotalWithinGetter,
     ],
-    (locations, getLocationTotalIn, getLocationTotalOut, getLocationTotalWithin) => {
-      return (location: Location) =>
-        Math.max(
-          Math.abs(getLocationTotalIn(location) + getLocationTotalWithin(location)),
-          Math.abs(getLocationTotalOut(location) + getLocationTotalWithin(location)),
-        );
-    },
+    getLocationMaxAbsTotalGetter,
   );
 
   private getMaxLocationMaxAbsTotal: PropsSelector<number> = createSelector(
@@ -478,6 +454,38 @@ class Selectors {
   getInputAccessors() {
     return this.inputAccessors;
   }
+}
+
+export function calcLocationTotals(locations: Location[], flows: Flow[], inputAccessors: FlowAccessors) {
+  const { getFlowOriginId, getFlowDestId, getFlowMagnitude } = inputAccessors;
+  return flows.reduce<LocationTotals>(
+    (acc, curr) => {
+      const originId = getFlowOriginId(curr);
+      const destId = getFlowDestId(curr);
+      const magnitude = getFlowMagnitude(curr);
+      if (originId === destId) {
+        acc.within[originId] = (acc.within[originId] || 0) + magnitude;
+      } else {
+        acc.outgoing[originId] = (acc.outgoing[originId] || 0) + magnitude;
+        acc.incoming[destId] = (acc.incoming[destId] || 0) + magnitude;
+      }
+      return acc;
+    },
+    { incoming: {}, outgoing: {}, within: {} },
+  );
+}
+
+export function getLocationMaxAbsTotalGetter(
+  locations: Location[],
+  getLocationTotalIn: (location: Location) => number,
+  getLocationTotalOut: (location: Location) => number,
+  getLocationTotalWithin: (location: Location) => number,
+) {
+  return (location: Location) =>
+    Math.max(
+      Math.abs(getLocationTotalIn(location) + getLocationTotalWithin(location)),
+      Math.abs(getLocationTotalOut(location) + getLocationTotalWithin(location)),
+    );
 }
 
 export default Selectors;
