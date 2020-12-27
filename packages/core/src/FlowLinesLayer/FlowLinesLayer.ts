@@ -29,7 +29,17 @@ export interface Props extends LayerProps {
   opacity?: number;
   pickable?: boolean;
   updateTriggers?: { [key: string]: {} };
-  data: Flow[];
+  data:
+    | Flow[]
+    | {
+        length: number;
+        attributes: {
+          getSourcePosition: { value: Float32Array; size: number };
+          getTargetPosition: { value: Float32Array; size: number };
+          getThickness: { value: Float32Array; size: number };
+          getEndpointOffsets: { value: Float32Array; size: number };
+        };
+      };
   drawOutline: boolean;
   outlineColor?: RGBA;
   outlineThickness?: number;

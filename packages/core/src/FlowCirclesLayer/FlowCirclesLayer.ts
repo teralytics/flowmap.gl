@@ -33,7 +33,16 @@ export interface Props extends LayerProps {
   getColor?: (d: FlowCirclesDatum) => RGBA;
   getPosition?: (d: FlowCirclesDatum) => [number, number];
   getRadius?: (d: FlowCirclesDatum) => number;
-  data: FlowCirclesDatum[];
+  data:
+    | FlowCirclesDatum[]
+    | {
+        length: number;
+        attributes: {
+          getPosition: { value: Float32Array; size: number };
+          getColor: { value: Uint8Array; size: number };
+          getRadius: { value: Float32Array; size: number };
+        };
+      };
 }
 
 const DEFAULT_COLOR = [0, 0, 0, 255];

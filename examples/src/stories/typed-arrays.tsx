@@ -118,12 +118,12 @@ storiesOf('Typed arrays', module).add(
     ]);
     const flowLinesLayer = new FlowLinesLayer({
       id: 'lines',
-      data: lineAttributes as any,
+      data: lineAttributes,
       drawOutline: true,
     });
     const flowCirclesLayer = new FlowCirclesLayer({
       id: 'circles',
-      data: circleAttributes as any,
+      data: circleAttributes,
       opacity: 1,
     });
 
