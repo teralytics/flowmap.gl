@@ -27,16 +27,6 @@ export { default as Selectors } from './Selectors';
 export * from './Selectors';
 
 // required by LocationTotalsLegend
-export {
-  Colors,
-  DiffColors,
-  ColorsRGBA,
-  getColorsRGBA,
-  getDiffColorsRGBA,
-  DiffColorsRGBA,
-  isDiffColorsRGBA,
-  rgbaAsString,
-  RGBA,
-} from './colors';
+export * from './colors';
 
 export default FlowMapLayer;

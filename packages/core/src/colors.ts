@@ -298,3 +298,21 @@ export function createFlowColorScale(
     .domain(domain);
   return (value: number) => colorAsRgba(scale(value));
 }
+
+export function getFlowColorScale(
+  colors: ColorsRGBA | DiffColorsRGBA,
+  magnitudeExtent: [number, number] | undefined,
+  animate: boolean | undefined,
+) {
+  const minMagnitude = magnitudeExtent ? magnitudeExtent[0] : 0;
+  const maxMagnitude = magnitudeExtent ? magnitudeExtent[1] : 0;
+  if (isDiffColorsRGBA(colors)) {
+    const posScale = createFlowColorScale([0, maxMagnitude], colors.positive.flows.scheme, animate);
+    const negScale = createFlowColorScale([0, minMagnitude], colors.negative.flows.scheme, animate);
+
+    return (magnitude: number) => (magnitude >= 0 ? posScale(magnitude) : negScale(magnitude));
+  }
+
+  const scale = createFlowColorScale([0, maxMagnitude || 0], colors.flows.scheme, animate);
+  return (magnitude: number) => scale(magnitude);
+}

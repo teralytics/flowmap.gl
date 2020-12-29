@@ -15,6 +15,7 @@ import {
   getDimmedCircleColor,
   getDimmedCircleOutlineColor,
   getDimmedColor,
+  getFlowColorScale,
   isDiffColorsRGBA,
   RGBA,
 } from './colors';
@@ -145,20 +146,24 @@ class Selectors {
     },
   );
 
-  private getFlowMagnitudeExtent: PropsSelector<[number, number] | [undefined, undefined]> = createSelector(
+  private getFlowMagnitudeExtent: PropsSelector<[number, number] | undefined> = createSelector(
     [this.getNonSelfFlows, props => props.flowMagnitudeExtent],
     (flows, flowMagnitudeExtent) => {
       if (flowMagnitudeExtent != null) return flowMagnitudeExtent;
-      return extent(flows, f => this.inputAccessors.getFlowMagnitude(f));
+      const rv = extent(flows, f => this.inputAccessors.getFlowMagnitude(f));
+      if (rv[0] == null || rv[1] == null) return undefined;
+      return rv;
     },
   );
 
   getFlowThicknessScale: PropsSelector<(magnitude: number) => number | undefined> = createSelector(
     [this.getFlowMagnitudeExtent],
-    ([minMagnitude, maxMagnitude]) => {
+    magnitudeExtent => {
+      const minMagnitude = magnitudeExtent ? magnitudeExtent[0] : 0;
+      const maxMagnitude = magnitudeExtent ? magnitudeExtent[1] : 0;
       const scale = scaleLinear()
         .range([0.05, 0.5])
-        .domain([0, Math.max(Math.abs(minMagnitude || 0), Math.abs(maxMagnitude || 0))]);
+        .domain([0, Math.max(Math.abs(minMagnitude), Math.abs(maxMagnitude))]);
 
       return (magnitude: number) => scale(Math.abs(magnitude));
     },
@@ -166,17 +171,7 @@ class Selectors {
 
   getFlowColorScale: PropsSelector<ColorScale> = createSelector(
     [this.getColors, this.getFlowMagnitudeExtent, getAnimate],
-    (colors, [minMagnitude, maxMagnitude], animate) => {
-      if (isDiffColorsRGBA(colors)) {
-        const posScale = createFlowColorScale([0, maxMagnitude || 0], colors.positive.flows.scheme, animate);
-        const negScale = createFlowColorScale([0, minMagnitude || 0], colors.negative.flows.scheme, animate);
-
-        return (magnitude: number) => (magnitude >= 0 ? posScale(magnitude) : negScale(magnitude));
-      }
-
-      const scale = createFlowColorScale([0, maxMagnitude || 0], colors.flows.scheme, animate);
-      return (magnitude: number) => scale(magnitude);
-    },
+    getFlowColorScale,
   );
 
   getFlowLinesColorGetter(
