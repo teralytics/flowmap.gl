@@ -38,9 +38,9 @@ export interface Props extends LayerProps {
     | {
         length: number;
         attributes: {
-          getPosition: { value: Float32Array; size: number };
-          getColor: { value: Uint8Array; size: number };
-          getRadius: { value: Float32Array; size: number };
+          getPosition?: { value: Float32Array; size: number };
+          getColor?: { value: Uint8Array; size: number };
+          getRadius?: { value: Float32Array; size: number };
         };
       };
 }

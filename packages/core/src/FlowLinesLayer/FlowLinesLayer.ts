@@ -34,10 +34,11 @@ export interface Props extends LayerProps {
     | {
         length: number;
         attributes: {
-          getSourcePosition: { value: Float32Array; size: number };
-          getTargetPosition: { value: Float32Array; size: number };
-          getThickness: { value: Float32Array; size: number };
-          getEndpointOffsets: { value: Float32Array; size: number };
+          getSourcePosition?: { value: Float32Array; size: number };
+          getTargetPosition?: { value: Float32Array; size: number };
+          getThickness?: { value: Float32Array; size: number };
+          getEndpointOffsets?: { value: Float32Array; size: number };
+          getColor?: { value: Uint8Array; size: number };
         };
       };
   drawOutline: boolean;
