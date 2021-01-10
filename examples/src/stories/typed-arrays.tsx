@@ -40,8 +40,10 @@ function flatMap<S, T>(xs: S[], f: (item: S) => T | T[]): T[] {
   return xs.reduce((acc: T[], x: S) => acc.concat(f(x)), []);
 }
 
-function prepareData(locations: Location[], flows: Flow[]) {
-  const sortedFlows: Flow[] = flows.slice().sort((a: Flow, b: Flow) => ascending(+a.count, +b.count));
+function prepareLayersData(locations: Location[], flows: Flow[]) {
+  const sortedNonInternalFlows: Flow[] = flows
+    .filter((f: Flow) => f.origin !== f.dest)
+    .sort((a: Flow, b: Flow) => ascending(+a.count, +b.count));
   const { incoming, outgoing, within } = calcLocationTotals(locations, flows, {
     getFlowOriginId: (flow: Flow) => flow.origin,
     getFlowDestId: (flow: Flow) => flow.dest,
@@ -65,8 +67,8 @@ function prepareData(locations: Location[], flows: Flow[]) {
     .range([0, 15])
     .domain([0, max(maxAbsTotalsById.values()) || 0]);
   const thicknessScale = scaleLinear()
-    .range([0, 10])
-    .domain([0, max(sortedFlows, (f: Flow) => +f.count) || 0]);
+    .range([0, 0.5])
+    .domain([0, max(sortedNonInternalFlows, (f: Flow) => +f.count) || 0]);
 
   const circlePositions = new Float32Array(flatMap(locations, (d: Location) => d.properties.centroid));
   const circleColors = new Uint8Array(flatMap(locations, (d: Location) => colorAsRgba('#137CBD')));
@@ -74,11 +76,11 @@ function prepareData(locations: Location[], flows: Flow[]) {
     locations.map((d: Location) => circleSizeScale(getLocationMaxAbsTotal(d) || 0) || 0),
   );
 
-  const sourcePositions = new Float32Array(flatMap(sortedFlows, (d: Flow) => centroidsById.get(d.origin)!));
-  const targetPositions = new Float32Array(flatMap(sortedFlows, (d: Flow) => centroidsById.get(d.dest)!));
-  const thicknesses = new Float32Array(sortedFlows.map((d: Flow) => thicknessScale(d.count) || 0));
+  const sourcePositions = new Float32Array(flatMap(sortedNonInternalFlows, (d: Flow) => centroidsById.get(d.origin)!));
+  const targetPositions = new Float32Array(flatMap(sortedNonInternalFlows, (d: Flow) => centroidsById.get(d.dest)!));
+  const thicknesses = new Float32Array(sortedNonInternalFlows.map((d: Flow) => thicknessScale(d.count) || 0));
   const endpointOffsets = new Float32Array(
-    flatMap(sortedFlows, (d: Flow) => [
+    flatMap(sortedNonInternalFlows, (d: Flow) => [
       circleSizeScale(maxAbsTotalsById.get(d.origin) || 0) || 0,
       circleSizeScale(maxAbsTotalsById.get(d.dest) || 0) || 0,
     ]),
@@ -94,7 +96,7 @@ function prepareData(locations: Location[], flows: Flow[]) {
       },
     },
     lineAttributes: {
-      length: sortedFlows.length,
+      length: sortedNonInternalFlows.length,
       attributes: {
         getSourcePosition: { value: sourcePositions, size: 2 },
         getTargetPosition: { value: targetPositions, size: 2 },
@@ -112,7 +114,7 @@ storiesOf('Typed arrays', module).add(
     withFetchJson('locations', './data/locations.json'),
     withFetchJson('flows', './data/flows-2016.json'),
   )(({ locations, flows }: any) => {
-    const { lineAttributes, circleAttributes } = useMemo(() => prepareData(locations.features, flows), [
+    const { lineAttributes, circleAttributes } = useMemo(() => prepareLayersData(locations.features, flows), [
       locations,
       flows,
     ]);
