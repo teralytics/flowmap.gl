@@ -1,5 +1,9 @@
 # Change log
 
+## [7.3.4] - 2021-11-10
+### Fixed
+- Build error #124 
+
 ## [7.3.3] - 2020-12-22
 ### Added
 - Upgrade deps 
