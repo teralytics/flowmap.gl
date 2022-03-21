@@ -1,5 +1,10 @@
 # flowmap.gl
 
+## IMPORTANT: This repository is in maintenance-only mode. 
+
+## > [The next version of the library is being developed here](https://github.com/FlowmapBlue/flowmap.gl) <
+
+
 [Flow map](https://en.wikipedia.org/wiki/Flow_map) drawing layer for [deck.gl](http://uber.github.io/deck.gl). Can be used for visualizing movement of people (e.g. migration) or objects between geographic locations. The layer is rendered in WebGL and can handle large numbers of flows with a good rendering performance.
 
 Try [flowmap.blue](https://flowmap.blue/) for an easy way of publishing a flow map backed by a Google Sheets spreadsheet (no programming skills required).
