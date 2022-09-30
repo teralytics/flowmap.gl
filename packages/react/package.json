@@ -31,7 +31,7 @@
   "dependencies": {
     "@flowmap.gl/core": "^7.3.4",
     "@mapbox/geo-viewport": "^0.4.0",
-    "d3-color": "^2.0.0",
+    "d3-color": "^3.1.0",
     "d3-geo": "^2.0.1"
   },
   "devDependencies": {
